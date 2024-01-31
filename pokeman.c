@@ -287,7 +287,7 @@ void createPaths(char map[MAP_HEIGHT][MAP_WIDTH])
 }
 
 // Function to create a Pokeman Center
-void crateCC(char map[MAP_HEIGHT][MAP_WIDTH]){
+void createCC(char map[MAP_HEIGHT][MAP_WIDTH]){
     // find the gate first to find the paths faster
     for(int i = 0; i < MAP_WIDTH; i++){
         for(int j = 0; j < MAP_HEIGHT; j ++){
