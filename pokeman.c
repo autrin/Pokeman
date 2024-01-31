@@ -141,16 +141,18 @@ void assignRegions(struct Region regions[NUM_REGIONS])
     //     }
     // }
     notSame = false;
+    int firstTallGrass;
+    int secondTallGrass;
     while (!notSame)
     {
-        int firstTallGrass = rand() % NUM_REGIONS;
+        firstTallGrass = rand() % NUM_REGIONS;
         if (firstTallGrass != firstWater)
         { // Not to overlap with water that we already have
             regions[firstTallGrass].symbol = ':';
             usedSymbols[2]++;
             notSame = true;
         }
-        int secondTallGrass = rand() % NUM_REGIONS;
+        secondTallGrass = rand() % NUM_REGIONS;
         if (firstTallGrass != secondTallGrass && firstTallGrass != secondTallGrass + 1 && firstTallGrass != secondTallGrass + 1 && secondTallGrass != firstWater)
         { // making sure there are 2 separate tall grass regions
             regions[secondTallGrass].symbol = ':';
@@ -175,13 +177,27 @@ void assignRegions(struct Region regions[NUM_REGIONS])
     }
 
     notSame = false;
+    int firstTree;
     while (!notSame)
     {
-        int firstTree = rand() % NUM_REGIONS;
+        firstTree = rand() % NUM_REGIONS;
         if (firstTree != firstWater && firstTree != firstTallGrass && firstTree != secondTallGrass)
         { // Not to overlap with water that we already have
-            regions[firstTallGrass].symbol = '^';
+            regions[firstTree].symbol = '^';
             usedSymbols[1]++;
+            notSame = true;
+        }
+    }
+
+    notSame = false;
+    int firstRock;
+    while (!notSame)
+    {
+        firstRock = rand() % NUM_REGIONS;
+        if (firstRock != firstWater && firstRock != firstTallGrass && firstRock != secondTallGrass && firstRock != firstTree)
+        { // Not to overlap with water that we already have
+            regions[firstRock].symbol = '%';
+            usedSymbols[0]++;
             notSame = true;
         }
     }
