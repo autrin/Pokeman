@@ -97,7 +97,7 @@ void assignRegions(struct Region regions[NUM_REGIONS])
             notSame = true;
         }
         secondTallGrass = rand() % NUM_REGIONS;
-        if (firstTallGrass != secondTallGrass && firstTallGrass != secondTallGrass + 1 && firstTallGrass != secondTallGrass + 1 && secondTallGrass != firstWater)
+        if (firstTallGrass != secondTallGrass && firstTallGrass != secondTallGrass + 1 && secondTallGrass != firstWater)
         { // making sure there are 2 separate tall grass regions
             regions[secondTallGrass].symbol = ':';
             usedSymbols[2]++;
@@ -149,36 +149,6 @@ void assignRegions(struct Region regions[NUM_REGIONS])
     // regions[firstTree].symbol = '~';
     // usedSymbols[4]++;
 
-    // int secondWater = rand() % NUM_REGIONS;
-    // if(firstWater != secondWater && firstWater != secondWater + 1 && firstWater != secondWater + 1){ // making sure there are 2 separate tall grass regions
-    //     regions[secondWater].symbol = ':';
-    //     usedSymbols[2]++;
-    // }else{
-    //     if(secondWater + 1 < NUM_REGIONS){
-    //         regions[secondWater+1].symbol = ':';
-    //         usedSymbols[2]++;
-    //     }else{
-    //         regions[secondWater-1].symbol = ':';
-    //         usedSymbols[2]++;
-    //     }
-    // }
-
-    // Additional assignments to meet specific terrain requirements
-    // for (int i = 0; i < NUM_REGIONS; i++) {
-    //     int p = rand();
-    //     // here you can add conditions to adjust the distribution
-    //     // e.g.: Increase the probability of water or grass
-    //     if (p % 2 == 0 && regions[i].symbol == ' ') {  // Example condition, adjust as needed
-    //         regions[i].symbol = '%'; // Assigning more tall grass
-    //         usedSymbols[0]++;
-    //         /*This line increments the count for the terrain symbol ':' in the usedSymbols array.
-    //         It effectively says, "Find the index corresponding to the symbol ':', and increase the count at that index by 1.*/
-    //     } else if (p % 2 != 0 && regions[i].symbol == ' ') {  // Example condition
-    //         regions[i].symbol = '%'; // Assigning more water
-    //         usedSymbols[0]++;
-    //     }
-
-    // }
 
     // Print terrain distribution for debugging
     // printf("Terrain Distribution:\n");
@@ -235,7 +205,7 @@ void createPaths(char map[MAP_HEIGHT][MAP_WIDTH])
     // For the left gate, the range is from 3 to 17 (total 15 positions)
     // We subtract 6 from MAP_HEIGHT (17 - 3 + 1 = 15) and then add 3 to the result
     int leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
-    // Set exits
+
     map[0][topExit] = '#'; // top exit
     map[leftExit][0] = '#'; // left exit
 
@@ -317,6 +287,22 @@ void printMap(char map[MAP_HEIGHT][MAP_WIDTH])
     }
 }
 
+void sprinkle(char map[MAP_HEIGHT][MAP_WIDTH]){
+    
+    for(int i = 0; i < 25; i++){
+        int y1 = (rand() % (MAP_HEIGHT - 6)) + 3;
+        int x1 = (rand() % (MAP_WIDTH - 7)) + 3;
+        int y2 = (rand() % (MAP_HEIGHT - 6)) + 3;
+        int x2 = (rand() % (MAP_WIDTH - 7)) + 3;
+        if(map[y1][x1] != '#'){
+            map[y1][x1] = '^';
+        }
+        if(map[y2][x2] != '#'){
+            map[y2][x2] = '%';
+        }
+    }
+}
+
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
@@ -331,6 +317,7 @@ int main(int argc, char *argv[])
     createBorder(map); // Ensure borders are created last
     createCC(map);
     createPokemart(map);
+    sprinkle(map);
     printMap(map);
     return 0;
 }
