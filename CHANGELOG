@@ -1,9 +1,14 @@
+commit 47db55a4918ea91d1b307832d2aa59bad6e8b132
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Thu Feb 1 00:07:44 2024 -0600
+
+    updated the local copy of README
+
 commit a3bf2a07a3db362412708a683bb2b67373e13d93
 Author: Autrin <autrinhakimi@gmail.com>
 Date:   Wed Jan 31 21:20:33 2024 -0600
 
-    added more tall grass and more sprinkling ^ than %. Also improved how the map is getting divided to have a more fair number of regions
-    compared to each other.
+    added more tall grass and more sprinkling ^ than %
 
 commit dff779f8d26a26e56e61e3a3746b367ed1c17a10
 Author: Autrin <autrinhakimi@gmail.com>
