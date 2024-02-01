@@ -1,0 +1,35 @@
+commit 1315e99cfb80ea65b474bd26c6ae8d59332700b0
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 12:36:45 2024 -0600
+
+    added random tree and rock
+
+commit ee23d0493cdcfae8ef85d4b680709c148421a918
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 12:27:20 2024 -0600
+
+    changed the randomization process
+
+commit 0771b44d9b5368b0b3f69c644519df7f680b89cc
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 10:17:25 2024 -0600
+
+    fixed the name
+
+commit 3fa02371a0523cfffec5b79b8bd7415d376eee97
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 10:15:07 2024 -0600
+
+    fixed the files
+
+commit 585569b7542003a3f3bd1c9f70c72ef3fa664814
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 10:13:56 2024 -0600
+
+    fixed the paths
+
+commit 5d6adfb3b9015dd8659102b8df16403ef23bb810
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Tue Jan 30 20:20:51 2024 -0600
+
+    added code
