@@ -181,11 +181,11 @@ void assignRegions(struct Region regions[NUM_REGIONS])
     // }
 
     // Print terrain distribution for debugging
-    printf("Terrain Distribution:\n");
-    for (int i = 0; i < 5; i++)
-    {
-        printf("%c: %d\n", symbols[i], usedSymbols[i]);
-    }
+    // printf("Terrain Distribution:\n");
+    // for (int i = 0; i < 5; i++)
+    // {
+    //     printf("%c: %d\n", symbols[i], usedSymbols[i]);
+    // }
 }
 
 // Function to set coordinates for each region
@@ -283,16 +283,16 @@ void createPaths(char map[MAP_HEIGHT][MAP_WIDTH])
     }
 }
 void createSingleCenterOrMart(char map[MAP_HEIGHT][MAP_WIDTH], char building) {
-    for (int y = 1; y < MAP_HEIGHT - 1; y++) {
-        for (int x = 1; x < MAP_WIDTH - 1; x++) {
+    while(true) {
+            int xRand =(rand() % (MAP_WIDTH - 7)) + 3;
+            int yRand = (rand() % (MAP_HEIGHT - 6)) + 3;
             // Check if the location is next to a path and is a clear spot
-            if (map[y][x] == '.' && 
-                (map[y-1][x] == '#' || map[y+1][x] == '#' || 
-                 map[y][x-1] == '#' || map[y][x+1] == '#')) {
-                map[y][x] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
+            if (map[yRand][xRand] == '.' && 
+                (map[yRand-1][xRand] == '#' || map[yRand+1][xRand] == '#' || 
+                 map[yRand][xRand-1] == '#' || map[yRand][xRand+1] == '#')) {
+                map[yRand][xRand] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
                 return; // Exit once placed
             }
-        }
     }
 }
 
