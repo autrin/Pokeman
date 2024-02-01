@@ -8,6 +8,7 @@
 #define MAP_WIDTH 80  // width of the map
 #define MAP_HEIGHT 21 // height of the map
 #define NUM_REGIONS 5 // Number of regions
+void createSingleCenterOrMart(char map[MAP_HEIGHT][MAP_WIDTH], char building);
 
 char symbols[] = {'%', '^', ':', '.', '~'}; // Simplified symbols array
 // Define a structure to represent a region
@@ -53,52 +54,6 @@ void initializeRegions(struct Region regions[NUM_REGIONS])
     }
 }
 
-// Function to randomly assign regions to different parts
-// bool assignRegions(struct Region regions[NUM_REGIONS]) {
-//     bool usedSymbols[NUM_REGIONS] = {false}; // Track used symbols
-
-//     for (int i = 0; i < NUM_REGIONS; i++) {
-//         int part = rand() % NUM_REGIONS;
-//         regions[i].symbol = symbols[part];
-//         usedSymbols[part] = true; // Mark this symbol as used
-
-//         // Ensure 'TALL_GRASS' and 'CLEARING' appear at least twice
-//         if (symbols[part] == ':' && i < NUM_REGIONS - 1) {
-//             regions[i + 1].symbol = symbols[part];
-//             i++; // Increment i to avoid overriding next region
-//         }
-//     }
-
-//     // Check if all symbols were used
-//     for (int i = 0; i < NUM_REGIONS; i++) {
-//         if (!usedSymbols[i]) {
-//             printf("ERROR: Not all region types were used!\n");
-//             return false;
-//         }
-//     }
-
-//     return true;
-// }
-// void assignRegions(struct Region regions[NUM_REGIONS])
-// {
-// Pre-assign required symbols
-// int assignedCount = 0;
-// regions[assignedCount++].symbol = '%'; // BOULDER
-// regions[assignedCount++].symbol = '^'; // TREE
-// regions[assignedCount++].symbol = ':'; // TALL_GRASS
-// regions[assignedCount++].symbol = ':'; // Additional TALL_GRASS
-// regions[assignedCount++].symbol = '.'; // CLEARING
-// regions[assignedCount++].symbol = '.'; // Additional CLEARING
-// regions[assignedCount++].symbol = '~'; // TERRAIN_WATER
-
-// // Randomly assign remaining regions
-// for (int i = assignedCount; i < NUM_REGIONS; i++)
-// {
-//     int part = rand() % NUM_REGIONS;
-//     regions[i].symbol = symbols[part];
-// }
-// }
-
 void assignRegions(struct Region regions[NUM_REGIONS])
 {
     // Ensuring that each region type is used
@@ -109,20 +64,9 @@ void assignRegions(struct Region regions[NUM_REGIONS])
     {
         regions[i].symbol = symbols[i];
         // symbols is {'%', '^', ':', ':', '.', '.', '~'}
-        // usedSymbols[regions[i].symbol - '%']++;
-        // switch (regions[i].symbol) {
-        //     case '%': usedSymbols[0]++; break;
-        //     case '^': usedSymbols[1]++; break;
-        //     case ':': usedSymbols[2]++; break;
-        //     case '.': usedSymbols[3]++; break;
-        //     case '~': usedSymbols[4]++; break;
-        // }
     }
-    // for (int i = 0; i < 5; i++) {
-    //     printf("%d", usedSymbols[i]);
-    // }
-    bool notSame = false;
 
+    bool notSame = false;
     int firstWater = rand() % NUM_REGIONS;
     regions[firstWater].symbol = '~';
     usedSymbols[6]++;
@@ -167,7 +111,7 @@ void assignRegions(struct Region regions[NUM_REGIONS])
                 usedSymbols[3]++;
                 notSame = true;
             }
-            else if(secondTallGrass != firstWater)
+            else if (secondTallGrass != firstWater)
             {
                 regions[secondTallGrass - 1].symbol = ':';
                 usedSymbols[3]++;
@@ -233,7 +177,7 @@ void assignRegions(struct Region regions[NUM_REGIONS])
     //         regions[i].symbol = '%'; // Assigning more water
     //         usedSymbols[0]++;
     //     }
-    //     // similar conditions for other terrains as needed
+
     // }
 
     // Print terrain distribution for debugging
@@ -247,52 +191,6 @@ void assignRegions(struct Region regions[NUM_REGIONS])
 // Function to set coordinates for each region
 void setRegionCoordinates(struct Region regions[NUM_REGIONS])
 {
-    // Define the coordinates for each region
-    // regions[0].fromX = 1;
-    // regions[0].fromY = 1;
-    // regions[0].toX = MAP_WIDTH / 3;
-    // regions[0].toY = MAP_HEIGHT / 3;
-
-    // regions[1].fromX = MAP_WIDTH / 3;
-    // regions[1].fromY = 1;
-    // regions[1].toX = 2 * MAP_WIDTH / 3;
-    // regions[1].toY = MAP_HEIGHT / 3;
-
-    // regions[2].fromX = 2 * MAP_WIDTH / 3;
-    // regions[2].fromY = 1;
-    // regions[2].toX = MAP_WIDTH - 2;
-    // regions[2].toY = MAP_HEIGHT / 3;
-
-    // regions[3].fromX = 1;
-    // regions[3].fromY = MAP_HEIGHT / 3;
-    // regions[3].toX = MAP_WIDTH / 3;
-    // regions[3].toY = 2 * MAP_HEIGHT / 3;
-
-    // regions[4].fromX = MAP_WIDTH / 3;
-    // regions[4].fromY = MAP_HEIGHT / 3;
-    // regions[4].toX = 2 * MAP_WIDTH / 3;
-    // regions[4].toY = 2 * MAP_HEIGHT / 3;
-
-    // regions[5].fromX = 2 * MAP_WIDTH / 3;
-    // regions[5].fromY = MAP_HEIGHT / 3;
-    // regions[5].toX = MAP_WIDTH - 2;
-    // regions[5].toY = 2 * MAP_HEIGHT / 3;
-
-    // regions[6].fromX = 1;
-    // regions[6].fromY = 2 * MAP_HEIGHT / 3;
-    // regions[6].toX = MAP_WIDTH / 3;
-    // regions[6].toY = MAP_HEIGHT - 2;
-
-    // regions[7].fromX = MAP_WIDTH / 3;
-    // regions[7].fromY = 2 * MAP_HEIGHT / 3;
-    // regions[7].toX = 2 * MAP_WIDTH / 3;
-    // regions[7].toY = MAP_HEIGHT - 2;
-
-    // regions[8].fromX = 2 * MAP_WIDTH / 3;
-    // regions[8].fromY = 2 * MAP_HEIGHT / 3;
-    // regions[8].toX = MAP_WIDTH - 2;
-    // regions[8].toY = MAP_HEIGHT - 2;
-
     for (int i = 0; i < NUM_REGIONS; i++)
     {
         regions[i].fromX = (i % 3) * (MAP_WIDTH / 3);
@@ -327,11 +225,18 @@ void createMap(char map[MAP_HEIGHT][MAP_WIDTH], struct Region regions[NUM_REGION
     }
 }
 
-void createPaths(char map[MAP_HEIGHT][MAP_WIDTH], int topExit, int leftExit)
+void createPaths(char map[MAP_HEIGHT][MAP_WIDTH])
 {
+    // Correctly position exits within map borders
+    // For the top gate, the range is from 3 to 76 (total 74 positions)
+    // We subtract 7 from MAP_WIDTH (76 - 3 + 1 = 74) and then add 3 to the result
+    int topExit = (rand() % (MAP_WIDTH - 7)) + 3;
 
+    // For the left gate, the range is from 3 to 17 (total 15 positions)
+    // We subtract 6 from MAP_HEIGHT (17 - 3 + 1 = 15) and then add 3 to the result
+    int leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
     // Set exits
-    map[0][topExit] = '#';  // top exit
+    map[0][topExit] = '#'; // top exit
     map[leftExit][0] = '#'; // left exit
 
     // Create North-South path
@@ -340,7 +245,7 @@ void createPaths(char map[MAP_HEIGHT][MAP_WIDTH], int topExit, int leftExit)
         map[y][topExit] = '#';
         if (y == MAP_HEIGHT - 1)
         {
-            break; // to prevent having more than 1 gate
+            break; // to prevent having more than 1 gate on this side
         }
         // Random deviation for the path
         if (rand() % 5 == 0 && topExit > 2 && topExit < MAP_WIDTH - 4)
@@ -362,7 +267,7 @@ void createPaths(char map[MAP_HEIGHT][MAP_WIDTH], int topExit, int leftExit)
         map[leftExit][x] = '#';
         if (x == MAP_WIDTH - 1)
         {
-            break; // to prevent having more than 1 gate
+            break; // to prevent having more than 1 gate on this side
         }
         // Random deviation for the path
         if (rand() % 5 == 0 && leftExit > 2 && leftExit < MAP_HEIGHT - 4)
@@ -377,23 +282,28 @@ void createPaths(char map[MAP_HEIGHT][MAP_WIDTH], int topExit, int leftExit)
         }
     }
 }
-
-// Function to create a Pokeman Center
-void createCC(char map[MAP_HEIGHT][MAP_WIDTH])
-{
-    // find the gate first to find the paths faster
-    for (int i = 0; i < MAP_WIDTH; i++)
-    {
-        for (int j = 0; j < MAP_HEIGHT; j++)
-        {
-            if (map[j][i] == '#')
-            {
+void createSingleCenterOrMart(char map[MAP_HEIGHT][MAP_WIDTH], char building) {
+    for (int y = 1; y < MAP_HEIGHT - 1; y++) {
+        for (int x = 1; x < MAP_WIDTH - 1; x++) {
+            // Check if the location is next to a path and is a clear spot
+            if (map[y][x] == '.' && 
+                (map[y-1][x] == '#' || map[y+1][x] == '#' || 
+                 map[y][x-1] == '#' || map[y][x+1] == '#')) {
+                map[y][x] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
+                return; // Exit once placed
             }
         }
     }
 }
 
-// Function to create a Pokemart
+void createCC(char map[MAP_HEIGHT][MAP_WIDTH]) {
+    createSingleCenterOrMart(map, 'C');
+}
+
+void createPokemart(char map[MAP_HEIGHT][MAP_WIDTH]) {
+    createSingleCenterOrMart(map, 'M');
+}
+
 
 void printMap(char map[MAP_HEIGHT][MAP_WIDTH])
 {
@@ -415,18 +325,12 @@ int main(int argc, char *argv[])
 
     initializeRegions(regions);
     assignRegions(regions);
-    //     return 1; // Error handling
-    // }
     setRegionCoordinates(regions);
     createMap(map, regions);
-
-    // Correctly position exits within map borders
-    int topExit = (rand() % (MAP_WIDTH - 4)) + 2;   // Top exit
-    int leftExit = (rand() % (MAP_HEIGHT - 4)) + 2; // Left exit
-    createPaths(map, topExit, leftExit);
+    createPaths(map);
     createBorder(map); // Ensure borders are created last
     createCC(map);
+    createPokemart(map);
     printMap(map);
-
     return 0;
 }
