@@ -127,17 +127,6 @@ void assignRegions(struct Region regions[NUM_REGIONS])
     }
 }
 
-// Function to set coordinates for each region
-// void setRegionCoordinates(struct Region regions[NUM_REGIONS])
-// {
-//     for (int i = 0; i < NUM_REGIONS; i++)
-//     {
-//         regions[i].fromX = (i % 3) * (MAP_WIDTH / 3);
-//         regions[i].toX = ((i % 3) + 1) * (MAP_WIDTH / 3) - 1;
-//         regions[i].fromY = (i / 3) * (MAP_HEIGHT / NUM_REGIONS);
-//         regions[i].toY = ((i / 3) + 1) * (MAP_HEIGHT / NUM_REGIONS) - 1;
-//     }
-// }
 void setRegionCoordinates(struct Region regions[NUM_REGIONS])
 {
     // Assuming NUM_REGIONS is now 6 for even distribution
