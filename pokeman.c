@@ -56,9 +56,6 @@ void initializeRegions(struct Region regions[NUM_REGIONS])
 
 void assignRegions(struct Region regions[NUM_REGIONS])
 {
-    // Ensuring that each region type is used
-    int usedSymbols[NUM_REGIONS + 2] = {0};
-
     // Initially assign a unique symbol to each region to ensure coverage
     for (int i = 0; i < NUM_REGIONS; i++)
     {
@@ -69,66 +66,15 @@ void assignRegions(struct Region regions[NUM_REGIONS])
     bool notSame = false;
     int firstWater = rand() % NUM_REGIONS;
     regions[firstWater].symbol = '~';
-    usedSymbols[6]++;
-
-    // int secondWater = rand() % NUM_REGIONS;
-    // if(firstWater != secondWater && firstWater != secondWater + 1 && firstWater != secondWater + 1){ // making sure there are 2 separate tall grass regions
-    //     regions[secondWater].symbol = '~';
-    //     usedSymbols[6]++;
-    // }else{
-    //     if(secondWater + 1 < NUM_REGIONS){
-    //         regions[secondWater+1].symbol = '~';
-    //         usedSymbols[2]++;
-    //     }else{
-    //         regions[secondWater-1].symbol = '~';
-    //         usedSymbols[2]++;
-    //     }
-    // }
-    notSame = false;
-    int firstTallGrass;
-    int secondTallGrass;
-    while (!notSame)
-    {
-        firstTallGrass = rand() % NUM_REGIONS;
-        if (firstTallGrass != firstWater)
-        { // Not to overlap with water that we already have
-            regions[firstTallGrass].symbol = ':';
-            usedSymbols[2]++;
-            notSame = true;
-        }
-        secondTallGrass = rand() % NUM_REGIONS;
-        if (firstTallGrass != secondTallGrass && firstTallGrass != secondTallGrass + 1 && secondTallGrass != firstWater)
-        { // making sure there are 2 separate tall grass regions
-            regions[secondTallGrass].symbol = ':';
-            usedSymbols[2]++;
-            notSame = true;
-        }
-        else
-        {
-            if (secondTallGrass + 1 < NUM_REGIONS && secondTallGrass != firstWater)
-            {
-                regions[secondTallGrass + 1].symbol = ':';
-                usedSymbols[3]++;
-                notSame = true;
-            }
-            else if (secondTallGrass != firstWater)
-            {
-                regions[secondTallGrass - 1].symbol = ':';
-                usedSymbols[3]++;
-                notSame = true;
-            }
-        }
-    }
 
     notSame = false;
-    int firstTree;
+    int tallGrass;
     while (!notSame)
     {
-        firstTree = rand() % NUM_REGIONS;
-        if (firstTree != firstWater && firstTree != firstTallGrass && firstTree != secondTallGrass)
+        tallGrass = rand() % NUM_REGIONS;
+        if (tallGrass != firstWater)
         { // Not to overlap with water that we already have
-            regions[firstTree].symbol = '^';
-            usedSymbols[1]++;
+            regions[tallGrass].symbol = ':';
             notSame = true;
         }
     }
@@ -138,37 +84,72 @@ void assignRegions(struct Region regions[NUM_REGIONS])
     while (!notSame)
     {
         firstRock = rand() % NUM_REGIONS;
-        if (firstRock != firstWater && firstRock != firstTallGrass && firstRock != secondTallGrass && firstRock != firstTree)
+        if (firstRock != firstWater && firstRock != tallGrass)
         { // Not to overlap with water that we already have
             regions[firstRock].symbol = '%';
-            usedSymbols[0]++;
             notSame = true;
         }
     }
-    // int firstTree = rand() % NUM_REGIONS;
-    // regions[firstTree].symbol = '~';
-    // usedSymbols[4]++;
 
-
-    // Print terrain distribution for debugging
-    // printf("Terrain Distribution:\n");
-    // for (int i = 0; i < 5; i++)
-    // {
-    //     printf("%c: %d\n", symbols[i], usedSymbols[i]);
-    // }
+    notSame = false;
+    int firstTallGrass;
+    int secondTallGrass;
+    while (!notSame)
+    {
+        firstTallGrass = rand() % NUM_REGIONS;
+        if (firstTallGrass != firstWater && firstTallGrass != tallGrass && firstTallGrass != firstRock)
+        { // Not to overlap with water that we already have
+            regions[firstTallGrass].symbol = ':';
+            notSame = true;
+        }
+        secondTallGrass = rand() % NUM_REGIONS;
+        if (firstTallGrass != secondTallGrass && firstTallGrass + 1 != secondTallGrass && secondTallGrass != firstWater
+            && secondTallGrass != tallGrass && secondTallGrass != firstRock)
+        { // making sure there are 2 separate tall grass regions
+            regions[secondTallGrass].symbol = ':';
+            notSame = true;
+        }
+        else
+        {
+            if (secondTallGrass + 1 < NUM_REGIONS && secondTallGrass + 1 != firstWater && secondTallGrass + 1 != firstTallGrass &&
+                secondTallGrass + 1 != firstRock && secondTallGrass + 1 != tallGrass)
+            {
+                regions[secondTallGrass + 1].symbol = ':';
+                notSame = true;
+            }
+            else if (secondTallGrass - 1 >= 0 && secondTallGrass - 1 != firstWater && secondTallGrass - 1 != firstTallGrass &&
+                secondTallGrass - 1 != firstRock && secondTallGrass - 1 != tallGrass)
+            {
+                regions[secondTallGrass - 1].symbol = ':';
+                notSame = true;
+            }
+        }
+    }
 }
 
 // Function to set coordinates for each region
+// void setRegionCoordinates(struct Region regions[NUM_REGIONS])
+// {
+//     for (int i = 0; i < NUM_REGIONS; i++)
+//     {
+//         regions[i].fromX = (i % 3) * (MAP_WIDTH / 3);
+//         regions[i].toX = ((i % 3) + 1) * (MAP_WIDTH / 3) - 1;
+//         regions[i].fromY = (i / 3) * (MAP_HEIGHT / NUM_REGIONS);
+//         regions[i].toY = ((i / 3) + 1) * (MAP_HEIGHT / NUM_REGIONS) - 1;
+//     }
+// }
 void setRegionCoordinates(struct Region regions[NUM_REGIONS])
 {
-    for (int i = 0; i < NUM_REGIONS; i++)
+    // Assuming NUM_REGIONS is now 6 for even distribution
+    for (int i = 0; i < NUM_REGIONS+1; i++)
     {
         regions[i].fromX = (i % 3) * (MAP_WIDTH / 3);
         regions[i].toX = ((i % 3) + 1) * (MAP_WIDTH / 3) - 1;
-        regions[i].fromY = (i / 3) * (MAP_HEIGHT / NUM_REGIONS);
-        regions[i].toY = ((i / 3) + 1) * (MAP_HEIGHT / NUM_REGIONS) - 1;
+        regions[i].fromY = (i / 3) * (MAP_HEIGHT / ((NUM_REGIONS+1) / 3)); // Dividing by 2 (NUM_REGIONS/3) for a 3x2 grid
+        regions[i].toY = ((i / 3) + 1) * (MAP_HEIGHT / ((NUM_REGIONS+1) / 3)) - 1;
     }
 }
+
 
 // Function to create the map using region information
 void createMap(char map[MAP_HEIGHT][MAP_WIDTH], struct Region regions[NUM_REGIONS])
@@ -206,7 +187,7 @@ void createPaths(char map[MAP_HEIGHT][MAP_WIDTH])
     // We subtract 6 from MAP_HEIGHT (17 - 3 + 1 = 15) and then add 3 to the result
     int leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
 
-    map[0][topExit] = '#'; // top exit
+    map[0][topExit] = '#';  // top exit
     map[leftExit][0] = '#'; // left exit
 
     // Create North-South path
@@ -252,28 +233,32 @@ void createPaths(char map[MAP_HEIGHT][MAP_WIDTH])
         }
     }
 }
-void createSingleCenterOrMart(char map[MAP_HEIGHT][MAP_WIDTH], char building) {
-    while(true) {
-            int xRand =(rand() % (MAP_WIDTH - 7)) + 3;
-            int yRand = (rand() % (MAP_HEIGHT - 6)) + 3;
-            // Check if the location is next to a path and is a clear spot
-            if (map[yRand][xRand] == '.' && 
-                (map[yRand-1][xRand] == '#' || map[yRand+1][xRand] == '#' || 
-                 map[yRand][xRand-1] == '#' || map[yRand][xRand+1] == '#')) {
-                map[yRand][xRand] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
-                return; // Exit once placed
-            }
+void createSingleCenterOrMart(char map[MAP_HEIGHT][MAP_WIDTH], char building)
+{
+    while (true)
+    {
+        int xRand = (rand() % (MAP_WIDTH - 7)) + 3;
+        int yRand = (rand() % (MAP_HEIGHT - 6)) + 3;
+        // Check if the location is next to a path and is a clear spot
+        if (map[yRand][xRand] == '.' &&
+            (map[yRand - 1][xRand] == '#' || map[yRand + 1][xRand] == '#' ||
+             map[yRand][xRand - 1] == '#' || map[yRand][xRand + 1] == '#'))
+        {
+            map[yRand][xRand] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
+            return;                       // Exit once placed
+        }
     }
 }
 
-void createCC(char map[MAP_HEIGHT][MAP_WIDTH]) {
+void createCC(char map[MAP_HEIGHT][MAP_WIDTH])
+{
     createSingleCenterOrMart(map, 'C');
 }
 
-void createPokemart(char map[MAP_HEIGHT][MAP_WIDTH]) {
+void createPokemart(char map[MAP_HEIGHT][MAP_WIDTH])
+{
     createSingleCenterOrMart(map, 'M');
 }
-
 
 void printMap(char map[MAP_HEIGHT][MAP_WIDTH])
 {
@@ -287,17 +272,21 @@ void printMap(char map[MAP_HEIGHT][MAP_WIDTH])
     }
 }
 
-void sprinkle(char map[MAP_HEIGHT][MAP_WIDTH]){
-    
-    for(int i = 0; i < 25; i++){
+void sprinkle(char map[MAP_HEIGHT][MAP_WIDTH])
+{
+
+    for (int i = 0; i < 50; i++)
+    {
         int y1 = (rand() % (MAP_HEIGHT - 6)) + 3;
         int x1 = (rand() % (MAP_WIDTH - 7)) + 3;
         int y2 = (rand() % (MAP_HEIGHT - 6)) + 3;
         int x2 = (rand() % (MAP_WIDTH - 7)) + 3;
-        if(map[y1][x1] != '#'){
+        if (map[y1][x1] != '#' && map[y1][x1] != 'C' && map[y1][x1] != 'M') 
+        {
             map[y1][x1] = '^';
         }
-        if(map[y2][x2] != '#'){
+        if (map[y2][x2] != '#' && map[y2][x2] != 'C' && map[y2][x2] != 'M' && (x2 % 7) == 0) // lower the possibility of adding more %
+        {
             map[y2][x2] = '%';
         }
     }
