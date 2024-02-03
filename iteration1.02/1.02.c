@@ -165,16 +165,9 @@ void createMap(char map[MAP_HEIGHT][MAP_WIDTH], struct Region regions[NUM_REGION
     }
 }
 
-void createPaths(char map[MAP_HEIGHT][MAP_WIDTH])
+void createPaths(char map[MAP_HEIGHT][MAP_WIDTH], int topExit, int leftExit)
 {
-    // Correctly position exits within map borders
-    // For the top gate, the range is from 3 to 76 (total 74 positions)
-    // We subtract 7 from MAP_WIDTH (76 - 3 + 1 = 74) and then add 3 to the result
-    int topExit = (rand() % (MAP_WIDTH - 7)) + 3;
 
-    // For the left gate, the range is from 3 to 17 (total 15 positions)
-    // We subtract 6 from MAP_HEIGHT (17 - 3 + 1 = 15) and then add 3 to the result
-    int leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
 
     map[0][topExit] = '#';  // top exit
     map[leftExit][0] = '#'; // left exit
@@ -291,11 +284,44 @@ int main(int argc, char *argv[])
     assignRegions(regions);
     setRegionCoordinates(regions);
     createMap(map, regions); // add gates parameters
-    createPaths(map);
+    // Correctly position exits within map borders
+    // For the top gate, the range is from 3 to 76 (total 74 positions)
+    // We subtract 7 from MAP_WIDTH (76 - 3 + 1 = 74) and then add 3 to the result
+    int topExit = (rand() % (MAP_WIDTH - 7)) + 3;
+    // For the left gate, the range is from 3 to 17 (total 15 positions)
+    // We subtract 6 from MAP_HEIGHT (17 - 3 + 1 = 15) and then add 3 to the result
+    int leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
+    createPaths(map, topExit, leftExit);
     createBorder(map); // Ensure borders are created last
     createCC(map);
     createPokemart(map);
     sprinkle(map);
+
+    // input commands
+    char c;
+    char x, y;
+    while(c = getc(stdin)){ // test to see if you need breaks
+        switch(c){
+            case'q':
+                exit(0);
+                break;
+            case 'f':
+                scanf("%d %d", &x, &y);
+                break;
+            case 'n':
+                // move to the n map and display
+                break;
+            case 's':
+                // move to the s map and display
+                break;
+            case 'w':
+                // move to the w map and display
+                break;
+            case 'e':
+                // move to the e map and display
+                break;
+        }    
+    }
     printMap(map);
     return 0;
 }
