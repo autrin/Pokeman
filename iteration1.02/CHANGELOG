@@ -1,3 +1,15 @@
+commit c9d7d09fa39d991ecc2447f2e7c941769caad219
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 4 16:58:14 2024 -0600
+
+    added world struct, world_init,
+
+commit a6571908c1d15ed202d0b2d784ee9c43868d3344
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 4 13:43:26 2024 -0600
+
+    updated changelog
+
 commit 84a1d704f7dd2d5538435041d70b1fe3bb874334
 Author: Autrin <ahakimi@iastate.edu>
 Date:   Sat Feb 3 11:29:01 2024 -0600
@@ -22,3 +34,93 @@ Author: Autrin <autrinhakimi@gmail.com>
 Date:   Fri Feb 2 18:35:45 2024 -0600
 
     separated the iterations
+
+commit 64fdc18a464f1e28a74a51e4e41288b7fb4d545a
+Author: Autrin Hakimi <autrinhakimi@gmail.com>
+Date:   Fri Feb 2 18:32:47 2024 -0600
+
+    Create 1.01.c
+
+commit 3b08cd4c28d029998f3dd2383a902df743c93b62
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Fri Feb 2 17:11:05 2024 -0600
+
+    changed the name of the file
+
+commit 842844576114fb5951fe049db0c0f96ab3a2fa1f
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Thu Feb 1 00:47:47 2024 -0600
+
+            modified:   CHANGELOG
+
+commit 47db55a4918ea91d1b307832d2aa59bad6e8b132
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Thu Feb 1 00:07:44 2024 -0600
+
+    updated the local copy of README
+
+commit a3bf2a07a3db362412708a683bb2b67373e13d93
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 21:20:33 2024 -0600
+
+    added more tall grass and more sprinkling ^ than %
+
+commit dff779f8d26a26e56e61e3a3746b367ed1c17a10
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 20:17:25 2024 -0600
+
+    added a sprinkle function for ^ and %
+
+commit dcfd3153450360bd16e2670af9df25f70a5fa9ff
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 19:55:52 2024 -0600
+
+    Completely randomized the locations of C and M
+
+commit 9e6181bc3c4e1ee8ef2a85c2c10e5a82da8961b6
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 19:19:56 2024 -0600
+
+    added CHANGELOG and README files
+
+commit 457306e999a028227f2613773d27d31f6f50a3f5
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 19:19:14 2024 -0600
+
+    added pokeman centers and pokemarts
+
+commit 1315e99cfb80ea65b474bd26c6ae8d59332700b0
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 12:36:45 2024 -0600
+
+    added random tree and rock
+
+commit ee23d0493cdcfae8ef85d4b680709c148421a918
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 12:27:20 2024 -0600
+
+    changed the randomization process
+
+commit 0771b44d9b5368b0b3f69c644519df7f680b89cc
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 10:17:25 2024 -0600
+
+    fixed the name
+
+commit 3fa02371a0523cfffec5b79b8bd7415d376eee97
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 10:15:07 2024 -0600
+
+    fixed the files
+
+commit 585569b7542003a3f3bd1c9f70c72ef3fa664814
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 10:13:56 2024 -0600
+
+    fixed the paths
+
+commit 5d6adfb3b9015dd8659102b8df16403ef23bb810
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Tue Jan 30 20:20:51 2024 -0600
+
+    added code

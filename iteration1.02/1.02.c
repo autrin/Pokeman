@@ -14,7 +14,7 @@
 void createSingleCenterOrMart(char map[MAP_HEIGHT][MAP_WIDTH], char building);
 char symbols[] = {'%', '^', ':', '.', '~'}; // Simplified symbols array
 
-typedef struct maps map_t;
+// typedef struct maps map_t;
 
 // Define a structure to represent a region
 struct Region
@@ -22,15 +22,15 @@ struct Region
     int32_t fromX, fromY, toX, toY;
     char symbol;
 };
-struct maps
-{
-    // map_t *world[401][401];
-    int x, y;
-};
+// struct maps
+// {
+//     // map_t *world[401][401];
+//     int x, y;
+// };
 
 typedef struct world{
-    map_t *world[WORLD_HEIGHT][WORLD_WIDTH]; // holds all of the maps
-    map_t *cur_map; // pointer to the current map
+    char *world[WORLD_HEIGHT][WORLD_WIDTH]; // holds all of the maps
+    char *cur_map[MAP_HEIGHT][MAP_WIDTH]; // pointer to the current map
     int32_t curX; // x of the current map
     int32_t curY; // y of the current map
 } world_t;
