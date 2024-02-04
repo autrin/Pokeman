@@ -1,0 +1,24 @@
+commit 84a1d704f7dd2d5538435041d70b1fe3bb874334
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sat Feb 3 11:29:01 2024 -0600
+
+            new file:   iteration1.02/CHANGELOG
+            new file:   iteration1.02/README
+
+commit 4af5fc929a95e9cdd3e84fe82512a16f8aaecc3b
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sat Feb 3 11:28:50 2024 -0600
+
+    added while loop for commands, exit arguments to createMap
+
+commit 0d40d833191cf1e5275ba331253fb3a11b686548
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sat Feb 3 10:35:59 2024 -0600
+
+    added makefile and the 1.02 starting code from 1.01
+
+commit 209dadfa4ab418424b9841df5632e5437fb628e2
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Fri Feb 2 18:35:45 2024 -0600
+
+    separated the iterations
