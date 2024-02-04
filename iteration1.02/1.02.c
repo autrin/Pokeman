@@ -8,15 +8,46 @@
 #define MAP_WIDTH 80  // width of the map
 #define MAP_HEIGHT 21 // height of the map
 #define NUM_REGIONS 5 // Number of regions
-void createSingleCenterOrMart(char map[MAP_HEIGHT][MAP_WIDTH], char building);
+#define WORLD_HEIGHT 401 // world of all of the maps
+#define WORLD_WIDTH 401
 
+void createSingleCenterOrMart(char map[MAP_HEIGHT][MAP_WIDTH], char building);
 char symbols[] = {'%', '^', ':', '.', '~'}; // Simplified symbols array
+
+typedef struct maps map_t;
+
 // Define a structure to represent a region
 struct Region
 {
     int32_t fromX, fromY, toX, toY;
     char symbol;
 };
+struct maps
+{
+    // map_t *world[401][401];
+    int x, y;
+};
+
+typedef struct world{
+    map_t *world[WORLD_HEIGHT][WORLD_WIDTH]; // holds all of the maps
+    map_t *cur_map; // pointer to the current map
+    int32_t curX; // x of the current map
+    int32_t curY; // y of the current map
+} world_t;
+
+world_t world;
+
+int world_init()
+{ // initializing each map of the world to NULL
+    for (int i = 0; i < 401; i++)
+    {
+        for (int j = 0; j < 401; j++)
+        {
+            world.world[j][i] = NULL;
+        }
+    }
+    return 0;
+}
 
 // Function to create the border of the map
 void createBorder(char map[MAP_HEIGHT][MAP_WIDTH])
@@ -103,8 +134,7 @@ void assignRegions(struct Region regions[NUM_REGIONS])
             notSame = true;
         }
         secondTallGrass = rand() % NUM_REGIONS;
-        if (firstTallGrass != secondTallGrass && firstTallGrass + 1 != secondTallGrass && secondTallGrass != firstWater
-            && secondTallGrass != tallGrass && secondTallGrass != firstRock)
+        if (firstTallGrass != secondTallGrass && firstTallGrass + 1 != secondTallGrass && secondTallGrass != firstWater && secondTallGrass != tallGrass && secondTallGrass != firstRock)
         { // making sure there are 2 separate tall grass regions
             regions[secondTallGrass].symbol = ':';
             notSame = true;
@@ -118,7 +148,7 @@ void assignRegions(struct Region regions[NUM_REGIONS])
                 notSame = true;
             }
             else if (secondTallGrass - 1 >= 0 && secondTallGrass - 1 != firstWater && secondTallGrass - 1 != firstTallGrass &&
-                secondTallGrass - 1 != firstRock && secondTallGrass - 1 != tallGrass)
+                     secondTallGrass - 1 != firstRock && secondTallGrass - 1 != tallGrass)
             {
                 regions[secondTallGrass - 1].symbol = ':';
                 notSame = true;
@@ -130,15 +160,14 @@ void assignRegions(struct Region regions[NUM_REGIONS])
 void setRegionCoordinates(struct Region regions[NUM_REGIONS])
 {
     // Assuming NUM_REGIONS is now 6 for even distribution
-    for (int i = 0; i < NUM_REGIONS+1; i++)
+    for (int i = 0; i < NUM_REGIONS + 1; i++)
     {
         regions[i].fromX = (i % 3) * (MAP_WIDTH / 3);
         regions[i].toX = ((i % 3) + 1) * (MAP_WIDTH / 3) - 1;
-        regions[i].fromY = (i / 3) * (MAP_HEIGHT / ((NUM_REGIONS+1) / 3)); // Dividing by 2 (NUM_REGIONS/3) for a 3x2 grid
-        regions[i].toY = ((i / 3) + 1) * (MAP_HEIGHT / ((NUM_REGIONS+1) / 3)) - 1;
+        regions[i].fromY = (i / 3) * (MAP_HEIGHT / ((NUM_REGIONS + 1) / 3)); // Dividing by 2 (NUM_REGIONS/3) for a 3x2 grid
+        regions[i].toY = ((i / 3) + 1) * (MAP_HEIGHT / ((NUM_REGIONS + 1) / 3)) - 1;
     }
 }
-
 
 // Function to create the map using region information
 void createMap(char map[MAP_HEIGHT][MAP_WIDTH], struct Region regions[NUM_REGIONS])
@@ -167,8 +196,6 @@ void createMap(char map[MAP_HEIGHT][MAP_WIDTH], struct Region regions[NUM_REGION
 
 void createPaths(char map[MAP_HEIGHT][MAP_WIDTH], int topExit, int leftExit)
 {
-
-
     map[0][topExit] = '#';  // top exit
     map[leftExit][0] = '#'; // left exit
 
@@ -263,7 +290,7 @@ void sprinkle(char map[MAP_HEIGHT][MAP_WIDTH])
         int x1 = (rand() % (MAP_WIDTH - 7)) + 3;
         int y2 = (rand() % (MAP_HEIGHT - 6)) + 3;
         int x2 = (rand() % (MAP_WIDTH - 7)) + 3;
-        if (map[y1][x1] != '#' && map[y1][x1] != 'C' && map[y1][x1] != 'M') 
+        if (map[y1][x1] != '#' && map[y1][x1] != 'C' && map[y1][x1] != 'M')
         {
             map[y1][x1] = '^';
         }
@@ -274,54 +301,68 @@ void sprinkle(char map[MAP_HEIGHT][MAP_WIDTH])
     }
 }
 
+void fly(int x, int y, map_t *world[401][401])
+{
+    // need to call createMap()
+    // world[y][x] = createMap()
+}
+
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
     char map[MAP_HEIGHT][MAP_WIDTH];
     struct Region regions[NUM_REGIONS];
-
-    initializeRegions(regions);
-    assignRegions(regions);
-    setRegionCoordinates(regions);
-    createMap(map, regions); // add gates parameters
-    // Correctly position exits within map borders
-    // For the top gate, the range is from 3 to 76 (total 74 positions)
-    // We subtract 7 from MAP_WIDTH (76 - 3 + 1 = 74) and then add 3 to the result
-    int topExit = (rand() % (MAP_WIDTH - 7)) + 3;
-    // For the left gate, the range is from 3 to 17 (total 15 positions)
-    // We subtract 6 from MAP_HEIGHT (17 - 3 + 1 = 15) and then add 3 to the result
-    int leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
-    createPaths(map, topExit, leftExit);
-    createBorder(map); // Ensure borders are created last
-    createCC(map);
-    createPokemart(map);
-    sprinkle(map);
-
+    map_t *world[401][401];
     // input commands
     char c;
-    char x, y;
-    while(c = getc(stdin)){ // test to see if you need breaks
-        switch(c){
-            case'q':
-                exit(0);
-                break;
-            case 'f':
-                scanf("%d %d", &x, &y);
-                break;
-            case 'n':
-                // move to the n map and display
-                break;
-            case 's':
-                // move to the s map and display
-                break;
-            case 'w':
-                // move to the w map and display
-                break;
-            case 'e':
-                // move to the e map and display
-                break;
-        }    
-    }
-    printMap(map);
+    char fx, fy; // flying coordinates
+    int x = 200; // the starting coordinate
+    int y = 200; // the starting coordinate
+    do
+    {
+        initializeRegions(regions);
+        assignRegions(regions);
+        setRegionCoordinates(regions);
+        createMap(map, regions); // add gates parameters
+        // Correctly position exits within map borders
+        // For the top gate, the range is from 3 to 76 (total 74 positions)
+        // We subtract 7 from MAP_WIDTH (76 - 3 + 1 = 74) and then add 3 to the result
+        int topExit = (rand() % (MAP_WIDTH - 7)) + 3;
+        // For the left gate, the range is from 3 to 17 (total 15 positions)
+        // We subtract 6 from MAP_HEIGHT (17 - 3 + 1 = 15) and then add 3 to the result
+        int leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
+        createPaths(map, topExit, leftExit);
+        createBorder(map); // Ensure borders are created last
+        createCC(map);
+        createPokemart(map);
+        sprinkle(map);
+        printMap(map);
+        // printCoordinates();
+        printf("\n");
+        printf("(%d, %d)", x - 200, y - 200); // display the coordinates
+        switch (c)
+        {
+        case 'q': // quit the game
+            exit(0);
+            break;
+        case 'f': // fly to the (x, y) coordinate
+            scanf("%d %d", &fx, &fy);
+            fly(x, y, world);
+            // break;
+        case 'n': // move to the north map
+                  // move to the n map and display
+                  // break;
+        case 's': // move to the south map
+                  // move to the s map and display
+                  // break;
+        case 'w': // move to the west map
+                  // move to the w map and display
+                  // break;
+        case 'e': // move to the east map
+                  // move to the e map and display
+                  // break;
+        }
+    } while (c = getc(stdin));
+
     return 0;
 }
