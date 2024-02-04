@@ -301,7 +301,7 @@ void sprinkle(char map[MAP_HEIGHT][MAP_WIDTH])
     }
 }
 
-void fly(int x, int y, map_t *world[401][401])
+void fly(int x, int y, char *world[WORLD_HEIGHT][WORLD_WIDTH])
 {
     // need to call createMap()
     // world[y][x] = createMap()
@@ -310,9 +310,9 @@ void fly(int x, int y, map_t *world[401][401])
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
-    char map[MAP_HEIGHT][MAP_WIDTH];
+    // char map[MAP_HEIGHT][MAP_WIDTH];
     struct Region regions[NUM_REGIONS];
-    map_t *world[401][401];
+    
     // input commands
     char c;
     char fx, fy; // flying coordinates
@@ -323,7 +323,7 @@ int main(int argc, char *argv[])
         initializeRegions(regions);
         assignRegions(regions);
         setRegionCoordinates(regions);
-        createMap(map, regions); // add gates parameters
+        createMap(world.cur_map, regions); // add gates parameters
         // Correctly position exits within map borders
         // For the top gate, the range is from 3 to 76 (total 74 positions)
         // We subtract 7 from MAP_WIDTH (76 - 3 + 1 = 74) and then add 3 to the result
@@ -331,12 +331,12 @@ int main(int argc, char *argv[])
         // For the left gate, the range is from 3 to 17 (total 15 positions)
         // We subtract 6 from MAP_HEIGHT (17 - 3 + 1 = 15) and then add 3 to the result
         int leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
-        createPaths(map, topExit, leftExit);
-        createBorder(map); // Ensure borders are created last
-        createCC(map);
-        createPokemart(map);
-        sprinkle(map);
-        printMap(map);
+        createPaths(world.cur_map, topExit, leftExit);
+        createBorder(world.cur_map); // Ensure borders are created last
+        createCC(world.cur_map);
+        createPokemart(world.cur_map);
+        sprinkle(world.cur_map);
+        printMap(world.cur_map);
         // printCoordinates();
         printf("\n");
         printf("(%d, %d)", x - 200, y - 200); // display the coordinates
@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
             break;
         case 'f': // fly to the (x, y) coordinate
             scanf("%d %d", &fx, &fy);
-            fly(x, y, world);
+            fly(x, y, world.world);
             // break;
         case 'n': // move to the north map
                   // move to the n map and display
