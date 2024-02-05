@@ -5,9 +5,9 @@
 #include <time.h>
 #include <stdbool.h>
 
-#define MAP_WIDTH 80  // width of the map
-#define MAP_HEIGHT 21 // height of the map
-#define NUM_REGIONS 5 // Number of regions
+#define MAP_WIDTH 80     // width of the map
+#define MAP_HEIGHT 21    // height of the map
+#define NUM_REGIONS 5    // Number of regions
 #define WORLD_HEIGHT 401 // world of all of the maps
 #define WORLD_WIDTH 401
 
@@ -28,11 +28,12 @@ struct Region
 //     int x, y;
 // };
 
-typedef struct world{
+typedef struct world
+{
     char *world[WORLD_HEIGHT][WORLD_WIDTH]; // holds all of the maps
-    char *cur_map[MAP_HEIGHT][MAP_WIDTH]; // pointer to the current map
-    int32_t curX; // x of the current map
-    int32_t curY; // y of the current map
+    char *cur_map[MAP_HEIGHT][MAP_WIDTH];   // pointer to the current map
+    int32_t curX;                           // x of the current map
+    int32_t curY;                           // y of the current map
 } world_t;
 
 world_t world;
@@ -307,60 +308,97 @@ void fly(int x, int y, char *world[WORLD_HEIGHT][WORLD_WIDTH])
     // world[y][x] = createMap()
 }
 
+void newMapCaller()
+{ // calls all of the functions neccessary to create a single map
+    struct Region regions[NUM_REGIONS];
+    // check if the map exits
+    if (world.world[world.curY][world.curX])
+    {
+        //...
+        // world.world
+    }
+    initializeRegions(regions);
+    assignRegions(regions);
+    setRegionCoordinates(regions);
+    createMap(world.cur_map, regions); // add gates parameters
+    // Correctly position exits within map borders
+    // For the top gate, the range is from 3 to 76 (total 74 positions)
+    // We subtract 7 from MAP_WIDTH (76 - 3 + 1 = 74) and then add 3 to the result
+    int topExit = (rand() % (MAP_WIDTH - 7)) + 3;
+    // For the left gate, the range is from 3 to 17 (total 15 positions)
+    // We subtract 6 from MAP_HEIGHT (17 - 3 + 1 = 15) and then add 3 to the result
+    int leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
+    createPaths(world.cur_map, topExit, leftExit);
+    createBorder(world.cur_map); // Ensure borders are created last
+    int d = abs(world.curX - (WORLD_WIDTH / 2)) + abs(world.curY - (WORLD_HEIGHT / 2));
+    int probOfBuildings = d > 200 ? 5 : (((-45 * d) / 200) + 50) / 100; // the probablity of having pokeman centers and pokemarts
+                                                    // it will be 5 (small number) if the manhattan distance is bigger than 200
+    if(probOfBuildings > rand() % 100 || !d){ // or if d is 0 because the first map in the center of the world must have the buildings
+        createCC(world.cur_map);
+    }
+    if(probOfBuildings > rand() % 100 || !d){
+        createPokemart(world.cur_map);
+    }
+    sprinkle(world.cur_map);
+    // add the current map to the array of pointers, world
+    // world.world =
+    printMap(world.cur_map);
+}
+
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
     // char map[MAP_HEIGHT][MAP_WIDTH];
-    struct Region regions[NUM_REGIONS];
-    
+
     // input commands
     char c;
     char fx, fy; // flying coordinates
-    int x = 200; // the starting coordinate
-    int y = 200; // the starting coordinate
+    // int x = 200; // the starting coordinate
+    // int y = 200; // the starting coordinate
     do
     {
-        initializeRegions(regions);
-        assignRegions(regions);
-        setRegionCoordinates(regions);
-        createMap(world.cur_map, regions); // add gates parameters
-        // Correctly position exits within map borders
-        // For the top gate, the range is from 3 to 76 (total 74 positions)
-        // We subtract 7 from MAP_WIDTH (76 - 3 + 1 = 74) and then add 3 to the result
-        int topExit = (rand() % (MAP_WIDTH - 7)) + 3;
-        // For the left gate, the range is from 3 to 17 (total 15 positions)
-        // We subtract 6 from MAP_HEIGHT (17 - 3 + 1 = 15) and then add 3 to the result
-        int leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
-        createPaths(world.cur_map, topExit, leftExit);
-        createBorder(world.cur_map); // Ensure borders are created last
-        createCC(world.cur_map);
-        createPokemart(world.cur_map);
-        sprinkle(world.cur_map);
-        printMap(world.cur_map);
+        newMapCaller();
         // printCoordinates();
         printf("\n");
-        printf("(%d, %d)", x - 200, y - 200); // display the coordinates
+        printf("(%d, %d)", world.curX - 200, world.curY - 200); // display the coordinates
         switch (c)
         {
         case 'q': // quit the game
             exit(0);
-            break;
+            // break;
         case 'f': // fly to the (x, y) coordinate
             scanf("%d %d", &fx, &fy);
             fly(x, y, world.world);
             // break;
-        case 'n': // move to the north map
-                  // move to the n map and display
-                  // break;
+        case 'n':                  // move to the north map
+            if (world.curY-- >= 0) // don't be out of bounds
+            {
+                world.curY--; // even if the map exits, you still want to move there
+                newMapCaller();
+                // move to the n map and display
+            }
+            // break;
         case 's': // move to the south map
-                  // move to the s map and display
-                  // break;
+            if (world.curY-- <= WORLD_HEIGHT - 1)
+            {
+                world.curY++;
+                // move to the s map and display
+            }
+            // break;
         case 'w': // move to the west map
-                  // move to the w map and display
-                  // break;
+            if (world.curX-- >= 0)
+            {
+                // move to the w map and display
+                world.curX--;
+            }
+            // break;
         case 'e': // move to the east map
-                  // move to the e map and display
-                  // break;
+            if (world.curX <= WORLD_WIDTH - 1)
+            {
+                // move to the e map and display
+                world.curX++;
+            }
+            // break;
         }
     } while (c = getc(stdin));
 

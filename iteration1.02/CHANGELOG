@@ -1,3 +1,9 @@
+commit d0afa16b3fba63bc912ec9732e59237c32c4cc90
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 4 17:08:50 2024 -0600
+
+    chanegd the map to world.cur_map
+
 commit c63571a4e19c71b7666f7c0d827e631c88ebf88c
 Author: Autrin <ahakimi@iastate.edu>
 Date:   Sun Feb 4 17:03:50 2024 -0600
