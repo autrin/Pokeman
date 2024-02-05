@@ -302,7 +302,7 @@ void sprinkle(char map[MAP_HEIGHT][MAP_WIDTH])
     }
 }
 
-void fly(int x, int y, char *world[WORLD_HEIGHT][WORLD_WIDTH])
+void fly(int newX, int newY, char *world[WORLD_HEIGHT][WORLD_WIDTH])
 {
     // need to call createMap()
     // world[y][x] = createMap()
@@ -332,11 +332,13 @@ void newMapCaller()
     createBorder(world.cur_map); // Ensure borders are created last
     int d = abs(world.curX - (WORLD_WIDTH / 2)) + abs(world.curY - (WORLD_HEIGHT / 2));
     int probOfBuildings = d > 200 ? 5 : (((-45 * d) / 200) + 50) / 100; // the probablity of having pokeman centers and pokemarts
-                                                    // it will be 5 (small number) if the manhattan distance is bigger than 200
-    if(probOfBuildings > rand() % 100 || !d){ // or if d is 0 because the first map in the center of the world must have the buildings
+                                                                        // it will be 5 (small number) if the manhattan distance is bigger than 200
+    if (probOfBuildings > rand() % 100 || !d)
+    { // or if d is 0 because the first map in the center of the world must have the buildings
         createCC(world.cur_map);
     }
-    if(probOfBuildings > rand() % 100 || !d){
+    if (probOfBuildings > rand() % 100 || !d)
+    {
         createPokemart(world.cur_map);
     }
     sprinkle(world.cur_map);
@@ -368,7 +370,7 @@ int main(int argc, char *argv[])
             // break;
         case 'f': // fly to the (x, y) coordinate
             scanf("%d %d", &fx, &fy);
-            fly(x, y, world.world);
+            fly(fx, fy, world.world);
             // break;
         case 'n':                  // move to the north map
             if (world.curY-- >= 0) // don't be out of bounds
@@ -400,7 +402,7 @@ int main(int argc, char *argv[])
             }
             // break;
         }
-    } while (c = getc(stdin));
+    } while ((c = getc(stdin)));
 
     return 0;
 }
