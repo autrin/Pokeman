@@ -1,3 +1,15 @@
+commit dcac12ebab635051482d9e5ecd6c3a92a35d3ddd
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Feb 5 19:15:27 2024 -0600
+
+    worked on createPaths and newMapCaller. Error still exists in newMapCaller
+
+commit 1fc35cdde17046c33b43eb6d491fc48c7ed08de3
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 4 18:53:29 2024 -0600
+
+            modified:   iteration1.02/CHANGELOG
+
 commit 145df9752e336f7f7809e04fafabaad5d093c99a
 Author: Autrin <ahakimi@iastate.edu>
 Date:   Sun Feb 4 18:53:09 2024 -0600

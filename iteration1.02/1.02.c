@@ -5,13 +5,13 @@
 #include <time.h>
 #include <stdbool.h>
 
-#define MAP_WIDTH 80     // width of the map
-#define MAP_HEIGHT 21    // height of the map
+#define MAP_WIDTH 80     // width of the world.curMap
+#define MAP_HEIGHT 21    // height of the world.curMap
 #define NUM_REGIONS 5    // Number of regions
 #define WORLD_HEIGHT 401 // world of all of the maps
 #define WORLD_WIDTH 401
 
-void createSingleCenterOrMart(char map[MAP_HEIGHT][MAP_WIDTH], char building);
+void createSingleCenterOrMart(char building);
 char symbols[] = {'%', '^', ':', '.', '~'}; // Simplified symbols array
 // typedef struct maps map_t;
 
@@ -30,16 +30,15 @@ struct Region
 typedef struct world
 {
     char *world[WORLD_HEIGHT][WORLD_WIDTH]; // holds all of the maps
-    char *curMap[MAP_HEIGHT][MAP_WIDTH];   // pointer to the current map
-    int32_t curX;                           // x of the current map
-
-    int32_t curY;                           // y of the current map
+    char curMap[MAP_HEIGHT][MAP_WIDTH];    // pointer to the current world.curMap
+    int32_t curX;                           // x of the current world.curMap
+    int32_t curY;                           // y of the current world.curMap
 } world_t;
 
 world_t world;
 
 int world_init()
-{ // initializing each map of the world to NULL
+{ // initializing each world.curMap of the world to NULL
     for (int i = 0; i < 401; i++)
     {
         for (int j = 0; j < 401; j++)
@@ -50,29 +49,29 @@ int world_init()
     return 0;
 }
 
-// Function to create the border of the map
-void createBorder(char map[MAP_HEIGHT][MAP_WIDTH])
+// Function to create the border of the world.curMap
+void createBorder()
 {
     for (int i = 0; i < MAP_WIDTH; i++)
     {
-        if (map[0][i] != '#')
+        if (world.curMap[0][i] != '#')
         {
-            map[0][i] = '%';
+            world.curMap[0][i] = '%';
         }
-        if (map[MAP_HEIGHT - 1][i] != '#')
+        if (world.curMap[MAP_HEIGHT - 1][i] != '#')
         {
-            map[MAP_HEIGHT - 1][i] = '%';
+            world.curMap[MAP_HEIGHT - 1][i] = '%';
         }
     }
     for (int i = 0; i < MAP_HEIGHT; i++)
     {
-        if (map[i][0] != '#')
+        if (world.curMap[i][0] != '#')
         {
-            map[i][0] = '%';
+            world.curMap[i][0] = '%';
         }
-        if (map[i][MAP_WIDTH - 1] != '#')
+        if (world.curMap[i][MAP_WIDTH - 1] != '#')
         {
-            map[i][MAP_WIDTH - 1] = '%';
+            world.curMap[i][MAP_WIDTH - 1] = '%';
         }
     }
 }
@@ -170,15 +169,15 @@ void setRegionCoordinates(struct Region regions[NUM_REGIONS])
     }
 }
 
-// Function to create the map using region information
-void createMap(char map[MAP_HEIGHT][MAP_WIDTH], struct Region regions[NUM_REGIONS])
+// Function to create the world.curMap using region information
+void createMap(struct Region regions[NUM_REGIONS])
 {
-    // Initially fill the map with a default terrain to avoid empty spaces
+    // Initially fill the world.curMap with a default terrain to avoid empty spaces
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
         for (int x = 0; x < MAP_WIDTH; x++)
         {
-            map[y][x] = '.'; // Use '.' or another symbol as the default terrain
+            world.curMap[y][x] = '.'; // Use '.' or another symbol as the default terrain
         }
     }
 
@@ -189,22 +188,21 @@ void createMap(char map[MAP_HEIGHT][MAP_WIDTH], struct Region regions[NUM_REGION
         {
             for (int y = regions[i].fromY; y <= regions[i].toY; y++)
             {
-                map[y][x] = regions[i].symbol;
+                world.curMap[y][x] = regions[i].symbol;
             }
         }
     }
 }
 
-void createPaths(char map[MAP_HEIGHT][MAP_WIDTH], int topExit, int leftExit)
+void createPaths(int topExit, int leftExit)
 {
-    map[0][topExit] = '#';  // top exit
-    map[leftExit][0] = '#'; // left exit
-    
+    world.curMap[0][topExit] = '#';  // top exit
+    world.curMap[leftExit][0] = '#'; // left exit
 
     // Create North-South path
     for (int y = 1; y < MAP_HEIGHT; y++)
     {
-        map[y][topExit] = '#';
+        world.curMap[y][topExit] = '#';
         if (y == MAP_HEIGHT - 1)
         {
             break; // to prevent having more than 1 gate on this side
@@ -213,20 +211,20 @@ void createPaths(char map[MAP_HEIGHT][MAP_WIDTH], int topExit, int leftExit)
         if (rand() % 5 == 0 && topExit > 2 && topExit < MAP_WIDTH - 4)
         {
             topExit--;             // Move path left
-            map[y][topExit] = '#'; // to prevent diagonal paths and moves
+            world.curMap[y][topExit] = '#'; // to prevent diagonal paths and moves
                                    // You can comment it out to allow diagonal paths
         }
         else if (rand() % 3 == 0 && topExit < MAP_WIDTH - 5)
         {
             topExit++;             // Move path right
-            map[y][topExit] = '#'; // to prevent diagonal paths and moves
+            world.curMap[y][topExit] = '#'; // to prevent diagonal paths and moves
         }
     }
 
     // Create East-West path
     for (int x = 1; x < MAP_WIDTH; x++)
     {
-        map[leftExit][x] = '#';
+        world.curMap[leftExit][x] = '#';
         if (x == MAP_WIDTH - 1)
         {
             break; // to prevent having more than 1 gate on this side
@@ -235,98 +233,114 @@ void createPaths(char map[MAP_HEIGHT][MAP_WIDTH], int topExit, int leftExit)
         if (rand() % 5 == 0 && leftExit > 2 && leftExit < MAP_HEIGHT - 4)
         {
             leftExit--;             // Move path up
-            map[leftExit][x] = '#'; // to prevent diagonal paths and moves. You can comment it to allow diagonal paths
+            world.curMap[leftExit][x] = '#'; // to prevent diagonal paths and moves. You can comment it to allow diagonal paths
         }
         else if (rand() % 3 == 0 && leftExit < MAP_HEIGHT - 5)
         {
             leftExit++;             // Move path down
-            map[leftExit][x] = '#'; // to prevent diagonal paths and moves
+            world.curMap[leftExit][x] = '#'; // to prevent diagonal paths and moves
         }
     }
 
     // Now check for gates on the edge of the world and eliminate them.
-    if(world.curY == 0){ // we're at the top of the world (row = 0), there are not gates at the top of the current map
-        for(int i = 0; i < MAP_WIDTH; i++){
-            if(rand() % 3 == 0){
+    if (world.curY == 0)
+    { // we're at the top of the world (row = 0), there are not gates at the top of the current world.curMap
+        for (int i = 0; i < MAP_WIDTH; i++)
+        {
+            if (rand() % 3 == 0)
+            {
                 world.curMap[0][i] = '%';
             }
-            else{
+            else
+            {
                 world.curMap[0][i] = '^';
             }
         }
     }
-    if(world.curY == WORLD_HEIGHT - 1){ // we're at the bottom of the world, no gates on the bottom side of the current map
-        for(int i = 0; i < MAP_WIDTH; i++){
-            if(rand() % 3 == 0){
+    if (world.curY == WORLD_HEIGHT - 1)
+    { // we're at the bottom of the world, no gates on the bottom side of the current world.curMap
+        for (int i = 0; i < MAP_WIDTH; i++)
+        {
+            if (rand() % 3 == 0)
+            {
                 world.curMap[WORLD_HEIGHT - 1][i] = '%';
             }
-            else{
+            else
+            {
                 world.curMap[WORLD_HEIGHT - 1][i] = '^';
             }
         }
     }
-    if(world.curX == 0){ // we're on the left side of the world, no gates on the left side of the current map
-        for(int i = 0; i < MAP_HEIGHT; i++){
-            if(rand() % 3 == 0){
+    if (world.curX == 0)
+    { // we're on the left side of the world, no gates on the left side of the current world.curMap
+        for (int i = 0; i < MAP_HEIGHT; i++)
+        {
+            if (rand() % 3 == 0)
+            {
                 world.curMap[i][0] = '%';
             }
-            else{
+            else
+            {
                 world.curMap[i][0] = '^';
             }
         }
     }
-    if(world.curX == WORLD_WIDTH - 1){ // we're on the right side of the world, no gates on the right side of the current map
-        for(int i = 0; i < MAP_HEIGHT; i++){
-            if(rand() % 3 == 0){
+    if (world.curX == WORLD_WIDTH - 1)
+    { // we're on the right side of the world, no gates on the right side of the current world.curMap
+        for (int i = 0; i < MAP_HEIGHT; i++)
+        {
+            if (rand() % 3 == 0)
+            {
                 world.curMap[i][WORLD_WIDTH - 1] = '%';
             }
-            else{
+            else
+            {
                 world.curMap[i][WORLD_WIDTH - 1] = '^';
             }
         }
     }
 }
 
-void createSingleCenterOrMart(char map[MAP_HEIGHT][MAP_WIDTH], char building)
+void createSingleCenterOrMart(char building)
 {
     while (true)
     {
         int xRand = (rand() % (MAP_WIDTH - 7)) + 3;
         int yRand = (rand() % (MAP_HEIGHT - 6)) + 3;
         // Check if the location is next to a path and is a clear spot
-        if (map[yRand][xRand] == '.' &&
-            (map[yRand - 1][xRand] == '#' || map[yRand + 1][xRand] == '#' ||
-             map[yRand][xRand - 1] == '#' || map[yRand][xRand + 1] == '#'))
+        if (world.curMap[yRand][xRand] == '.' &&
+            (world.curMap[yRand - 1][xRand] == '#' || world.curMap[yRand + 1][xRand] == '#' ||
+             world.curMap[yRand][xRand - 1] == '#' || world.curMap[yRand][xRand + 1] == '#'))
         {
-            map[yRand][xRand] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
+            world.curMap[yRand][xRand] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
             return;                       // Exit once placed
         }
     }
 }
 
-void createCC(char map[MAP_HEIGHT][MAP_WIDTH])
+void createCC()
 {
-    createSingleCenterOrMart(map, 'C');
+    createSingleCenterOrMart('C');
 }
 
-void createPokemart(char map[MAP_HEIGHT][MAP_WIDTH])
+void createPokemart()
 {
-    createSingleCenterOrMart(map, 'M');
+    createSingleCenterOrMart('M');
 }
 
-void printMap(char map[MAP_HEIGHT][MAP_WIDTH])
+void printMap()
 {
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
         for (int x = 0; x < MAP_WIDTH; x++)
         {
-            printf("%c", map[y][x]);
+            printf("%c", world.curMap[y][x]);
         }
         printf("\n");
     }
 }
 
-void sprinkle(char map[MAP_HEIGHT][MAP_WIDTH])
+void sprinkle()
 {
 
     for (int i = 0; i < 50; i++)
@@ -335,67 +349,71 @@ void sprinkle(char map[MAP_HEIGHT][MAP_WIDTH])
         int x1 = (rand() % (MAP_WIDTH - 7)) + 3;
         int y2 = (rand() % (MAP_HEIGHT - 6)) + 3;
         int x2 = (rand() % (MAP_WIDTH - 7)) + 3;
-        if (map[y1][x1] != '#' && map[y1][x1] != 'C' && map[y1][x1] != 'M')
+        if (world.curMap[y1][x1] != '#' && world.curMap[y1][x1] != 'C' && world.curMap[y1][x1] != 'M')
         {
-            map[y1][x1] = '^';
+            world.curMap[y1][x1] = '^';
         }
-        if (map[y2][x2] != '#' && map[y2][x2] != 'C' && map[y2][x2] != 'M' && (x2 % 7) == 0) // lower the possibility of adding more %
+        if (world.curMap[y2][x2] != '#' && world.curMap[y2][x2] != 'C' && world.curMap[y2][x2] != 'M' && (x2 % 7) == 0) // lower the possibility of adding more %
         {
-            map[y2][x2] = '%';
+            world.curMap[y2][x2] = '%';
         }
     }
 }
 
-void fly(int newX, int newY, char *world[WORLD_HEIGHT][WORLD_WIDTH])
+void fly(int newX, int newY)
 {
     // need to call createMap()
     // world[y][x] = createMap()
 }
 
 void newMapCaller()
-{ // calls all of the functions neccessary to create a single map
+{ // calls all of the functions neccessary to create a single world.curMap
     struct Region regions[NUM_REGIONS];
-    // check if the map exits
-    if (world.world[world.curY][world.curX]) // the map already exists
-    {   //!
+    // check if the world.curMap exits
+    if (world.world[world.curY][world.curX]) // the world.curMap already exists
+    {  // !
         // TODO
+        // char *tmp;
+        // tmp = world.curMap;
+        // world.world[world.curY][world.curX] = world.curMap;
         world.curMap = world.world[world.curY][world.curX];
-        return;
+        // world.curMap[0][0] = malloc(sizeof(char) * world.curY );
+        return; //? maybe???
     }
+    
     initializeRegions(regions);
-    assignRegions(regions);
+    assignRegions(regions); // ? Is one universal regions enough??
     setRegionCoordinates(regions);
-    createMap(world.curMap, regions); // add gates parameters
-    // Correctly position exits within map borders
+    createMap(regions); // add gates parameters
+    // Correctly position exits within world.curMap borders
     // For the top gate, the range is from 3 to 76 (total 74 positions)
     // We subtract 7 from MAP_WIDTH (76 - 3 + 1 = 74) and then add 3 to the result
     int topExit = (rand() % (MAP_WIDTH - 7)) + 3;
     // For the left gate, the range is from 3 to 17 (total 15 positions)
     // We subtract 6 from MAP_HEIGHT (17 - 3 + 1 = 15) and then add 3 to the result
     int leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
-    createPaths(world.curMap, topExit, leftExit);
-    createBorder(world.curMap); // Ensure borders are created last
-    int d = abs(world.curX - (WORLD_WIDTH / 2)) + abs(world.curY - (WORLD_HEIGHT / 2));
+    createPaths(topExit, leftExit);
+    createBorder(); // Ensure borders are created last
+    int d = abs(world.curX - (WORLD_WIDTH / 2)) + abs(world.curY - (WORLD_HEIGHT / 2)); // manhattan distance
     int probOfBuildings = d > 200 ? 5 : (((-45 * d) / 200) + 50) / 100; // the probablity of having pokeman centers and pokemarts
                                                                         // it will be 5 (small number) if the manhattan distance is bigger than 200
     if (probOfBuildings > rand() % 100 || !d)
-    { // or if d is 0 because the first map in the center of the world must have the buildings
-        createCC(world.curMap);
+    { // or if d is 0 because the first world.curMap in the center of the world must have the buildings
+        createCC();
     }
     if (probOfBuildings > rand() % 100 || !d)
     {
-        createPokemart(world.curMap);
+        createPokemart();
     }
-    sprinkle(world.curMap);
-    // add the current map to the array of pointers, world
-    // world.world =
-
+    sprinkle();
+    // add the current world.curMap to the array of pointers, world
+    world.world[world.curY][world.curX] = world.curMap;
 }
 
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
-    // char map[MAP_HEIGHT][MAP_WIDTH];
+    // char world.curMap[MAP_HEIGHT][MAP_WIDTH];
     world_init();
     // input commands
     char c;
@@ -406,7 +424,7 @@ int main(int argc, char *argv[])
     {
         newMapCaller();
         // printCoordinates();
-        printMap(world.curMap);
+        printMap();
         printf("\n");
         printf("(%d, %d)", world.curX - 200, world.curY - 200); // display the coordinates
         switch (c)
@@ -416,34 +434,34 @@ int main(int argc, char *argv[])
             // break;
         case 'f': // fly to the (x, y) coordinate
             scanf("%d %d", &fx, &fy);
-            fly(fx, fy, world.world);
+            fly(fx, fy);
             // break;
-        case 'n':                  // move to the north map
+        case 'n':                  // move to the north world.curMap
             if (world.curY-- >= 0) // don't be out of bounds
             {
-                world.curY--; // even if the map exits, you still want to move there
+                world.curY--; // even if the world.curMap exits, you still want to move there
                 newMapCaller();
-                // move to the n map and display
+                // move to the n world.curMap and display
             }
             // break;
-        case 's': // move to the south map
+        case 's': // move to the south world.curMap
             if (world.curY-- <= WORLD_HEIGHT - 1)
             {
                 world.curY++;
-                // move to the s map and display
+                // move to the s world.curMap and display
             }
             // break;
-        case 'w': // move to the west map
+        case 'w': // move to the west world.curMap
             if (world.curX-- >= 0)
             {
-                // move to the w map and display
+                // move to the w world.curMap and display
                 world.curX--;
             }
             // break;
-        case 'e': // move to the east map
+        case 'e': // move to the east world.curMap
             if (world.curX <= WORLD_WIDTH - 1)
             {
-                // move to the e map and display
+                // move to the e world.curMap and display
                 world.curX++;
             }
             // break;
