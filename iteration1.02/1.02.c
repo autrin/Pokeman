@@ -13,7 +13,6 @@
 
 void createSingleCenterOrMart(char map[MAP_HEIGHT][MAP_WIDTH], char building);
 char symbols[] = {'%', '^', ':', '.', '~'}; // Simplified symbols array
-
 // typedef struct maps map_t;
 
 // Define a structure to represent a region
@@ -31,8 +30,9 @@ struct Region
 typedef struct world
 {
     char *world[WORLD_HEIGHT][WORLD_WIDTH]; // holds all of the maps
-    char *cur_map[MAP_HEIGHT][MAP_WIDTH];   // pointer to the current map
+    char *curMap[MAP_HEIGHT][MAP_WIDTH];   // pointer to the current map
     int32_t curX;                           // x of the current map
+
     int32_t curY;                           // y of the current map
 } world_t;
 
@@ -199,6 +199,7 @@ void createPaths(char map[MAP_HEIGHT][MAP_WIDTH], int topExit, int leftExit)
 {
     map[0][topExit] = '#';  // top exit
     map[leftExit][0] = '#'; // left exit
+    
 
     // Create North-South path
     for (int y = 1; y < MAP_HEIGHT; y++)
@@ -242,7 +243,50 @@ void createPaths(char map[MAP_HEIGHT][MAP_WIDTH], int topExit, int leftExit)
             map[leftExit][x] = '#'; // to prevent diagonal paths and moves
         }
     }
+
+    // Now check for gates on the edge of the world and eliminate them.
+    if(world.curY == 0){ // we're at the top of the world (row = 0), there are not gates at the top of the current map
+        for(int i = 0; i < MAP_WIDTH; i++){
+            if(rand() % 3 == 0){
+                world.curMap[0][i] = '%';
+            }
+            else{
+                world.curMap[0][i] = '^';
+            }
+        }
+    }
+    if(world.curY == WORLD_HEIGHT - 1){ // we're at the bottom of the world, no gates on the bottom side of the current map
+        for(int i = 0; i < MAP_WIDTH; i++){
+            if(rand() % 3 == 0){
+                world.curMap[WORLD_HEIGHT - 1][i] = '%';
+            }
+            else{
+                world.curMap[WORLD_HEIGHT - 1][i] = '^';
+            }
+        }
+    }
+    if(world.curX == 0){ // we're on the left side of the world, no gates on the left side of the current map
+        for(int i = 0; i < MAP_HEIGHT; i++){
+            if(rand() % 3 == 0){
+                world.curMap[i][0] = '%';
+            }
+            else{
+                world.curMap[i][0] = '^';
+            }
+        }
+    }
+    if(world.curX == WORLD_WIDTH - 1){ // we're on the right side of the world, no gates on the right side of the current map
+        for(int i = 0; i < MAP_HEIGHT; i++){
+            if(rand() % 3 == 0){
+                world.curMap[i][WORLD_WIDTH - 1] = '%';
+            }
+            else{
+                world.curMap[i][WORLD_WIDTH - 1] = '^';
+            }
+        }
+    }
 }
+
 void createSingleCenterOrMart(char map[MAP_HEIGHT][MAP_WIDTH], char building)
 {
     while (true)
@@ -312,15 +356,16 @@ void newMapCaller()
 { // calls all of the functions neccessary to create a single map
     struct Region regions[NUM_REGIONS];
     // check if the map exits
-    if (world.world[world.curY][world.curX])
-    {
-        //...
-        // world.world
+    if (world.world[world.curY][world.curX]) // the map already exists
+    {   //!
+        // TODO
+        world.curMap = world.world[world.curY][world.curX];
+        return;
     }
     initializeRegions(regions);
     assignRegions(regions);
     setRegionCoordinates(regions);
-    createMap(world.cur_map, regions); // add gates parameters
+    createMap(world.curMap, regions); // add gates parameters
     // Correctly position exits within map borders
     // For the top gate, the range is from 3 to 76 (total 74 positions)
     // We subtract 7 from MAP_WIDTH (76 - 3 + 1 = 74) and then add 3 to the result
@@ -328,30 +373,30 @@ void newMapCaller()
     // For the left gate, the range is from 3 to 17 (total 15 positions)
     // We subtract 6 from MAP_HEIGHT (17 - 3 + 1 = 15) and then add 3 to the result
     int leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
-    createPaths(world.cur_map, topExit, leftExit);
-    createBorder(world.cur_map); // Ensure borders are created last
+    createPaths(world.curMap, topExit, leftExit);
+    createBorder(world.curMap); // Ensure borders are created last
     int d = abs(world.curX - (WORLD_WIDTH / 2)) + abs(world.curY - (WORLD_HEIGHT / 2));
     int probOfBuildings = d > 200 ? 5 : (((-45 * d) / 200) + 50) / 100; // the probablity of having pokeman centers and pokemarts
                                                                         // it will be 5 (small number) if the manhattan distance is bigger than 200
     if (probOfBuildings > rand() % 100 || !d)
     { // or if d is 0 because the first map in the center of the world must have the buildings
-        createCC(world.cur_map);
+        createCC(world.curMap);
     }
     if (probOfBuildings > rand() % 100 || !d)
     {
-        createPokemart(world.cur_map);
+        createPokemart(world.curMap);
     }
-    sprinkle(world.cur_map);
+    sprinkle(world.curMap);
     // add the current map to the array of pointers, world
     // world.world =
-    printMap(world.cur_map);
+
 }
 
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
     // char map[MAP_HEIGHT][MAP_WIDTH];
-
+    world_init();
     // input commands
     char c;
     char fx, fy; // flying coordinates
@@ -361,6 +406,7 @@ int main(int argc, char *argv[])
     {
         newMapCaller();
         // printCoordinates();
+        printMap(world.curMap);
         printf("\n");
         printf("(%d, %d)", world.curX - 200, world.curY - 200); // display the coordinates
         switch (c)
