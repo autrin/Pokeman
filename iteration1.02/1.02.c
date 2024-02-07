@@ -12,8 +12,9 @@
 #define WORLD_WIDTH 401
 
 void createSingleCenterOrMart(char **map, char building);
+void newMapCaller(void);
+
 char symbols[] = {'%', '^', ':', '.', '~'}; // Simplified symbols array
-// typedef struct maps map_t;
 
 // Define a structure to represent a region
 struct Region
@@ -21,19 +22,12 @@ struct Region
     int32_t fromX, fromY, toX, toY;
     char symbol;
 };
-// struct maps
-// {
-//     // map_t *world[401][401];
-//     int x, y;
-// };
 
 typedef struct world
 {
-    // char *world[WORLD_HEIGHT][WORLD_WIDTH]; // holds all of the maps
     char *(*world[WORLD_HEIGHT][WORLD_WIDTH]); // This is now a pointer to a pointer to char
-    // char *curMap[MAP_HEIGHT][MAP_WIDTH];    // pointer to the current map
-    int32_t curX; // x of the current map
-    int32_t curY; // y of the current map
+    int32_t curX;                              // x of the current map
+    int32_t curY;                              // y of the current map
 } world_t;
 
 world_t world;
@@ -250,7 +244,7 @@ void createPaths(char **map, int topExit, int leftExit)
     { // we're at the top of the world (row = 0), there are not gates at the top of the current map
         for (int i = 0; i < MAP_WIDTH; i++)
         {
-            if (rand() % 3 == 0)
+            if (rand() % 2 == 0)
             {
                 map[0][i] = '%';
             }
@@ -264,7 +258,7 @@ void createPaths(char **map, int topExit, int leftExit)
     { // we're at the bottom of the world, no gates on the bottom side of the current map
         for (int i = 0; i < MAP_WIDTH; i++)
         {
-            if (rand() % 3 == 0)
+            if (rand() % 2 == 0)
             {
                 map[WORLD_HEIGHT - 1][i] = '%';
             }
@@ -278,7 +272,7 @@ void createPaths(char **map, int topExit, int leftExit)
     { // we're on the left side of the world, no gates on the left side of the current map
         for (int i = 0; i < MAP_HEIGHT; i++)
         {
-            if (rand() % 3 == 0)
+            if (rand() % 2 == 0)
             {
                 map[i][0] = '%';
             }
@@ -292,7 +286,7 @@ void createPaths(char **map, int topExit, int leftExit)
     { // we're on the right side of the world, no gates on the right side of the current map
         for (int i = 0; i < MAP_HEIGHT; i++)
         {
-            if (rand() % 3 == 0)
+            if (rand() % 2 == 0)
             {
                 map[i][WORLD_WIDTH - 1] = '%';
             }
@@ -366,15 +360,40 @@ void sprinkle(char **map)
 
 void fly(int newX, int newY)
 {
-    // need to call createMap()
-    // world[y][x] = createMap()
+    // Convert newX and newY to internal world coordinates if necessary
+    int internalX = newX + 200; // Assuming the center (0,0) is at (200,200)
+    int internalY = newY + 200;
+
+    // Validate coordinates to ensure they're within bounds
+    if (internalX < 0 || internalX >= WORLD_WIDTH || internalY < 0 || internalY >= WORLD_HEIGHT)
+    {
+        printf("Cannot fly to (%d, %d): Out of bounds.\n", newX, newY);
+        return;
+    }
+
+    // Update current position
+    world.curX = internalX;
+    world.curY = internalY;
+
+    // Check if a map exists at the new location
+    if (world.world[world.curY][world.curX] == NULL)
+    {
+        // If not, generate a new map for this location
+        newMapCaller(); // Assumes newMapCaller uses world.curX and world.curY
+    }
+    else
+    {
+        // If the map already exists, there's nothing else we need to do
+        // The map will be rendered in the next iteration of the main loop
+        printf("Flying to (%d, %d).\n", newX, newY);
+    }
 }
 
 void newMapCaller()
 { // calls all of the functions neccessary to create a single map
     struct Region regions[NUM_REGIONS];
     // Only proceed if the map does not exist
-    if (world.world[world.curY][world.curX] == NULL)
+    if (!world.world[world.curY][world.curX])
     {
         // Allocate memory for each row
         char **map = malloc(MAP_HEIGHT * sizeof(char *));
@@ -484,7 +503,7 @@ int main(int argc, char *argv[])
         case 'f': // fly to the (x, y) coordinate
             scanf("%d %d", &fx, &fy);
             getchar(); // Consume the newline character after the coordinates
-            // fly(fx, fy);
+            fly(fx, fy);
             break;
         case 'n': // move to the north map
             if (world.curY > 0)
