@@ -471,7 +471,6 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     world_init();
 
-    // Generate the initial map
     newMapCaller(); // This should automatically use world.curY and world.curX
 
     // input commands
@@ -501,36 +500,57 @@ int main(int argc, char *argv[])
             freeAllMaps();
             break;
         case 'f': // fly to the (x, y) coordinate
+            printf("Enter coordiantes\n");
             scanf("%d %d", &fx, &fy);
             getchar(); // Consume the newline character after the coordinates
             fly(fx, fy);
             break;
         case 'n': // move to the north map
-            if (world.curY > 0)
+            if (world.curY - 1 >= 0)
             {
                 world.curY--;
                 newMapCaller();
             }
+            else
+            {
+                printMap(world.world[world.curY][world.curX]);
+                printf("\nOops! Not a valid move!\n");
+            }
             break;
         case 's': // move to the south map
-            if (world.curY < WORLD_HEIGHT - 1)
+            if (world.curY + 1 < WORLD_HEIGHT - 1)
             {
                 world.curY++;
                 newMapCaller();
             }
+            else
+            {
+                printMap(world.world[world.curY][world.curX]);
+                printf("\nOops! Not a valid move!\n");
+            }
             break;
         case 'w': // move to the west map
-            if (world.curX > 0)
+            if (world.curX - 1 > 0)
             {
                 world.curX--;
                 newMapCaller();
             }
+            else
+            {
+                printMap(world.world[world.curY][world.curX]);
+                printf("\nOops! Not a valid move!\n");
+            }
             break;
         case 'e': // move to the east map
-            if (world.curX < WORLD_WIDTH - 1)
+            if (world.curX + 1 < WORLD_WIDTH - 1)
             {
                 world.curX++;
                 newMapCaller();
+            }
+            else
+            {
+                printMap(world.world[world.curY][world.curX]);
+                printf("\nOops! Not a valid move!\n");
             }
             break;
         }
