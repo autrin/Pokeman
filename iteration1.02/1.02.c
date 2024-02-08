@@ -12,7 +12,7 @@
 #define WORLD_WIDTH 401
 
 void createSingleCenterOrMart(char **map, char building);
-void newMapCaller(char **map);
+void newMapCaller(void);
 
 char symbols[] = {'%', '^', ':', '.', '~'}; // Simplified symbols array
 
@@ -192,113 +192,6 @@ void createMap(char **map, struct Region regions[NUM_REGIONS])
     }
 }
 
-void createPaths(char **map, int topExit, int leftExit)
-{
-    map[0][topExit] = '#';  // top exit
-    map[leftExit][0] = '#'; // left exit
-
-    // Create North-South path
-    for (int y = 1; y < MAP_HEIGHT; y++)
-    {
-        map[y][topExit] = '#';
-        if (y == MAP_HEIGHT - 1)
-        {
-            break; // to prevent having more than 1 gate on this side
-        }
-        // Random deviation for the path
-        if (rand() % 5 == 0 && topExit > 2 && topExit < MAP_WIDTH - 4)
-        {
-            topExit--;             // Move path left
-            map[y][topExit] = '#'; // to prevent diagonal paths and moves
-                                   // You can comment it out to allow diagonal paths
-        }
-        else if (rand() % 3 == 0 && topExit < MAP_WIDTH - 5)
-        {
-            topExit++;             // Move path right
-            map[y][topExit] = '#'; // to prevent diagonal paths and moves
-        }
-    }
-
-    // Create East-West path
-    for (int x = 1; x < MAP_WIDTH; x++)
-    {
-        map[leftExit][x] = '#';
-        if (x == MAP_WIDTH - 1)
-        {
-            break; // to prevent having more than 1 gate on this side
-        }
-        // Random deviation for the path
-        if (rand() % 5 == 0 && leftExit > 2 && leftExit < MAP_HEIGHT - 4)
-        {
-            leftExit--;             // Move path up
-            map[leftExit][x] = '#'; // to prevent diagonal paths and moves. You can comment it to allow diagonal paths
-        }
-        else if (rand() % 3 == 0 && leftExit < MAP_HEIGHT - 5)
-        {
-            leftExit++;             // Move path down
-            map[leftExit][x] = '#'; // to prevent diagonal paths and moves
-        }
-    }
-
-    // Now check for gates on the edge of the world and eliminate them.
-    if (world.curY == 0)
-    { // we're at the top of the world (row = 0), there are not gates at the top of the current map
-        for (int i = 0; i < MAP_WIDTH; i++)
-        {
-            if (rand() % 2 == 0)
-            {
-                map[0][i] = '%';
-            }
-            else
-            {
-                map[0][i] = '^';
-            }
-        }
-    }
-    if (world.curY == WORLD_HEIGHT - 1)
-    { // we're at the bottom of the world, no gates on the bottom side of the current map
-        for (int i = 0; i < MAP_WIDTH; i++)
-        {
-            if (rand() % 2 == 0)
-            {
-                map[WORLD_HEIGHT - 1][i] = '%';
-            }
-            else
-            {
-                map[WORLD_HEIGHT - 1][i] = '^';
-            }
-        }
-    }
-    if (world.curX == 0)
-    { // we're on the left side of the world, no gates on the left side of the current map
-        for (int i = 0; i < MAP_HEIGHT; i++)
-        {
-            if (rand() % 2 == 0)
-            {
-                map[i][0] = '%';
-            }
-            else
-            {
-                map[i][0] = '^';
-            }
-        }
-    }
-    if (world.curX == WORLD_WIDTH - 1)
-    { // we're on the right side of the world, no gates on the right side of the current map
-        for (int i = 0; i < MAP_HEIGHT; i++)
-        {
-            if (rand() % 2 == 0)
-            {
-                map[i][WORLD_WIDTH - 1] = '%';
-            }
-            else
-            {
-                map[i][WORLD_WIDTH - 1] = '^';
-            }
-        }
-    }
-}
-
 void createSingleCenterOrMart(char **map, char building)
 {
     while (true)
@@ -359,7 +252,7 @@ void sprinkle(char **map)
     }
 }
 
-void fly(char **map, int newX, int newY)
+void fly(int newX, int newY)
 {
     // Convert newX and newY to internal world coordinates if necessary
     int internalX = newX + 200; // Assuming the center (0,0) is at (200,200)
@@ -380,7 +273,7 @@ void fly(char **map, int newX, int newY)
     if (world.world[world.curY][world.curX] == NULL)
     {
         // If not, generate a new map for this location
-        newMapCaller(map); // Assumes newMapCaller uses world.curX and world.curY
+        newMapCaller(); // Assumes newMapCaller uses world.curX and world.curY
     }
     else
     {
@@ -390,50 +283,177 @@ void fly(char **map, int newX, int newY)
     }
 }
 
-void newMapCaller(char **map)
+void createPaths(char **map, int *topExit, int *leftExit, int *bottomExit, int *rightExit)
+{
+    // Initialize gate positions randomly if they're not set by adjacent maps
+    if (*topExit == -1)
+        *topExit = (rand() % (MAP_WIDTH - 7)) + 3;
+    if (*leftExit == -1)
+        *leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
+    if (*bottomExit == -1)
+        *bottomExit = (rand() % (MAP_WIDTH - 7)) + 3;
+    if (*rightExit == -1)
+        *rightExit = (rand() % (MAP_HEIGHT - 6)) + 3;
+
+    int currentX = *topExit;
+    // For vertical path
+    for (int y = 0; y < MAP_HEIGHT; y++)
+    {
+        map[y][currentX] = '#';
+        // Random deviation in the first half
+        if (y < MAP_HEIGHT / 2)
+        {
+            int deviation = (rand() % 3) - 1; // Random deviation: -1, 0, 1
+            currentX += deviation;
+            currentX = currentX < 1 ? 1 : (currentX >= MAP_WIDTH - 1 ? MAP_WIDTH - 2 : currentX);
+        }
+        else
+        {
+            // Adjust direction towards bottomExit in the second half, ensuring no division by zero
+            if (currentX != *bottomExit)
+            {
+                int direction = (*bottomExit - currentX) / abs(*bottomExit - currentX);
+                currentX += direction;
+                // Ensure currentX does not overshoot or undershoot the target exit
+                if ((direction > 0 && currentX > *bottomExit) || (direction < 0 && currentX < *bottomExit))
+                {
+                    currentX = *bottomExit;
+                }
+            }
+        }
+    }
+
+    int currentY = *leftExit;
+    // For horizontal path
+    for (int x = 0; x < MAP_WIDTH; x++)
+    {
+        map[currentY][x] = '#';
+        // Random deviation in the first half
+        if (x < MAP_WIDTH / 2)
+        {
+            int deviation = (rand() % 3) - 1; // Random deviation: -1, 0, 1
+            currentY += deviation;
+            currentY = currentY < 1 ? 1 : (currentY >= MAP_HEIGHT - 1 ? MAP_HEIGHT - 2 : currentY);
+        }
+        else
+        {
+            // Adjust direction towards rightExit in the second half, ensuring no division by zero
+            if (currentY != *rightExit)
+            {
+                int direction = (*rightExit - currentY) / abs(*rightExit - currentY);
+                currentY += direction;
+                // Ensure currentY does not overshoot or undershoot the target exit
+                if ((direction > 0 && currentY > *rightExit) || (direction < 0 && currentY < *rightExit))
+                {
+                    currentY = *rightExit;
+                }
+            }
+        }
+    }
+}
+
+void newMapCaller()
 { // calls all of the functions neccessary to create a single map
     struct Region regions[NUM_REGIONS];
     // Only proceed if the map does not exist
     if (!world.world[world.curY][world.curX])
     {
-        // char curMap = world.world[world.curY][world.curX]; // this is working
-        // char **map;
+        // Allocate memory for each row
+        char **map = malloc(MAP_HEIGHT * sizeof(char *));
+        for (int i = 0; i < MAP_HEIGHT; i++)
+        {
+            map[i] = malloc(MAP_WIDTH * sizeof(char));
+            // Initialize the map's row here, if necessary
+        }
+
         initializeRegions(regions);
         assignRegions(regions); // ? Is one universal regions enough??
         setRegionCoordinates(regions);
         createMap(map, regions); // add gates parameters
-        // Correctly position exits within map borders
-        // For the top gate, the range is from 3 to 76 (total 74 positions)
-        // We subtract 7 from MAP_WIDTH (76 - 3 + 1 = 74) and then add 3 to the result
-        int topExit = (rand() % (MAP_WIDTH - 7)) + 3;
-        // For the left gate, the range is from 3 to 17 (total 15 positions)
-        // We subtract 6 from MAP_HEIGHT (17 - 3 + 1 = 15) and then add 3 to the result
-        int leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
-        createPaths(map, topExit, leftExit);                                                // TODO need to pass in the gates for to mathch the last map
-        createBorder(map);                                                                  // Ensure borders are created last
-        int d = abs(world.curX - (WORLD_WIDTH / 2)) + abs(world.curY - (WORLD_HEIGHT / 2)); // manhattan distance
-        int probOfBuildings = d > 200 ? 5 : (((-45 * d) / 200) + 50) / 100;                 // the probablity of having pokeman centers and pokemarts
-                                                                                            // it will be 5 (small number) if the manhattan distance is bigger than 200
-        if (probOfBuildings > rand() % 100 || !d)
-        { // or if d is 0 because the first map in the center of the world must have the buildings
-            createCC(map);
-        }
-        if (probOfBuildings > rand() % 100 || !d)
-        {
-            createPokemart(map);
-        }
-        sprinkle(map);
 
-        // add the current map to the array of pointers, world
-        // world.world[world.curY][world.curX] = malloc(sizeof(*map));
-        // char* tmp = world.world[world.curY][world.curX]; // holds the address of it
-        // *tmp = map;
-        // world.world[world.curY][world.curX] = map;
+        int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1;
+        // Adjust gate positions based on existing neighboring maps
+        // Top neighbor
+        if (world.curY > 0 && world.world[world.curY - 1][world.curX])
+        {
+            char **topMap = world.world[world.curY - 1][world.curX];
+            for (int x = 0; x < MAP_WIDTH; x++)
+            {
+                if (topMap[MAP_HEIGHT - 1][x] == '#')
+                {
+                    topExit = x; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
+
+                    break;
+                }
+            }
+        }
+        // Bottom neighbor
+        if (world.curY < WORLD_HEIGHT - 1 && world.world[world.curY + 1][world.curX])
+        {
+            char **bottomMap = world.world[world.curY + 1][world.curX];
+            for (int x = 0; x < MAP_WIDTH; x++)
+            {
+                if (bottomMap[0][x] == '#')
+                {
+                    bottomExit = x; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
+
+                    break;
+                }
+            }
+        }
+
+        // Left neighbor
+        if (world.curX > 0 && world.world[world.curY][world.curX - 1])
+        {
+            char **leftMap = world.world[world.curY][world.curX - 1];
+            for (int y = 0; y < MAP_HEIGHT; y++)
+            {
+                if (leftMap[y][MAP_WIDTH - 1] == '#')
+                {
+                    leftExit = y; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
+                    break;
+                }
+            }
+        }
+
+        // Right neighbor
+        if (world.curX < WORLD_WIDTH - 1 && world.world[world.curY][world.curX + 1])
+        {
+            char **rightMap = world.world[world.curY][world.curX + 1];
+            for (int y = 0; y < MAP_HEIGHT; y++)
+            {
+                if (rightMap[y][0] == '#')
+                {
+                    rightExit = y; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
+                    break;
+                }
+            }
+        }
+
+        createPaths(map, &topExit, &leftExit, &bottomExit, &rightExit);
+        createBorder(map);
+
+        int d = abs(world.curX - (WORLD_WIDTH / 2)) + abs(world.curY - (WORLD_HEIGHT / 2)); // Manhattan distance from the center
+
+        // Calculate the probability of placing buildings based on the distance
+        double probOfBuildings = d > 200 ? 5.0 : (50.0 - (45.0 * d) / 200.0);
+
+        // Generate a Pokémon Center if a random number is below the calculated probability or if we're at the center of the world
+        if ((rand() % 100) < probOfBuildings || !d)
+        {                  // Using d == 0 to explicitly check for the center
+            createCC(map); // Place a Pokémon Center
+        }
+
+        // Similarly, generate a Pokémart under the same conditions
+        if ((rand() % 100) < probOfBuildings || !d)
+        {
+            createPokemart(map); // Place a Pokémart
+        }
+
+        sprinkle(map);
         // After generating the map, store the pointer in the world
         world.world[world.curY][world.curX] = map;
     }
-    // If the map exists, you can set curMap to point to the existing map
-    // world.curMap = world.world[world.curY][world.curX];
 }
 
 void freeMap(int y, int x)
@@ -464,23 +484,14 @@ int main(int argc, char *argv[])
 {
     srand(time(NULL));
     world_init();
-
-    // Allocate memory for each row
-    char **map = malloc(MAP_HEIGHT * sizeof(char *));
-    for (int i = 0; i < MAP_HEIGHT; i++)
-    {
-        map[i] = malloc(MAP_WIDTH * sizeof(char));
-        // Initialize the map's row here, if necessary
-    }
-
-    newMapCaller(map); // This should automatically use world.curY and world.curX
+    newMapCaller(); // This should automatically use world.curY and world.curX
 
     // input commands
     char c;
 
     do
     {
-        if (world.world[world.curY][world.curX]) // if the map exists
+        if (world.world[world.curY][world.curX] != NULL)
         {
             printMap(world.world[world.curY][world.curX]);
             printf("(%d, %d)\n", world.curX - 200, world.curY - 200); // display the coordinates
@@ -488,13 +499,6 @@ int main(int argc, char *argv[])
         else
         {
             printf("No map exists at this location.\n");
-        }
-        // Allocate memory for each row
-        char **map = malloc(MAP_HEIGHT * sizeof(char *));
-        for (int i = 0; i < MAP_HEIGHT; i++)
-        {
-            map[i] = malloc(MAP_WIDTH * sizeof(char));
-            // Initialize the map's row here, if necessary
         }
 
         printf("Enter command: ");
@@ -512,59 +516,50 @@ int main(int argc, char *argv[])
             printf("Enter coordiantes in this form: x y\n");
             scanf("%d %d", &fx, &fy);
             getchar(); // Consume the newline character after the coordinates
-            fly(map, fx, fy);
+            fly(fx, fy);
             break;
         case 'n': // move to the north map
             if (world.curY - 1 >= 0)
             {
-                int gate;
-                for (int i = 0; i < MAP_WIDTH; i++)
-                {
-                    // if (map[]) // check for the gate 
-                }
                 world.curY--;
-                newMapCaller(map);
+                newMapCaller();
             }
             else
             {
-                printf("\nOops! Not a valid move!\n");
-                printMap(world.world[world.curY][world.curX]);
+                printf("Oops! Not a valid move!\n");
             }
             break;
         case 's': // move to the south map
             if (world.curY + 1 < WORLD_HEIGHT)
             {
                 world.curY++;
-                newMapCaller(map);
+                newMapCaller();
             }
             else
             {
-                printf("\nOops! Not a valid move!\n");
-                printMap(world.world[world.curY][world.curX]);
+                printf("Oops! Not a valid move!\n");
             }
             break;
         case 'w': // move to the west map
             if (world.curX - 1 >= 0)
             {
                 world.curX--;
-                newMapCaller(map);
+                newMapCaller();
             }
             else
             {
-                printf("\nOops! Not a valid move!\n");
-                printMap(world.world[world.curY][world.curX]);
+                printf("Oops! Not a valid move!\n");
             }
             break;
         case 'e': // move to the east map
             if (world.curX + 1 < WORLD_WIDTH)
             {
                 world.curX++;
-                newMapCaller(map);
+                newMapCaller();
             }
             else
             {
-                printf("\nOops! Not a valid move!\n");
-                printMap(world.world[world.curY][world.curX]);
+                printf("Oops! Not a valid move!\n");
             }
             break;
         }
