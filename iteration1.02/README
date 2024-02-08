@@ -1,0 +1,23 @@
+This program constructs a vast, procedively generated world for exploration in a text-based format, structured as a grid of maps each 80 
+characters wide and 21 characters tall. The heart of the system is a two-dimensional array of pointers, where each pointer can dynamically 
+allocate a map when explored. The `world_init` function sets up this framework, marking all maps as unexplored (NULL) initially, centered 
+around a predefined starting point.
+
+As players move or 'fly' to new coordinates, the program checks if a map at the new location exists. If not, it generates one on-the-fly 
+using the `newMapCaller` function. This generation process involves creating distinct regions within each map, each with its own terrain 
+type denoted by specific characters (e.g., water, grass, rock). This is achieved by first dividing the map into sections, then randomly 
+assigning a terrain symbol to each, ensuring a diverse and engaging environment.
+
+To connect these maps, the program strategically places paths and exits that align with adjacent maps, ensuring a seamless world where 
+every move to the edge of a map leads to another map. Exits are determined dynamically based on the existence and layout of neighboring 
+maps to maintain continuity.
+
+Special features like Pokémon Centers and Pokémarts are added based on certain conditions, such as the map's distance from the world center 
+or random chance, further enriching the exploration experience.
+
+The program meticulously manages memory, allocating space for each new map and its contents only when needed and ensuring all allocated memory 
+is freed appropriately to prevent leaks. This efficient memory handling allows the program to simulate a virtually endless world without 
+excessive resource consumption.
+
+Overall, the code intricately weaves together dynamic memory management, procedural generation, and strategic layout planning to create a complex 
+and immersive text-based game world.
