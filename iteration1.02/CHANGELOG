@@ -1,3 +1,27 @@
+commit a8dd123ba3a3816b56cf62ad89d44f60d877946d
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 7 21:03:31 2024 -0600
+
+    the gates match now. this is done by newMapCaller() and createPath()
+
+commit bb570806337dbeb02a4d0abb6c0dcf07bcc22e8d
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 7 15:18:42 2024 -0600
+
+    moved map initialization to main to use it for gate keeping
+
+commit 4a4f7097fa3dad1693c44a7e1a76781b23f0519c
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 7 14:31:21 2024 -0600
+
+    worked on main
+
+commit 21e917aed1f81c0f86a38e864b2c5eb89f782f34
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 6 21:13:22 2024 -0600
+
+            modified:   iteration1.02/CHANGELOG
+
 commit 994f4b4b0c912a07c38aa3a162265f594ea7ce75
 Author: Autrin <ahakimi@iastate.edu>
 Date:   Tue Feb 6 21:12:27 2024 -0600
