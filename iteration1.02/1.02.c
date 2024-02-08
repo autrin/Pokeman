@@ -458,8 +458,8 @@ void newMapCaller()
 
 void freeMap(int y, int x)
 {
-    if (world.world[y][x] != NULL)
-    { // to make sure we are not freeing a NULL pointer.
+    if (world.world[y][x]) // (indicating that it has been allocated)
+    {                              // to make sure we are not freeing a NULL pointer.
         for (int i = 0; i < MAP_HEIGHT; i++)
         {
             free(world.world[y][x][i]); // Free each row
