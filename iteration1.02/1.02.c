@@ -381,7 +381,7 @@ void newMapCaller()
             {
                 if (topMap[MAP_HEIGHT - 1][x] == '#')
                 {
-                    topExit = x; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
+                    topExit = x; 
 
                     break;
                 }
@@ -395,7 +395,7 @@ void newMapCaller()
             {
                 if (bottomMap[0][x] == '#')
                 {
-                    bottomExit = x; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
+                    bottomExit = x; 
 
                     break;
                 }
@@ -410,7 +410,7 @@ void newMapCaller()
             {
                 if (leftMap[y][MAP_WIDTH - 1] == '#')
                 {
-                    leftExit = y; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
+                    leftExit = y; 
                     break;
                 }
             }
@@ -424,7 +424,7 @@ void newMapCaller()
             {
                 if (rightMap[y][0] == '#')
                 {
-                    rightExit = y; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
+                    rightExit = y; 
                     break;
                 }
             }
