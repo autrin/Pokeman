@@ -11,7 +11,7 @@
 #define WORLD_HEIGHT 401 // world of all of the maps
 #define WORLD_WIDTH 401
 
-void createSingleCenterOrMart(char **map, char building);
+void createSingleCenterOrMart(newMap_t *m, char building);
 void newMapCaller(void);
 
 char symbols[] = {'%', '^', ':', '.', '~'}; // Simplified symbols array
@@ -445,8 +445,6 @@ void newMapCaller()
         }
 
         createPaths(map, &topExit, &leftExit, &bottomExit, &rightExit);
-        // struct newMap m;
-
         createBorder(&newWorld[newWorld.curY][newWorld.curX]->m);
 
         int d = abs(newWorld.curX - (WORLD_WIDTH / 2)) + abs(newWorld.curY - (WORLD_HEIGHT / 2)); // Manhattan distance from the center
