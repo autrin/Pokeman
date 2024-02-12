@@ -25,7 +25,7 @@ struct Region
 
 typedef struct world
 {
-    char *(*world[WORLD_HEIGHT][WORLD_WIDTH]); // This is now a pointer to a pointer to char
+    char *(*world[WORLD_HEIGHT][WORLD_WIDTH]); // This is now a pointer to a pointer to char //!
     int32_t curX;                              // x of the current map
     int32_t curY;                              // y of the current map
 } world_t;
@@ -359,7 +359,7 @@ void newMapCaller()
     if (!world.world[world.curY][world.curX])
     {
         // Allocate memory for each row
-        char **map = malloc(MAP_HEIGHT * sizeof(char *));
+        char **map = malloc(MAP_HEIGHT * sizeof(char *));//!
         for (int i = 0; i < MAP_HEIGHT; i++)
         {
             map[i] = malloc(MAP_WIDTH * sizeof(char));
@@ -381,7 +381,7 @@ void newMapCaller()
             {
                 if (topMap[MAP_HEIGHT - 1][x] == '#')
                 {
-                    topExit = x; 
+                    topExit = x; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
 
                     break;
                 }
@@ -395,7 +395,7 @@ void newMapCaller()
             {
                 if (bottomMap[0][x] == '#')
                 {
-                    bottomExit = x; 
+                    bottomExit = x; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
 
                     break;
                 }
@@ -410,7 +410,7 @@ void newMapCaller()
             {
                 if (leftMap[y][MAP_WIDTH - 1] == '#')
                 {
-                    leftExit = y; 
+                    leftExit = y; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
                     break;
                 }
             }
@@ -424,7 +424,7 @@ void newMapCaller()
             {
                 if (rightMap[y][0] == '#')
                 {
-                    rightExit = y; 
+                    rightExit = y; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
                     break;
                 }
             }
@@ -456,7 +456,7 @@ void newMapCaller()
     }
 }
 
-void freeMap(int y, int x)
+void freeMap(int y, int x)//!
 {
     if (world.world[y][x]) // (indicating that it has been allocated)
     {                              // to make sure we are not freeing a NULL pointer.
@@ -469,7 +469,7 @@ void freeMap(int y, int x)
     }
 }
 
-void freeAllMaps()
+void freeAllMaps()//!
 {
     for (int y = 0; y < WORLD_HEIGHT; y++)
     {
