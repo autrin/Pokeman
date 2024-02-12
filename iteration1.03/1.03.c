@@ -217,8 +217,8 @@ void createSingleCenterOrMart(newMap_t *m, char building)
             (m->m[yRand - 1][xRand] == '#' || m->m[yRand + 1][xRand] == '#' ||
              m->m[yRand][xRand - 1] == '#' || m->m[yRand][xRand + 1] == '#'))
         {
-            m->map[yRand][xRand] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
-            return;                       // Exit once placed
+            m->m[yRand][xRand] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
+            return;                        // Exit once placed
         }
     }
 }
@@ -373,27 +373,27 @@ void newMapCaller()
     if (!newWorld.w[newWorld.curY][newWorld.curX])
     {
         // Allocate memory for each row
-        newMap_t *m = malloc(MAP_HEIGHT * sizeof(char *));
-        for (int i = 0; i < MAP_HEIGHT; i++)
-        {
-            m->m[i] = malloc(MAP_WIDTH * sizeof(char));
-            // Initialize the map's row here, if necessary
-        }
+        // newMap_t *m = malloc(MAP_HEIGHT * sizeof(char *));
+        // for (int i = 0; i < MAP_HEIGHT; i++)
+        // {
+        newWorld.w[newWorld.curY][newWorld.curX] = malloc(sizeof(*newWorld.w[newWorld.curY][newWorld.curX]));
+        // Initialize the map's row here, if necessary
+        // }
 
         initializeRegions(regions);
         assignRegions(regions); // ? Is one universal regions enough??
         setRegionCoordinates(regions);
-        createMap(m->m, regions); // add gates parameters
+        createMap(&newWorld.w[newWorld.curY][newWorld.curX]->m, regions); // add gates parameters
 
         int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1;
         // Adjust gate positions based on existing neighboring maps
         // Top neighbor
         if (newWorld.curY > 0 && newWorld.w[newWorld.curY - 1][newWorld.curX])
         {
-            char **topMap = newWorld.w[newWorld.curY - 1][newWorld.curX];
+            // char **topMap = newWorld.w[newWorld.curY - 1][newWorld.curX];
             for (int x = 0; x < MAP_WIDTH; x++)
             {
-                if (topMap[MAP_HEIGHT - 1][x] == '#')
+                if (newWorld.w[newWorld.curY - 1][newWorld.curX]->m[MAP_HEIGHT - 1][x] == '#')
                 {
                     topExit = x; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
 
@@ -404,10 +404,10 @@ void newMapCaller()
         // Bottom neighbor
         if (newWorld.curY < WORLD_HEIGHT - 1 && newWorld.w[newWorld.curY + 1][newWorld.curX])
         {
-            char **bottomMap = newWorld.w[newWorld.curY + 1][newWorld.curX];
+            // char **bottomMap = newWorld.w[newWorld.curY + 1][newWorld.curX];
             for (int x = 0; x < MAP_WIDTH; x++)
             {
-                if (bottomMap[0][x] == '#')
+                if (newWorld.w[newWorld.curY + 1][newWorld.curX]->m[0][x] == '#')
                 {
                     bottomExit = x; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
 
@@ -419,10 +419,10 @@ void newMapCaller()
         // Left neighbor
         if (newWorld.curX > 0 && newWorld.w[newWorld.curY][newWorld.curX - 1])
         {
-            char **leftMap = newWorld.w[newWorld.curY][newWorld.curX - 1];
+            // char **leftMap = newWorld.w[newWorld.curY][newWorld.curX - 1];
             for (int y = 0; y < MAP_HEIGHT; y++)
             {
-                if (leftMap[y][MAP_WIDTH - 1] == '#')
+                if (newWorld.w[newWorld.curY][newWorld.curX - 1]->m[y][MAP_WIDTH - 1] == '#')
                 {
                     leftExit = y; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
                     break;
@@ -433,10 +433,10 @@ void newMapCaller()
         // Right neighbor
         if (newWorld.curX < WORLD_WIDTH - 1 && newWorld.w[newWorld.curY][newWorld.curX + 1])
         {
-            char *rightMap = newWorld.w[newWorld.curY][newWorld.curX + 1];
+            // char *rightMap = newWorld.w[newWorld.curY][newWorld.curX + 1]->m;
             for (int y = 0; y < MAP_HEIGHT; y++)
             {
-                if (rightMap[y][0] == '#')
+                if (newWorld.w[newWorld.curY][newWorld.curX + 1]->m[y][0] == '#')
                 {
                     rightExit = y; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
                     break;
@@ -444,8 +444,8 @@ void newMapCaller()
             }
         }
 
-        createPaths(m->m, &topExit, &leftExit, &bottomExit, &rightExit);
-        createBorder(&newWorld[newWorld.curY][newWorld.curX]->m);
+        createPaths(&newWorld.w[newWorld.curY][newWorld.curX]->m, &topExit, &leftExit, &bottomExit, &rightExit);
+        createBorder(&newWorld.w[newWorld.curY][newWorld.curX]->m);
 
         int d = abs(newWorld.curX - (WORLD_WIDTH / 2)) + abs(newWorld.curY - (WORLD_HEIGHT / 2)); // Manhattan distance from the center
 
@@ -454,19 +454,19 @@ void newMapCaller()
 
         // Generate a Pokémon Center if a random number is below the calculated probability or if we're at the center of the world
         if ((rand() % 100) < probOfBuildings || !d)
-        {                  // Using d == 0 to explicitly check for the center
-            createCC(map); // Place a Pokémon Center
+        {                                                           // Using d == 0 to explicitly check for the center
+            createCC(&newWorld.w[newWorld.curY][newWorld.curX]->m); // Place a Pokémon Center
         }
 
         // Similarly, generate a Pokémart under the same conditions
         if ((rand() % 100) < probOfBuildings || !d)
         {
-            createPokemart(map); // Place a Pokémart
+            createPokemart(&newWorld.w[newWorld.curY][newWorld.curX]->m); // Place a Pokémart
         }
 
-        sprinkle(map);
+        sprinkle(&newWorld.w[newWorld.curY][newWorld.curX]->m);
         // After generating the map, store the pointer in the world
-        newWorld.w[newWorld.curY][newWorld.curX] = map;
+        newWorld.w[newWorld.curY][newWorld.curX] = &newWorld.w[newWorld.curY][newWorld.curX]->m;
     }
 }
 
