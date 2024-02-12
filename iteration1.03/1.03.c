@@ -182,14 +182,14 @@ void setRegionCoordinates(struct Region regions[NUM_REGIONS])
 }
 
 // Function to create the map using region information
-void createMap(char **map, struct Region regions[NUM_REGIONS])
+void createMap(newMap_t *m, struct Region regions[NUM_REGIONS])
 {
     // Initially fill the map with a default terrain to avoid empty spaces
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
         for (int x = 0; x < MAP_WIDTH; x++)
         {
-            map[y][x] = '.'; // Use '.' or another symbol as the default terrain
+            m->m[y][x] = '.'; // Use '.' or another symbol as the default terrain
         }
     }
 
@@ -200,53 +200,53 @@ void createMap(char **map, struct Region regions[NUM_REGIONS])
         {
             for (int y = regions[i].fromY; y <= regions[i].toY; y++)
             {
-                map[y][x] = regions[i].symbol;
+                m->m[y][x] = regions[i].symbol;
             }
         }
     }
 }
 
-void createSingleCenterOrMart(char **map, char building)
+void createSingleCenterOrMart(newMap_t *m, char building)
 {
     while (true)
     {
         int xRand = (rand() % (MAP_WIDTH - 7)) + 3;
         int yRand = (rand() % (MAP_HEIGHT - 6)) + 3;
         // Check if the location is next to a path and is a clear spot
-        if (map[yRand][xRand] == '.' &&
-            (map[yRand - 1][xRand] == '#' || map[yRand + 1][xRand] == '#' ||
-             map[yRand][xRand - 1] == '#' || map[yRand][xRand + 1] == '#'))
+        if (m->m[yRand][xRand] == '.' &&
+            (m->m[yRand - 1][xRand] == '#' || m->m[yRand + 1][xRand] == '#' ||
+             m->m[yRand][xRand - 1] == '#' || m->m[yRand][xRand + 1] == '#'))
         {
-            map[yRand][xRand] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
+            m->map[yRand][xRand] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
             return;                       // Exit once placed
         }
     }
 }
 
-void createCC(char **map)
+void createCC(newMap_t *m)
 {
-    createSingleCenterOrMart(map, 'C');
+    createSingleCenterOrMart(m->m, 'C');
 }
 
-void createPokemart(char **map)
+void createPokemart(newMap_t *m)
 {
-    createSingleCenterOrMart(map, 'M');
+    createSingleCenterOrMart(m->m, 'M');
 }
 
-void printMap(char **map)
-{ // needs to accept a double pointer to char (char **map) since
+void printMap(newMap_t *m)
+{ // needs to accept a double pointer to char (newMap_t *m) since
   // it will be printing a dynamically allocated 2D array.
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
         for (int x = 0; x < MAP_WIDTH; x++)
         {
-            printf("%c", map[y][x]);
+            printf("%c", m->m[y][x]);
         }
         printf("\n");
     }
 }
 
-void sprinkle(char **map)
+void sprinkle(newMap_t *m)
 {
 
     for (int i = 0; i < 50; i++)
@@ -255,13 +255,13 @@ void sprinkle(char **map)
         int x1 = (rand() % (MAP_WIDTH - 7)) + 3;
         int y2 = (rand() % (MAP_HEIGHT - 6)) + 3;
         int x2 = (rand() % (MAP_WIDTH - 7)) + 3;
-        if (map[y1][x1] != '#' && map[y1][x1] != 'C' && map[y1][x1] != 'M')
+        if (m->m[y1][x1] != '#' && m->m[y1][x1] != 'C' && m->m[y1][x1] != 'M')
         {
-            map[y1][x1] = '^';
+            m->m[y1][x1] = '^';
         }
-        if (map[y2][x2] != '#' && map[y2][x2] != 'C' && map[y2][x2] != 'M' && (x2 % 7) == 0) // lower the possibility of adding more %
+        if (m->m[y2][x2] != '#' && m->m[y2][x2] != 'C' && m->m[y2][x2] != 'M' && (x2 % 7) == 0) // lower the possibility of adding more %
         {
-            map[y2][x2] = '%';
+            m->m[y2][x2] = '%';
         }
     }
 }
@@ -280,11 +280,11 @@ void fly(int newX, int newY)
     }
 
     // Update current position
-    world.curX = internalX;
-    world.curY = internalY;
+    newWorld.curX = internalX;
+    newWorld.curY = internalY;
 
     // Check if a map exists at the new location
-    if (world.world[world.curY][world.curX] == NULL)
+    if (newWorld.w[newWorld.curY][newWorld.curX] == NULL)
     {
         // If not, generate a new map for this location
         newMapCaller(); // Assumes newMapCaller uses world.curX and world.curY
@@ -297,7 +297,7 @@ void fly(int newX, int newY)
     }
 }
 
-void createPaths(char **map, int *topExit, int *leftExit, int *bottomExit, int *rightExit)
+void createPaths(newMap_t *m, int *topExit, int *leftExit, int *bottomExit, int *rightExit)
 {
     // Initialize gate positions randomly if they're not set by adjacent maps
     if (*topExit == -1)
@@ -313,7 +313,7 @@ void createPaths(char **map, int *topExit, int *leftExit, int *bottomExit, int *
     // For vertical path
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
-        map[y][currentX] = '#';
+        m->m[y][currentX] = '#';
         // Random deviation in the first half
         if (y < MAP_HEIGHT / 2)
         {
@@ -341,7 +341,7 @@ void createPaths(char **map, int *topExit, int *leftExit, int *bottomExit, int *
     // For horizontal path
     for (int x = 0; x < MAP_WIDTH; x++)
     {
-        map[currentY][x] = '#';
+        m->m[currentY][x] = '#';
         // Random deviation in the first half
         if (x < MAP_WIDTH / 2)
         {
@@ -373,17 +373,17 @@ void newMapCaller()
     if (!newWorld.w[newWorld.curY][newWorld.curX])
     {
         // Allocate memory for each row
-        char **map = malloc(MAP_HEIGHT * sizeof(char *));
+        newMap_t *m = malloc(MAP_HEIGHT * sizeof(char *));
         for (int i = 0; i < MAP_HEIGHT; i++)
         {
-            map[i] = malloc(MAP_WIDTH * sizeof(char));
+            m->m[i] = malloc(MAP_WIDTH * sizeof(char));
             // Initialize the map's row here, if necessary
         }
 
         initializeRegions(regions);
         assignRegions(regions); // ? Is one universal regions enough??
         setRegionCoordinates(regions);
-        createMap(map, regions); // add gates parameters
+        createMap(m->m, regions); // add gates parameters
 
         int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1;
         // Adjust gate positions based on existing neighboring maps
@@ -444,7 +444,7 @@ void newMapCaller()
             }
         }
 
-        createPaths(map, &topExit, &leftExit, &bottomExit, &rightExit);
+        createPaths(m->m, &topExit, &leftExit, &bottomExit, &rightExit);
         createBorder(&newWorld[newWorld.curY][newWorld.curX]->m);
 
         int d = abs(newWorld.curX - (WORLD_WIDTH / 2)) + abs(newWorld.curY - (WORLD_HEIGHT / 2)); // Manhattan distance from the center
