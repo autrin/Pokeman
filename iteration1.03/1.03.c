@@ -26,6 +26,10 @@ typedef struct map
 {
     char m[MAP_HEIGHT][MAP_WIDTH];
     int topExit, bottomExit, leftExit, rightExit;
+    int ewX[];   // The x-axis of east-west path
+    int ewY[];   // The y-axis of east-west path
+    int nsX[][]; // The x-axis North-south path
+    int nsY[][]; // The y-axis North-south path
 } map_t;
 
 typedef struct world
@@ -37,7 +41,8 @@ typedef struct world
 
 world_t world;
 
-typedef struct pc{ // player character, which is '@'
+typedef struct pc
+{ // player character, which is '@'
     int32_t x;
     int32_t y;
 } pc_t;
@@ -55,7 +60,7 @@ int world_init()
         }
     }
     world.curX = WORLD_WIDTH / 2; // the starting point is the center, which is (200, 200) internally to us developers,
-                                     // but (0, 0) externally in the output.
+                                  // but (0, 0) externally in the output.
     world.curY = WORLD_HEIGHT / 2;
     return 0;
 }
@@ -233,7 +238,7 @@ void createPokemart(map_t *m)
 }
 
 void printMap(map_t *m)
-{ 
+{
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
         for (int x = 0; x < MAP_WIDTH; x++)
@@ -313,6 +318,8 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
         m->m[y][currentX] = '#';
+        m->nsX[y] = currentX; // Storing the path locations
+        m->nsY[y] = y; 
         // Random deviation in the first half
         if (y < MAP_HEIGHT / 2)
         {
@@ -341,6 +348,8 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
     for (int x = 0; x < MAP_WIDTH; x++)
     {
         m->m[currentY][x] = '#';
+        m->ewX[y] = x;
+        m->ewY[y] = currentY;
         // Random deviation in the first half
         if (x < MAP_WIDTH / 2)
         {
@@ -365,8 +374,9 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
     }
 }
 
-void placePlayer(){ // the paths have been created
-    pc.x = rand() 
+void placePlayer()
+{ // the paths have been created
+    pc.x = rand()
 }
 
 void newMapCaller()
@@ -380,7 +390,7 @@ void newMapCaller()
         // for (int i = 0; i < MAP_HEIGHT; i++)
         // {
         world.w[world.curY][world.curX] = malloc(sizeof(*world.w)); // Allocate a new map
-                                                                                // Initialize the map's row here, if necessary
+                                                                    // Initialize the map's row here, if necessary
         // }
 
         initializeRegions(regions);
@@ -409,7 +419,7 @@ void newMapCaller()
             {
                 if (world.w[world.curY + 1][world.curX]->m[0][x] == '#')
                 {
-                    bottomExit = x; 
+                    bottomExit = x;
                     break;
                 }
             }
@@ -451,7 +461,7 @@ void newMapCaller()
 
         // Generate a Pokémon Center if a random number is below the calculated probability or if we're at the center of the world
         if ((rand() % 100) < probOfBuildings || !d)
-        {                                                       // Using d == 0 to explicitly check for the center
+        {                                              // Using d == 0 to explicitly check for the center
             createCC(world.w[world.curY][world.curX]); // Place a Pokémon Center
         }
 
@@ -470,7 +480,7 @@ void newMapCaller()
 void freeMap(int y, int x)
 {
     if (world.w[y][x])
-    {                            // Check if the map at the location has been allocated.
+    {                         // Check if the map at the location has been allocated.
         free(world.w[y][x]);  // Free the map structure.
         world.w[y][x] = NULL; // Set the pointer to NULL after freeing.
     }
@@ -492,7 +502,7 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     world_init();
     newMapCaller(); // This should automatically use world.curY and world.curX
-    placePlayer(); // place it on road, called once bc there is only one player in the world
+    placePlayer();  // place it on road, called once bc there is only one player in the world
     // input commands
     char c;
 
