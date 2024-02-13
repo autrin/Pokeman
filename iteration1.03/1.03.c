@@ -67,24 +67,24 @@ void createBorder(newMap_t *m)
 {
     for (int i = 0; i < MAP_WIDTH; i++)
     {
-        if (m->m[0][i] != '#')
+        if (*m->m[0][i] != '#')
         {
-            m->m[0][i] = '%';
+            *m->m[0][i] = '%';
         }
-        if (m->m[MAP_HEIGHT - 1][i] != '#')
+        if (*m->m[MAP_HEIGHT - 1][i] != '#')
         {
-            m->m[MAP_HEIGHT - 1][i] = '%';
+            *m->m[MAP_HEIGHT - 1][i] = '%';
         }
     }
     for (int i = 0; i < MAP_HEIGHT; i++)
     {
-        if (m->m[i][0] != '#')
+        if (*m->m[i][0] != '#')
         {
-            m->m[i][0] = '%';
+            *m->m[i][0] = '%';
         }
-        if (m->m[i][MAP_WIDTH - 1] != '#')
+        if (*m->m[i][MAP_WIDTH - 1] != '#')
         {
-            m->m[i][MAP_WIDTH - 1] = '%';
+            *m->m[i][MAP_WIDTH - 1] = '%';
         }
     }
 }
@@ -190,7 +190,7 @@ void createMap(newMap_t *m, struct Region regions[NUM_REGIONS])
     {
         for (int x = 0; x < MAP_WIDTH; x++)
         {
-            m->m[y][x] = '.'; // Use '.' or another symbol as the default terrain
+            *m->m[y][x] = '.'; // Use '.' or another symbol as the default terrain
         }
     }
 
@@ -201,7 +201,7 @@ void createMap(newMap_t *m, struct Region regions[NUM_REGIONS])
         {
             for (int y = regions[i].fromY; y <= regions[i].toY; y++)
             {
-                m->m[y][x] = regions[i].symbol;
+                *m->m[y][x] = regions[i].symbol;
             }
         }
     }
@@ -214,11 +214,11 @@ void createSingleCenterOrMart(newMap_t *m, char building)
         int xRand = (rand() % (MAP_WIDTH - 7)) + 3;
         int yRand = (rand() % (MAP_HEIGHT - 6)) + 3;
         // Check if the location is next to a path and is a clear spot
-        if (m->m[yRand][xRand] == '.' &&
-            (m->m[yRand - 1][xRand] == '#' || m->m[yRand + 1][xRand] == '#' ||
-             m->m[yRand][xRand - 1] == '#' || m->m[yRand][xRand + 1] == '#'))
+        if (*m->m[yRand][xRand] == '.' &&
+            (*m->m[yRand - 1][xRand] == '#' || *m->m[yRand + 1][xRand] == '#' ||
+             *m->m[yRand][xRand - 1] == '#' || *m->m[yRand][xRand + 1] == '#'))
         {
-            m->m[yRand][xRand] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
+            *m->m[yRand][xRand] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
             return;                        // Exit once placed
         }
     }
@@ -226,12 +226,12 @@ void createSingleCenterOrMart(newMap_t *m, char building)
 
 void createCC(newMap_t *m)
 {
-    createSingleCenterOrMart(m->m, 'C');
+    createSingleCenterOrMart(m, 'C'); //! Might need to do &m
 }
 
 void createPokemart(newMap_t *m)
 {
-    createSingleCenterOrMart(m->m, 'M');
+    createSingleCenterOrMart(m, 'M');
 }
 
 void printMap(newMap_t *m)
@@ -241,7 +241,7 @@ void printMap(newMap_t *m)
     {
         for (int x = 0; x < MAP_WIDTH; x++)
         {
-            printf("%c", m->m[y][x]);
+            printf("%c", *m->m[y][x]);
         }
         printf("\n");
     }
@@ -256,13 +256,13 @@ void sprinkle(newMap_t *m)
         int x1 = (rand() % (MAP_WIDTH - 7)) + 3;
         int y2 = (rand() % (MAP_HEIGHT - 6)) + 3;
         int x2 = (rand() % (MAP_WIDTH - 7)) + 3;
-        if (m->m[y1][x1] != '#' && m->m[y1][x1] != 'C' && m->m[y1][x1] != 'M')
+        if (*m->m[y1][x1] != '#' && *m->m[y1][x1] != 'C' && *m->m[y1][x1] != 'M')
         {
-            m->m[y1][x1] = '^';
+            *m->m[y1][x1] = '^';
         }
-        if (m->m[y2][x2] != '#' && m->m[y2][x2] != 'C' && m->m[y2][x2] != 'M' && (x2 % 7) == 0) // lower the possibility of adding more %
+        if (*m->m[y2][x2] != '#' && *m->m[y2][x2] != 'C' && *m->m[y2][x2] != 'M' && (x2 % 7) == 0) // lower the possibility of adding more %
         {
-            m->m[y2][x2] = '%';
+            *m->m[y2][x2] = '%';
         }
     }
 }
@@ -278,13 +278,13 @@ void fly(int newX, int newY)
     {
         printf("Cannot fly to (%d, %d): Out of bounds.\n", newX, newY);
         return;
-    }
 
+    }
     // Update current position
-    newWorld.curX = internalX;
     newWorld.curY = internalY;
 
     // Check if a map exists at the new location
+    newWorld.curX = internalX;
     if (newWorld.w[newWorld.curY][newWorld.curX] == NULL)
     {
         // If not, generate a new map for this location
@@ -314,7 +314,7 @@ void createPaths(newMap_t *m, int topExit, int leftExit, int bottomExit, int rig
     // For vertical path
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
-        m->m[y][currentX] = '#';
+        *m->m[y][currentX] = '#';
         // Random deviation in the first half
         if (y < MAP_HEIGHT / 2)
         {
@@ -342,7 +342,7 @@ void createPaths(newMap_t *m, int topExit, int leftExit, int bottomExit, int rig
     // For horizontal path
     for (int x = 0; x < MAP_WIDTH; x++)
     {
-        m->m[currentY][x] = '#';
+        *m->m[currentY][x] = '#';
         // Random deviation in the first half
         if (x < MAP_WIDTH / 2)
         {
@@ -384,7 +384,7 @@ void newMapCaller()
         initializeRegions(regions);
         assignRegions(regions); // ? Is one universal regions enough??
         setRegionCoordinates(regions);
-        createMap(&newWorld.w[newWorld.curY][newWorld.curX]->m, regions); // add gates parameters
+        createMap(newWorld.w[newWorld.curY][newWorld.curX], regions); // add gates parameters
 
         int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1;
         // Adjust gate positions based on existing neighboring maps
@@ -394,7 +394,7 @@ void newMapCaller()
             // char **topMap = newWorld.w[newWorld.curY - 1][newWorld.curX];
             for (int x = 0; x < MAP_WIDTH; x++)
             {
-                if (newWorld.w[newWorld.curY - 1][newWorld.curX]->m[MAP_HEIGHT - 1][x] == '#')
+                if (*newWorld.w[newWorld.curY - 1][newWorld.curX]->m[MAP_HEIGHT - 1][x] == '#')
                 {
                     topExit = x; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
 
@@ -408,7 +408,7 @@ void newMapCaller()
             // char **bottomMap = newWorld.w[newWorld.curY + 1][newWorld.curX];
             for (int x = 0; x < MAP_WIDTH; x++)
             {
-                if (newWorld.w[newWorld.curY + 1][newWorld.curX]->m[0][x] == '#')
+                if (*newWorld.w[newWorld.curY + 1][newWorld.curX]->m[0][x] == '#')
                 {
                     bottomExit = x; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
 
@@ -423,7 +423,7 @@ void newMapCaller()
             // char **leftMap = newWorld.w[newWorld.curY][newWorld.curX - 1];
             for (int y = 0; y < MAP_HEIGHT; y++)
             {
-                if (newWorld.w[newWorld.curY][newWorld.curX - 1]->m[y][MAP_WIDTH - 1] == '#')
+                if (*newWorld.w[newWorld.curY][newWorld.curX - 1]->m[y][MAP_WIDTH - 1] == '#')
                 {
                     leftExit = y; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
                     break;
@@ -437,7 +437,7 @@ void newMapCaller()
             // char *rightMap = newWorld.w[newWorld.curY][newWorld.curX + 1]->m;
             for (int y = 0; y < MAP_HEIGHT; y++)
             {
-                if (newWorld.w[newWorld.curY][newWorld.curX + 1]->m[y][0] == '#')
+                if (*newWorld.w[newWorld.curY][newWorld.curX + 1]->m[y][0] == '#')
                 {
                     rightExit = y; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
                     break;
@@ -445,8 +445,8 @@ void newMapCaller()
             }
         }
 
-        createPaths(&newWorld.w[newWorld.curY][newWorld.curX]->m, topExit, leftExit, bottomExit, rightExit);
-        createBorder(&newWorld.w[newWorld.curY][newWorld.curX]->m);
+        createPaths(newWorld.w[newWorld.curY][newWorld.curX], topExit, leftExit, bottomExit, rightExit);
+        createBorder(newWorld.w[newWorld.curY][newWorld.curX]);
 
         int d = abs(newWorld.curX - (WORLD_WIDTH / 2)) + abs(newWorld.curY - (WORLD_HEIGHT / 2)); // Manhattan distance from the center
 
@@ -456,31 +456,28 @@ void newMapCaller()
         // Generate a Pokémon Center if a random number is below the calculated probability or if we're at the center of the world
         if ((rand() % 100) < probOfBuildings || !d)
         {                                                           // Using d == 0 to explicitly check for the center
-            createCC(&newWorld.w[newWorld.curY][newWorld.curX]->m); // Place a Pokémon Center
+            createCC(newWorld.w[newWorld.curY][newWorld.curX]); // Place a Pokémon Center
         }
 
         // Similarly, generate a Pokémart under the same conditions
         if ((rand() % 100) < probOfBuildings || !d)
         {
-            createPokemart(&newWorld.w[newWorld.curY][newWorld.curX]->m); // Place a Pokémart
+            createPokemart(newWorld.w[newWorld.curY][newWorld.curX]); // Place a Pokémart
         }
 
-        sprinkle(&newWorld.w[newWorld.curY][newWorld.curX]->m);
+        sprinkle(newWorld.w[newWorld.curY][newWorld.curX]);
         // After generating the map, store the pointer in the world
-        newWorld.w[newWorld.curY][newWorld.curX] = &newWorld.w[newWorld.curY][newWorld.curX]->m;
+        // *newWorld.w[newWorld.curY][newWorld.curX] = newWorld.w[newWorld.curY][newWorld.curX]->m;
     }
 }
 
 void freeMap(int y, int x)
 {
-    if (newWorld.w[y][x]) // (indicating that it has been allocated)
-    {                     // to make sure we are not freeing a NULL pointer.
-        for (int i = 0; i < MAP_HEIGHT; i++)
-        {
-            free(newWorld.w[y][x]); // Free each row
-        }
-        free(newWorld.w[y][x]);  // Free the array of row pointers
+    if (newWorld.w[y][x])        // (indicating that it has been allocated)
+    {                             // to make sure we are not freeing a NULL pointer.
+        free(newWorld.w[y][x]);  // Free each row
         newWorld.w[y][x] = NULL; // Set the pointer to NULL after freeing
+        // free(world.world[y][x]);  // Free the array of row pointers
     }
 }
 
