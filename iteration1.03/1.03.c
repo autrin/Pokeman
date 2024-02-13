@@ -26,10 +26,10 @@ typedef struct map
 {
     char m[MAP_HEIGHT][MAP_WIDTH];
     int topExit, bottomExit, leftExit, rightExit;
-    int ewX[MAP_WIDTH];  // The x-axis of east-west path // TODO give them sizes
-    int ewY[MAP_HEIGHT]; // The y-axis of east-west path
-    int nsX[MAP_WIDTH];  // The x-axis North-south path
-    int nsY[MAP_HEIGHT]; // The y-axis North-south path
+    int ewX[MAP_WIDTH * 2];  // The x-axis of east-west path //* sizes are multiplied by 2 because the paths are not straigh and are curved
+    int ewY[MAP_HEIGHT * 2]; // The y-axis of east-west path
+    int nsX[MAP_WIDTH * 2];  // The x-axis North-south path
+    int nsY[MAP_HEIGHT * 2]; // The y-axis North-south path
 } map_t;
 
 typedef struct world
@@ -348,8 +348,8 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
     for (int x = 0; x < MAP_WIDTH; x++)
     {
         m->m[currentY][x] = '#';
-        m->ewX[y] = x;
-        m->ewY[y] = currentY;
+        m->ewX[x] = x;
+        m->ewY[x] = currentY;
         // Random deviation in the first half
         if (x < MAP_WIDTH / 2)
         {
@@ -374,10 +374,10 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
     }
 }
 
-void placePlayer()
-{                  // the paths have been created
-    pc.x = rand(); // TODO
-}
+// void placePlayer()
+// {                  // the paths have been created
+//     pc.x = rand(); // TODO
+// }
 
 void newMapCaller()
 { // calls all of the functions neccessary to create a single map
@@ -389,29 +389,30 @@ void newMapCaller()
         // map_t *m = malloc(MAP_HEIGHT * sizeof(char *));
         // for (int i = 0; i < MAP_HEIGHT; i++)
         // {
-        world.w[world.curY][world.curX] = malloc(sizeof(*world.w)); // Allocate a new map
+        // world.w[world.curY][world.curX] = malloc(sizeof(*world.w)); // Allocate a new map
                                                                     // Initialize the map's row here, if necessary
         // }
-
+        map_t map;
+        world.w[world.curY][world.curX] = malloc(sizeof(*world.w[world.curY][world.curX])); //! is this correct
         initializeRegions(regions);
-        assignRegions(regions); // ? Is one universal regions enough??
+        assignRegions(regions);
         setRegionCoordinates(regions);
         createMap(world.w[world.curY][world.curX], regions); // add gates parameters
 
-        int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1;
-        // Adjust gate positions based on existing neighboring maps //TODO
+        int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1; 
+        // Adjust gate positions based on existing neighboring maps
         // Top neighbor
         if (world.curY > 0 && world.w[world.curY - 1][world.curX])
         {
-            if (world.w[world.curY - 1][world.curX]->m[MAP_HEIGHT - 1][x] == '#')
+            if (world.w[world.curY - 1][world.curX]->m[MAP_HEIGHT - 1][world.w[world.curY - 1][world.curX]->nsX[(sizeof(world.w[world.curY - 1][world.curX]->nsX) / sizeof(world.w[world.curY - 1][world.curX]->nsX[0])) - 1]] == '#')
             {
-                topExit = world.w[world.curY - 1][world.curX]->nsX[MAP_HEIGHT - 1]; // might be map_width -1
+                topExit = world.w[world.curY - 1][world.curX]->nsX[(sizeof(world.w[world.curY - 1][world.curX]->nsX) / sizeof(world.w[world.curY - 1][world.curX]->nsX[0])) - 1];
             }
         }
         // Bottom neighbor
         if (world.curY < WORLD_HEIGHT - 1 && world.w[world.curY + 1][world.curX])
         {
-            if (world.w[world.curY + 1][world.curX]->m[0][x] == '#')
+            if (world.w[world.curY + 1][world.curX]->m[0][world.w[world.curY + 1][world.curX]->nsX[0]] == '#')
             {
                 bottomExit = world.w[world.curY + 1][world.curX]->nsX[0];
             }
@@ -419,9 +420,9 @@ void newMapCaller()
         // Left neighbor
         if (world.curX > 0 && world.w[world.curY][world.curX - 1])
         {
-            if (world.w[world.curY][world.curX - 1]->m[y][MAP_WIDTH - 1] == '#')
+            if (world.w[world.curY][world.curX - 1]->m[world.w[world.curY][world.curX - 1]->ewY[(sizeof(world.w[world.curY][world.curX - 1]->ewY) / sizeof(world.w[world.curY][world.curX - 1]->ewY[0])) - 1]][MAP_WIDTH - 1] == '#')
             {
-                leftExit = world.w[world.curY][world.curX - 1]->ewY[MAP_HEIGHT - 1];
+                leftExit = world.w[world.curY][world.curX - 1]->ewY[(sizeof(world.w[world.curY][world.curX - 1]->ewY) / sizeof(world.w[world.curY][world.curX - 1]->ewY[0])) - 1];
             }
         }
 
@@ -429,12 +430,10 @@ void newMapCaller()
         if (world.curX < WORLD_WIDTH - 1 && world.w[world.curY][world.curX + 1])
         {
 
-                if (world.w[world.curY][world.curX + 1]->m[y][0] == '#')
-                {
-                    rightExit = world.w[world.curY][world.curX + 1]->ewY[y][0];
-                    
-                }
-            
+            if (world.w[world.curY][world.curX + 1]->m[world.w[world.curY][world.curX + 1]->ewY[0]][0] == '#')
+            {
+                rightExit = world.w[world.curY][world.curX + 1]->ewY[0];
+            }
         }
 
         createPaths(world.w[world.curY][world.curX], topExit, leftExit, bottomExit, rightExit);
@@ -488,7 +487,7 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     world_init();
     newMapCaller(); // This should automatically use world.curY and world.curX
-    placePlayer();  // place it on road, called once bc there is only one player in the world
+    // placePlayer();  // place it on road, called once bc there is only one player in the world
     // input commands
     char c;
 
