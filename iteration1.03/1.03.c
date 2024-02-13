@@ -11,7 +11,6 @@
 #define WORLD_HEIGHT 401 // world of all of the maps
 #define WORLD_WIDTH 401
 
-void createSingleCenterOrMart(newMap_t *m, char building);
 void newMapCaller(void);
 
 char symbols[] = {'%', '^', ':', '.', '~'}; // Simplified symbols array
@@ -45,6 +44,8 @@ typedef struct newWorld
 } world_t;
 
 world_t newWorld;
+
+void createSingleCenterOrMart(newMap_t *m, char building);
 
 int world_init()
 { // initializing each map of the world to NULL
@@ -297,19 +298,19 @@ void fly(int newX, int newY)
     }
 }
 
-void createPaths(newMap_t *m, int *topExit, int *leftExit, int *bottomExit, int *rightExit)
+void createPaths(newMap_t *m, int topExit, int leftExit, int bottomExit, int rightExit)
 {
     // Initialize gate positions randomly if they're not set by adjacent maps
-    if (*topExit == -1)
-        *topExit = (rand() % (MAP_WIDTH - 7)) + 3;
-    if (*leftExit == -1)
-        *leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
-    if (*bottomExit == -1)
-        *bottomExit = (rand() % (MAP_WIDTH - 7)) + 3;
-    if (*rightExit == -1)
-        *rightExit = (rand() % (MAP_HEIGHT - 6)) + 3;
+    if (topExit == -1)
+        topExit = (rand() % (MAP_WIDTH - 7)) + 3;
+    if (leftExit == -1)
+        leftExit = (rand() % (MAP_HEIGHT - 6)) + 3;
+    if (bottomExit == -1)
+        bottomExit = (rand() % (MAP_WIDTH - 7)) + 3;
+    if (rightExit == -1)
+        rightExit = (rand() % (MAP_HEIGHT - 6)) + 3;
 
-    int currentX = *topExit;
+    int currentX = topExit;
     // For vertical path
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
@@ -324,20 +325,20 @@ void createPaths(newMap_t *m, int *topExit, int *leftExit, int *bottomExit, int 
         else
         {
             // Adjust direction towards bottomExit in the second half, ensuring no division by zero
-            if (currentX != *bottomExit)
+            if (currentX != bottomExit)
             {
-                int direction = (*bottomExit - currentX) / abs(*bottomExit - currentX);
+                int direction = (bottomExit - currentX) / abs(bottomExit - currentX);
                 currentX += direction;
                 // Ensure currentX does not overshoot or undershoot the target exit
-                if ((direction > 0 && currentX > *bottomExit) || (direction < 0 && currentX < *bottomExit))
+                if ((direction > 0 && currentX > bottomExit) || (direction < 0 && currentX < bottomExit))
                 {
-                    currentX = *bottomExit;
+                    currentX = bottomExit;
                 }
             }
         }
     }
 
-    int currentY = *leftExit;
+    int currentY = leftExit;
     // For horizontal path
     for (int x = 0; x < MAP_WIDTH; x++)
     {
@@ -352,14 +353,14 @@ void createPaths(newMap_t *m, int *topExit, int *leftExit, int *bottomExit, int 
         else
         {
             // Adjust direction towards rightExit in the second half, ensuring no division by zero
-            if (currentY != *rightExit)
+            if (currentY != rightExit)
             {
-                int direction = (*rightExit - currentY) / abs(*rightExit - currentY);
+                int direction = (rightExit - currentY) / abs(rightExit - currentY);
                 currentY += direction;
                 // Ensure currentY does not overshoot or undershoot the target exit
-                if ((direction > 0 && currentY > *rightExit) || (direction < 0 && currentY < *rightExit))
+                if ((direction > 0 && currentY > rightExit) || (direction < 0 && currentY < rightExit))
                 {
-                    currentY = *rightExit;
+                    currentY = rightExit;
                 }
             }
         }
@@ -444,7 +445,7 @@ void newMapCaller()
             }
         }
 
-        createPaths(&newWorld.w[newWorld.curY][newWorld.curX]->m, &topExit, &leftExit, &bottomExit, &rightExit);
+        createPaths(&newWorld.w[newWorld.curY][newWorld.curX]->m, topExit, leftExit, bottomExit, rightExit);
         createBorder(&newWorld.w[newWorld.curY][newWorld.curX]->m);
 
         int d = abs(newWorld.curX - (WORLD_WIDTH / 2)) + abs(newWorld.curY - (WORLD_HEIGHT / 2)); // Manhattan distance from the center
