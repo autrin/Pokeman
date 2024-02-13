@@ -26,10 +26,10 @@ typedef struct map
 {
     char m[MAP_HEIGHT][MAP_WIDTH];
     int topExit, bottomExit, leftExit, rightExit;
-    int ewX[];   // The x-axis of east-west path
-    int ewY[];   // The y-axis of east-west path
-    int nsX[][]; // The x-axis North-south path
-    int nsY[][]; // The y-axis North-south path
+    int ewX[MAP_WIDTH];  // The x-axis of east-west path // TODO give them sizes
+    int ewY[MAP_HEIGHT]; // The y-axis of east-west path
+    int nsX[MAP_WIDTH];  // The x-axis North-south path
+    int nsY[MAP_HEIGHT]; // The y-axis North-south path
 } map_t;
 
 typedef struct world
@@ -319,7 +319,7 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
     {
         m->m[y][currentX] = '#';
         m->nsX[y] = currentX; // Storing the path locations
-        m->nsY[y] = y; 
+        m->nsY[y] = y;
         // Random deviation in the first half
         if (y < MAP_HEIGHT / 2)
         {
@@ -375,8 +375,8 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
 }
 
 void placePlayer()
-{ // the paths have been created
-    pc.x = rand()
+{                  // the paths have been created
+    pc.x = rand(); // TODO
 }
 
 void newMapCaller()
@@ -399,56 +399,42 @@ void newMapCaller()
         createMap(world.w[world.curY][world.curX], regions); // add gates parameters
 
         int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1;
-        // Adjust gate positions based on existing neighboring maps
+        // Adjust gate positions based on existing neighboring maps //TODO
         // Top neighbor
         if (world.curY > 0 && world.w[world.curY - 1][world.curX])
         {
-            for (int x = 0; x < MAP_WIDTH; x++)
+            if (world.w[world.curY - 1][world.curX]->m[MAP_HEIGHT - 1][x] == '#')
             {
-                if (world.w[world.curY - 1][world.curX]->m[MAP_HEIGHT - 1][x] == '#')
-                {
-                    topExit = x;
-                    break;
-                }
+                topExit = world.w[world.curY - 1][world.curX]->nsX[MAP_HEIGHT - 1]; // might be map_width -1
             }
         }
         // Bottom neighbor
         if (world.curY < WORLD_HEIGHT - 1 && world.w[world.curY + 1][world.curX])
         {
-            for (int x = 0; x < MAP_WIDTH; x++)
+            if (world.w[world.curY + 1][world.curX]->m[0][x] == '#')
             {
-                if (world.w[world.curY + 1][world.curX]->m[0][x] == '#')
-                {
-                    bottomExit = x;
-                    break;
-                }
+                bottomExit = world.w[world.curY + 1][world.curX]->nsX[0];
             }
         }
-
         // Left neighbor
         if (world.curX > 0 && world.w[world.curY][world.curX - 1])
         {
-            for (int y = 0; y < MAP_HEIGHT; y++)
+            if (world.w[world.curY][world.curX - 1]->m[y][MAP_WIDTH - 1] == '#')
             {
-                if (world.w[world.curY][world.curX - 1]->m[y][MAP_WIDTH - 1] == '#')
-                {
-                    leftExit = y;
-                    break;
-                }
+                leftExit = world.w[world.curY][world.curX - 1]->ewY[MAP_HEIGHT - 1];
             }
         }
 
         // Right neighbor
         if (world.curX < WORLD_WIDTH - 1 && world.w[world.curY][world.curX + 1])
         {
-            for (int y = 0; y < MAP_HEIGHT; y++)
-            {
+
                 if (world.w[world.curY][world.curX + 1]->m[y][0] == '#')
                 {
-                    rightExit = y;
-                    break;
+                    rightExit = world.w[world.curY][world.curX + 1]->ewY[y][0];
+                    
                 }
-            }
+            
         }
 
         createPaths(world.w[world.curY][world.curX], topExit, leftExit, bottomExit, rightExit);
