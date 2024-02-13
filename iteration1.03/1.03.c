@@ -37,6 +37,12 @@ typedef struct newWorld
 
 world_t newWorld;
 
+typedef struct pc{ // player character, which is '@'
+    int32_t x;
+    int32_t y;
+} pc_t;
+pc_t pc; // making it global since there is only one pc in the world.
+
 void createSingleCenterOrMart(newMap_t *m, char building);
 
 int world_init()
@@ -227,8 +233,7 @@ void createPokemart(newMap_t *m)
 }
 
 void printMap(newMap_t *m)
-{ // needs to accept a double pointer to char (newMap_t *m) since
-  // it will be printing a dynamically allocated 2D array.
+{ 
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
         for (int x = 0; x < MAP_WIDTH; x++)
@@ -303,13 +308,15 @@ void createPaths(newMap_t *m, int topExit, int leftExit, int bottomExit, int rig
 
     int currentX = topExit;
     // For vertical path
+    int deviation;
+    int direction;
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
         m->m[y][currentX] = '#';
         // Random deviation in the first half
         if (y < MAP_HEIGHT / 2)
         {
-            int deviation = (rand() % 3) - 1; // Random deviation: -1, 0, 1
+            deviation = (rand() % 3) - 1; // Random deviation: -1, 0, 1
             currentX += deviation;
             currentX = currentX < 1 ? 1 : (currentX >= MAP_WIDTH - 1 ? MAP_WIDTH - 2 : currentX);
         }
@@ -318,7 +325,7 @@ void createPaths(newMap_t *m, int topExit, int leftExit, int bottomExit, int rig
             // Adjust direction towards bottomExit in the second half, ensuring no division by zero
             if (currentX != bottomExit)
             {
-                int direction = (bottomExit - currentX) / abs(bottomExit - currentX);
+                direction = (bottomExit - currentX) / abs(bottomExit - currentX);
                 currentX += direction;
                 // Ensure currentX does not overshoot or undershoot the target exit
                 if ((direction > 0 && currentX > bottomExit) || (direction < 0 && currentX < bottomExit))
@@ -337,7 +344,7 @@ void createPaths(newMap_t *m, int topExit, int leftExit, int bottomExit, int rig
         // Random deviation in the first half
         if (x < MAP_WIDTH / 2)
         {
-            int deviation = (rand() % 3) - 1; // Random deviation: -1, 0, 1
+            deviation = (rand() % 3) - 1; // Random deviation: -1, 0, 1
             currentY += deviation;
             currentY = currentY < 1 ? 1 : (currentY >= MAP_HEIGHT - 1 ? MAP_HEIGHT - 2 : currentY);
         }
@@ -346,7 +353,7 @@ void createPaths(newMap_t *m, int topExit, int leftExit, int bottomExit, int rig
             // Adjust direction towards rightExit in the second half, ensuring no division by zero
             if (currentY != rightExit)
             {
-                int direction = (rightExit - currentY) / abs(rightExit - currentY);
+                direction = (rightExit - currentY) / abs(rightExit - currentY);
                 currentY += direction;
                 // Ensure currentY does not overshoot or undershoot the target exit
                 if ((direction > 0 && currentY > rightExit) || (direction < 0 && currentY < rightExit))
@@ -356,6 +363,10 @@ void createPaths(newMap_t *m, int topExit, int leftExit, int bottomExit, int rig
             }
         }
     }
+}
+
+void placePlayer(){ // the paths have been created
+    pc.x = rand() 
 }
 
 void newMapCaller()
@@ -382,13 +393,11 @@ void newMapCaller()
         // Top neighbor
         if (newWorld.curY > 0 && newWorld.w[newWorld.curY - 1][newWorld.curX])
         {
-            // char **topMap = newWorld.w[newWorld.curY - 1][newWorld.curX];
             for (int x = 0; x < MAP_WIDTH; x++)
             {
                 if (newWorld.w[newWorld.curY - 1][newWorld.curX]->m[MAP_HEIGHT - 1][x] == '#')
                 {
                     topExit = x;
-
                     break;
                 }
             }
@@ -396,13 +405,11 @@ void newMapCaller()
         // Bottom neighbor
         if (newWorld.curY < WORLD_HEIGHT - 1 && newWorld.w[newWorld.curY + 1][newWorld.curX])
         {
-            // char **bottomMap = newWorld.w[newWorld.curY + 1][newWorld.curX];
             for (int x = 0; x < MAP_WIDTH; x++)
             {
                 if (newWorld.w[newWorld.curY + 1][newWorld.curX]->m[0][x] == '#')
                 {
-                    bottomExit = x; // error: operand of '*' must be a pointer but has type "int"C/C++(75)
-
+                    bottomExit = x; 
                     break;
                 }
             }
@@ -411,7 +418,6 @@ void newMapCaller()
         // Left neighbor
         if (newWorld.curX > 0 && newWorld.w[newWorld.curY][newWorld.curX - 1])
         {
-            // char **leftMap = newWorld.w[newWorld.curY][newWorld.curX - 1];
             for (int y = 0; y < MAP_HEIGHT; y++)
             {
                 if (newWorld.w[newWorld.curY][newWorld.curX - 1]->m[y][MAP_WIDTH - 1] == '#')
@@ -425,7 +431,6 @@ void newMapCaller()
         // Right neighbor
         if (newWorld.curX < WORLD_WIDTH - 1 && newWorld.w[newWorld.curY][newWorld.curX + 1])
         {
-            // char *rightMap = newWorld.w[newWorld.curY][newWorld.curX + 1]->m;
             for (int y = 0; y < MAP_HEIGHT; y++)
             {
                 if (newWorld.w[newWorld.curY][newWorld.curX + 1]->m[y][0] == '#')
@@ -487,7 +492,7 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     world_init();
     newMapCaller(); // This should automatically use world.curY and world.curX
-
+    placePlayer(); // place it on road, called once bc there is only one player in the world
     // input commands
     char c;
 
