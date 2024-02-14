@@ -390,7 +390,7 @@ void newMapCaller()
         // for (int i = 0; i < MAP_HEIGHT; i++)
         // {
         // world.w[world.curY][world.curX] = malloc(sizeof(*world.w)); // Allocate a new map
-                                                                    // Initialize the map's row here, if necessary
+        // Initialize the map's row here, if necessary
         // }
         map_t map;
         world.w[world.curY][world.curX] = malloc(sizeof(*world.w[world.curY][world.curX])); //! is this correct
@@ -399,7 +399,7 @@ void newMapCaller()
         setRegionCoordinates(regions);
         createMap(world.w[world.curY][world.curX], regions); // add gates parameters
 
-        int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1; 
+        int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1;
         // Adjust gate positions based on existing neighboring maps
         // Top neighbor
         if (world.curY > 0 && world.w[world.curY - 1][world.curX])
@@ -504,16 +504,21 @@ int main(int argc, char *argv[])
         }
 
         printf("Enter command: ");
-        c = getchar(); // Read a single character command
+        // c = getchar(); // Read a single character command
         // getchar();     // Consume the newline character after the command
 
-        int fx, fy; // flying coordinates
-        if (scanf(" %c", &c) != 1)
-        {
-            /* To handle EOF */
-            putchar('\n');
-            break;
-        }
+        // int fx, fy; // flying coordinates
+        char input[20];
+        // char move;
+        int x, y;
+        fgets(input, sizeof(input), stdin);
+        sscanf(input, "%c %d %d", &c, &x, &y);
+        // if (scanf(" %c", &c) != 1)
+        // {
+        //     /* To handle EOF */
+        //     putchar('\n');
+        //     break;
+        // }
         switch (c)
         {
         case 'q': // quit the game
@@ -521,9 +526,9 @@ int main(int argc, char *argv[])
             break;
         case 'f': // fly to the (x, y) coordinate
             printf("Enter coordiantes in this form: x y\n");
-            scanf("%d %d", &fx, &fy);
+            // scanf("%d %d", &fx, &fy);
             // getchar(); // Consume the newline character after the coordinates
-            fly(fx, fy);
+            fly(x, y);
             break;
         case 'n': // move to the north map
             if (world.curY - 1 >= 0)
@@ -573,7 +578,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "%c: Invalid input. \n", c);
             break;
         }
-    } while (c != 'q');
+    } while (c != 'q' && c != '\n' && c != EOF);
 
     return 0;
 }
