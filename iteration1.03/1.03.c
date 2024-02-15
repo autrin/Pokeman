@@ -176,7 +176,7 @@ void assignRegions(struct Region regions[NUM_REGIONS])
 void setRegionCoordinates(struct Region regions[NUM_REGIONS])
 {
     // Assuming NUM_REGIONS is now 6 for even distribution
-    for (int i = 0; i < NUM_REGIONS + 1; i++)
+    for (int i = 0; i < NUM_REGIONS; i++) // !
     {
         regions[i].fromX = (i % 3) * (MAP_WIDTH / 3);
         regions[i].toX = ((i % 3) + 1) * (MAP_WIDTH / 3) - 1;
@@ -359,7 +359,7 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
         { // for easier access
             m->leftExit= currentY;
         }
-        else if (y == MAP_WIDTH - 1)
+        else if (x == MAP_WIDTH - 1)
         {
             m->rightExit= currentY;
         }
@@ -520,15 +520,15 @@ int main(int argc, char *argv[])
         }
 
         printf("Enter command: ");
-        // c = getchar(); // Read a single character command
-        // getchar();     // Consume the newline character after the command
+        c = getchar(); // Read a single character command
+        getchar();     // Consume the newline character after the command
 
-        // int fx, fy; // flying coordinates
-        char input[20];
+        int fx, fy; // flying coordinates
+        // char input[20];
         // char move;
         int x, y;
-        fgets(input, sizeof(input), stdin);
-        sscanf(input, "%c %d %d", &c, &x, &y);
+        // fgets(input, sizeof(input), stdin);
+        // sscanf(input, "%c %d %d", &c, &x, &y);
         // if (scanf(" %c", &c) != 1)
         // {
         //     /* To handle EOF */
@@ -542,8 +542,8 @@ int main(int argc, char *argv[])
             break;
         case 'f': // fly to the (x, y) coordinate
             printf("Enter coordiantes in this form: x y\n");
-            // scanf("%d %d", &fx, &fy);
-            // getchar(); // Consume the newline character after the coordinates
+            scanf("%d %d", &fx, &fy);
+            getchar(); // Consume the newline character after the coordinates
             fly(x, y);
             break;
         case 'n': // move to the north map
