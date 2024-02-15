@@ -317,6 +317,14 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
     int direction;
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
+        if (y == 0)
+        { // for easier access
+            m->topExit = currentX;
+        }
+        else if (y == MAP_HEIGHT - 1)
+        {
+            m->bottomExit = currentX;
+        }
         m->m[y][currentX] = '#';
         m->nsX[y] = currentX; // Storing the path locations
         m->nsY[y] = y;
@@ -347,6 +355,14 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
     // For horizontal path
     for (int x = 0; x < MAP_WIDTH; x++)
     {
+        if (x == 0)
+        { // for easier access
+            m->leftExit= currentY;
+        }
+        else if (y == MAP_WIDTH - 1)
+        {
+            m->rightExit= currentY;
+        }
         m->m[currentY][x] = '#';
         m->ewX[x] = x;
         m->ewY[x] = currentY;
