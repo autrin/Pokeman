@@ -176,7 +176,8 @@ void assignRegions(struct Region regions[NUM_REGIONS])
 void setRegionCoordinates(struct Region regions[NUM_REGIONS])
 {
     // Assuming NUM_REGIONS is now 6 for even distribution
-    for (int i = 0; i < NUM_REGIONS; i++) // !
+    for (int i = 0; i < NUM_REGIONS; i++) // ! this was NUM_REGIONS + 1 before. 
+    // TODO now you need to refactor the lines below to make it randomized
     {
         regions[i].fromX = (i % 3) * (MAP_WIDTH / 3);
         regions[i].toX = ((i % 3) + 1) * (MAP_WIDTH / 3) - 1;
@@ -212,8 +213,8 @@ void createMap(map_t *m, struct Region regions[NUM_REGIONS])
 
 void createSingleCenterOrMart(map_t *m, char building)
 {
-    while (true)
-    {
+    // while (true) // ! This needs to be replaced with something else to avoid an infinite loop
+    // {
         int xRand = (rand() % (MAP_WIDTH - 7)) + 3;
         int yRand = (rand() % (MAP_HEIGHT - 6)) + 3;
         // Check if the location is next to a path and is a clear spot
@@ -224,7 +225,10 @@ void createSingleCenterOrMart(map_t *m, char building)
             m->m[yRand][xRand] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
             return;                        // Exit once placed
         }
-    }
+        else{
+            m->m[10][40] = building; // for testing
+        }
+    // }
 }
 
 void createCC(map_t *m)
