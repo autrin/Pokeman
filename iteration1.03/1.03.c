@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#include <sys/time.h>
 
 #define MAP_WIDTH 80     // width of the map
 #define MAP_HEIGHT 21    // height of the map
@@ -176,7 +177,7 @@ void assignRegions(struct Region regions[NUM_REGIONS])
 void setRegionCoordinates(struct Region regions[NUM_REGIONS])
 {
     // Assuming NUM_REGIONS is now 6 for even distribution
-    for (int i = 0; i < NUM_REGIONS; i++) // ! this was NUM_REGIONS + 1 before. 
+    for (int i = 0; i < NUM_REGIONS; i++) // ! this was NUM_REGIONS + 1 before.
     // TODO now you need to refactor the lines below to make it randomized
     {
         regions[i].fromX = (i % 3) * (MAP_WIDTH / 3);
@@ -215,20 +216,30 @@ void createSingleCenterOrMart(map_t *m, char building)
 {
     // while (true) // ! This needs to be replaced with something else to avoid an infinite loop
     // {
-        int xRand = (rand() % (MAP_WIDTH - 7)) + 3;
-        int yRand = (rand() % (MAP_HEIGHT - 6)) + 3;
-        // Check if the location is next to a path and is a clear spot
-        if (m->m[yRand][xRand] == '.' &&
-            (m->m[yRand - 1][xRand] == '#' || m->m[yRand + 1][xRand] == '#' ||
-             m->m[yRand][xRand - 1] == '#' || m->m[yRand][xRand + 1] == '#'))
-        {
-            m->m[yRand][xRand] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
-            return;                        // Exit once placed
-        }
-        else{
-            m->m[10][40] = building; // for testing
-        }
-    // }
+    int idxX = rand() % (MAP_WIDTH - 1);
+    int idxY = rand() % (MAP_HEIGHT - 1);
+    // Check if the location is next to a path and is a clear spot
+    if (m->m[m->nsY[idxY]][m->nsX[idxX] + 1] == '.' &&
+        m->m[m->nsY[idxY]][m->nsX[idxX]] == '#')
+    {
+        m->m[m->nsX[idxX]][m->nsY[idxY] + 1] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
+        // return;                        // Exit once placed
+    }
+    else if (m->m[m->nsY[idxY]][m->nsX[idxX] - 1] == '.' &&
+             m->m[m->nsY[idxY]][m->nsX[idxX]] == '#')
+    {
+        m->m[m->nsX[idxX]][m->nsY[idxY] - 1] = building;
+    }
+    else if (m->m[m->ewY[idxY] + 1][m->ewX[idxX]] == '.' &&
+             m->m[m->ewY[idxY]][m->ewX[idxX]] == '#')
+    {
+        m->m[m->ewX[idxX] + 1][m->ewY[idxY]] = building;
+    }
+    else if (m->m[m->ewY[idxY] - 1][m->nsX[idxX]] == '.' &&
+             m->m[m->ewY[idxY]][m->ewX[idxX]] == '#')
+    {
+        m->m[m->ewX[idxX] - 1][m->ewY[idxY]] = building;
+    }
 }
 
 void createCC(map_t *m)
@@ -361,11 +372,11 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
     {
         if (x == 0)
         { // for easier access
-            m->leftExit= currentY;
+            m->leftExit = currentY;
         }
         else if (x == MAP_WIDTH - 1)
         {
-            m->rightExit= currentY;
+            m->rightExit = currentY;
         }
         m->m[currentY][x] = '#';
         m->ewX[x] = x;
@@ -394,10 +405,17 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
     }
 }
 
-// void placePlayer()
-// {                  // the paths have been created
-//     pc.x = rand(); // TODO
-// }
+void placePlayer(map_t *m)
+{                  // the paths have been created
+    pc.x = rand() % (MAP_WIDTH - 3) + 3;
+    pc.y = rand() % (MAP_HEIGHT - 3) + 3;
+    if(rand() % 2 ==0){ // randomly place it either of vertical or horizontal paths
+        m->m[m->ewY[pc.y]][m->ewX[pc.x]] = '@';
+    }
+    else{
+        m->m[m->nsY[pc.y]][m->nsX[pc.x]] = '@';
+    }
+}
 
 void newMapCaller()
 { // calls all of the functions neccessary to create a single map
@@ -405,13 +423,6 @@ void newMapCaller()
     // Only proceed if the map does not exist
     if (!world.w[world.curY][world.curX])
     {
-        // Allocate memory for each row
-        // map_t *m = malloc(MAP_HEIGHT * sizeof(char *));
-        // for (int i = 0; i < MAP_HEIGHT; i++)
-        // {
-        // world.w[world.curY][world.curX] = malloc(sizeof(*world.w)); // Allocate a new map
-        // Initialize the map's row here, if necessary
-        // }
         map_t map;
         world.w[world.curY][world.curX] = malloc(sizeof(*world.w[world.curY][world.curX])); //! is this correct
         initializeRegions(regions);
@@ -420,7 +431,7 @@ void newMapCaller()
         createMap(world.w[world.curY][world.curX], regions); // add gates parameters
 
         int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1;
-        // Adjust gate positions based on existing neighboring maps
+        /* Adjust gate positions based on existing neighboring maps */
         // Top neighbor
         if (world.curY > 0 && world.w[world.curY - 1][world.curX])
         {
@@ -507,9 +518,10 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     world_init();
     newMapCaller(); // This should automatically use world.curY and world.curX
-    // placePlayer();  // place it on road, called once bc there is only one player in the world
+    placePlayer(world.w[world.curY][world.curX]);  // place '@' on road, called once bc there is only one player in the world
     // input commands
     char c;
+    int fx, fy; // flying coordinates
 
     do
     {
@@ -522,23 +534,17 @@ int main(int argc, char *argv[])
         {
             printf("No map exists at this location.\n");
         }
-
         printf("Enter command: ");
-        c = getchar(); // Read a single character command
-        getchar();     // Consume the newline character after the command
+        // c = getchar(); // Read a single character command
+        // getchar();     // Consume the newline character after the command
 
-        int fx, fy; // flying coordinates
-        // char input[20];
-        // char move;
-        int x, y;
-        // fgets(input, sizeof(input), stdin);
-        // sscanf(input, "%c %d %d", &c, &x, &y);
-        // if (scanf(" %c", &c) != 1)
-        // {
-        //     /* To handle EOF */
-        //     putchar('\n');
-        //     break;
-        // }
+        if (scanf(" %c", &c) != 1) // it is going to read one char and put the rest in place for later
+        {
+            /* To handle EOF */
+            putchar('\n');
+            break;
+        }
+
         switch (c)
         {
         case 'q': // quit the game
@@ -547,8 +553,8 @@ int main(int argc, char *argv[])
         case 'f': // fly to the (x, y) coordinate
             printf("Enter coordiantes in this form: x y\n");
             scanf("%d %d", &fx, &fy);
-            getchar(); // Consume the newline character after the coordinates
-            fly(x, y);
+            // getchar(); // Consume the newline character after the coordinates
+            fly(fx, fy);
             break;
         case 'n': // move to the north map
             if (world.curY - 1 >= 0)
@@ -595,10 +601,10 @@ int main(int argc, char *argv[])
             }
             break;
         default:
-            fprintf(stderr, "%c: Invalid input. \n", c);
+            fprintf(stderr, "%c: Invalid input.\n", c);
             break;
         }
-    } while (c != 'q' && c != '\n' && c != EOF);
+    } while (c != 'q');
 
     return 0;
 }
