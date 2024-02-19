@@ -22,32 +22,41 @@ struct Region
     int32_t fromX, fromY, toX, toY;
     char symbol;
 };
+typedef struct coord
+{
+    int x;
+    int y;
+} pathCoord_t;
 
 typedef struct map
 {
     char m[MAP_HEIGHT][MAP_WIDTH];
     int topExit, bottomExit, leftExit, rightExit;
-    int ewX[MAP_WIDTH * 2];  // The x-axis of east-west path //* sizes are multiplied by 2 because the paths are not straigh and are curved
-    int ewY[MAP_HEIGHT * 2]; // The y-axis of east-west path
-    int nsX[MAP_WIDTH * 2];  // The x-axis North-south path
-    int nsY[MAP_HEIGHT * 2]; // The y-axis North-south path
+    // int ewX[MAP_WIDTH * 2];  // The x-axis of east-west path //* sizes are multiplied by 2 because the paths are not straigh but curved
+    // int ewY[MAP_HEIGHT * 2]; // The y-axis of east-west path
+    // int nsX[MAP_WIDTH * 2];  // The x-axis North-south path
+    // int nsY[MAP_HEIGHT * 2]; // The y-axis North-south path
+    pathCoord_t roads[MAP_WIDTH * MAP_HEIGHT];
 } map_t;
-
-typedef struct world
-{
-    map_t *w[WORLD_HEIGHT][WORLD_WIDTH];
-    int32_t curX; // x of the current map
-    int32_t curY; // y of the current map
-} world_t;
-
-world_t world;
 
 typedef struct pc
 { // player character, which is '@'
     int32_t x;
     int32_t y;
 } pc_t;
-pc_t pc; // making it global since there is only one pc in the world.
+typedef struct world
+{
+    map_t *w[WORLD_HEIGHT][WORLD_WIDTH];
+    int32_t curX; // x of the current map
+    int32_t curY; // y of the current map
+    pc_t pc;
+    int hikerDist[MAP_HEIGHT][MAP_WIDTH];
+    int rivalDist[MAP_HEIGHT][MAP_WIDTH];
+} world_t;
+
+world_t world;
+
+// pc_t pc; // making it global since there is only one world.pc in the world.
 
 void createSingleCenterOrMart(map_t *m, char building);
 
@@ -214,37 +223,68 @@ void createMap(map_t *m, struct Region regions[NUM_REGIONS])
 
 void createSingleCenterOrMart(map_t *m, char building)
 {
-    // while (true) // ! This needs to be replaced with something else to avoid an infinite loop
+    // while (true)
     // {
-    int idxX = rand() % (MAP_WIDTH - 1);
-    int idxY = rand() % (MAP_HEIGHT - 1);
-    // Check if the location is next to a path and is a clear spot
-    if (m->m[m->nsY[idxY]][m->nsX[idxX] + 1] == '.' &&
-        m->m[m->nsY[idxY]][m->nsX[idxX]] == '#')
-    {
-        m->m[m->nsX[idxX]][m->nsY[idxY] + 1] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
-        // return;                        // Exit once placed
-    }
-    else if (m->m[m->nsY[idxY]][m->nsX[idxX] - 1] == '.' &&
-             m->m[m->nsY[idxY]][m->nsX[idxX]] == '#')
-    {
-        m->m[m->nsX[idxX]][m->nsY[idxY] - 1] = building;
-    }
-    else if (m->m[m->ewY[idxY] + 1][m->ewX[idxX]] == '.' &&
-             m->m[m->ewY[idxY]][m->ewX[idxX]] == '#')
-    {
-        m->m[m->ewX[idxX] + 1][m->ewY[idxY]] = building;
-    }
-    else if (m->m[m->ewY[idxY] - 1][m->nsX[idxX]] == '.' &&
-             m->m[m->ewY[idxY]][m->ewX[idxX]] == '#')
-    {
-        m->m[m->ewX[idxX] - 1][m->ewY[idxY]] = building;
+    // int idxX = rand() % (MAP_WIDTH - 1);
+    // int idxY = rand() % (MAP_HEIGHT - 1);
+    // // Check if the location is next to a path and is a clear spot
+    // if (m->m[m->nsY[idxY]][m->nsX[idxX] + 1] == '.' &&
+    //     m->m[m->nsY[idxY]][m->nsX[idxX]] == '#')
+    // {
+    //     m->m[m->nsX[idxX]][m->nsY[idxY] + 1] = building; // Place either a Pokémon Center ('C') or a Pokémart ('M')
+    //     // return;                        // Exit once placed
+    // }
+    // else if (m->m[m->nsY[idxY]][m->nsX[idxX] - 1] == '.' &&
+    //          m->m[m->nsY[idxY]][m->nsX[idxX]] == '#')
+    // {
+    //     m->m[m->nsX[idxX]][m->nsY[idxY] - 1] = building;
+    // }
+    // else if (m->m[m->ewY[idxY] + 1][m->ewX[idxX]] == '.' &&
+    //          m->m[m->ewY[idxY]][m->ewX[idxX]] == '#')
+    // {
+    //     m->m[m->ewX[idxX] + 1][m->ewY[idxY]] = building;
+    // }
+    // else if (m->m[m->ewY[idxY] - 1][m->nsX[idxX]] == '.' &&
+    //          m->m[m->ewY[idxY]][m->ewX[idxX]] == '#')
+    // {
+    //     m->m[m->ewX[idxX] - 1][m->ewY[idxY]] = building;
+    // }
+
+    int roadSize = sizeof(m->roads) / sizeof(m->roads[0]);
+    // Choose a random valid coordinate for placement
+    int i = 0;
+    for(i; m->m[]){
+        int idx = rand() % (roadSize - 6) + 4;
+        int x = m->roads[idx].x;
+        int y = m->roads[idx].y;
+
+        // Place the building
+        if ((m->m[y][x] == '#') && (m->m[y][x - 1] == '.' || m->m[y][x - 1] == ':' || m->m[y][x - 1] == '^' ||
+            m->m[y][x - 1] == '%' || m->m[y][x - 1] == '~'))
+        {
+            m->m[y][x - 1] = building;
+        }
+        else if ((m->m[y][x] == '#') && (m->m[y][x + 1] == '.' || m->m[y][x + 1] == ':' || m->m[y][x + 1] == '^' ||
+            m->m[y][x + 1] == '%' || m->m[y][x + 1] == '~'))
+        {
+            m->m[y][x + 1] = building;
+        }
+        else if ((m->m[y][x] == '#') && (m->m[y + 1][x] == '.' || m->m[y + 1][x] == ':' || m->m[y + 1][x] == '^' ||
+            m->m[y  + 1][x] == '%' || m->m[y + 1][x] == '~'))
+        {
+            m->m[y + 1][x] = building;
+        }
+        else if ((m->m[y][x] == '#') && (m->m[y - 1][x] == '.' || m->m[y - 1][x] == ':' || m->m[y - 1][x] == '^' ||
+            m->m[y- 1][x] == '%' || m->m[y- 1][x] == '~'))
+        {
+            m->m[y - 1][x] = building;
+        }
     }
 }
 
 void createCC(map_t *m)
 {
-    createSingleCenterOrMart(m, 'C'); //! Might need to do &m
+    createSingleCenterOrMart(m, 'C');
 }
 
 void createPokemart(map_t *m)
@@ -330,6 +370,7 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
     // For vertical path
     int deviation;
     int direction;
+    int roadLoc = 0;
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
         if (y == 0)
@@ -341,8 +382,10 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
             m->bottomExit = currentX;
         }
         m->m[y][currentX] = '#';
-        m->nsX[y] = currentX; // Storing the path locations
-        m->nsY[y] = y;
+        // m->nsX[y] = currentX; // Storing the path locations
+        // m->nsY[y] = y;
+        m->roads[roadLoc] = (pathCoord_t){y, currentX};
+        roadLoc++;
         // Random deviation in the first half
         if (y < MAP_HEIGHT / 2)
         {
@@ -379,8 +422,10 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
             m->rightExit = currentY;
         }
         m->m[currentY][x] = '#';
-        m->ewX[x] = x;
-        m->ewY[x] = currentY;
+        // m->ewX[x] = x;
+        // m->ewY[x] = currentY;
+        m->roads[roadLoc] = (pathCoord_t){currentY, x};
+        roadLoc++;
         // Random deviation in the first half
         if (x < MAP_WIDTH / 2)
         {
@@ -405,16 +450,38 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
     }
 }
 
-void placePlayer(map_t *m)
-{                  // the paths have been created
-    pc.x = rand() % (MAP_WIDTH - 3) + 3;
-    pc.y = rand() % (MAP_HEIGHT - 3) + 3;
-    if(rand() % 2 ==0){ // randomly place it either of vertical or horizontal paths
-        m->m[m->ewY[pc.y]][m->ewX[pc.x]] = '@';
+void placePlayer(map_t *m) // Player can be on the roads and should not be placed at the gates or borders.
+{                          // the paths have been created
+    // world.pc.x = rand() % (MAP_WIDTH - 3) + 3;
+    // printf("\n%d\n", world.pc.x); // testing
+    // world.pc.y = rand() % (MAP_HEIGHT - 3) + 3;
+    int roadSize = sizeof(m->roads) / sizeof(m->roads[0]);
+    int randLoc = rand() % (roadSize - 2) + 2;
+    // int placed = 0;
+    if (m->m[m->roads[randLoc].y][m->roads[randLoc].x] == '#')
+    {
+        m->m[m->roads[randLoc].y][m->roads[randLoc].x] = '@';
+        world.pc.x = m->roads[randLoc].x;
+        world.pc.y = m->roads[randLoc].y;
+        // placed = 1;
+        printf("Placed player at (%d, %d).\n", world.pc.x, world.pc.y);
     }
-    else{
-        m->m[m->nsY[pc.y]][m->nsX[pc.x]] = '@';
-    }
+    // if(rand() % 2 ==0){ // randomly place it either of vertical or horizontal paths
+    //     m->m[m->ewY[world.pc.y]][m->ewX[world.pc.x]] = '@';
+    // }
+    // else{
+    //     m->m[m->nsY[world.pc.y]][m->nsX[world.pc.x]] = '@';
+    // }
+}
+
+void dijkstra(map_t *m)
+{
+    // shortest path that a hiker and a rival can travel to get to the world.pc.
+    // we need the world.pc's information.
+    int i = 0;
+    // while (i < WORLD_HEIGHT && i < WORLD_WIDTH){ // might need to be have a j if WORLD_HEIGHT and WORLD_WIDTH are different in the future.
+    //     // calculate the shortest path from each square
+    // }
 }
 
 void newMapCaller()
@@ -435,36 +502,39 @@ void newMapCaller()
         // Top neighbor
         if (world.curY > 0 && world.w[world.curY - 1][world.curX])
         {
-            if (world.w[world.curY - 1][world.curX]->m[MAP_HEIGHT - 1][world.w[world.curY - 1][world.curX]->nsX[(sizeof(world.w[world.curY - 1][world.curX]->nsX) / sizeof(world.w[world.curY - 1][world.curX]->nsX[0])) - 1]] == '#')
-            {
-                topExit = world.w[world.curY - 1][world.curX]->nsX[(sizeof(world.w[world.curY - 1][world.curX]->nsX) / sizeof(world.w[world.curY - 1][world.curX]->nsX[0])) - 1];
-            }
+            // if (world.w[world.curY - 1][world.curX]->m[MAP_HEIGHT - 1][world.w[world.curY - 1][world.curX]->nsX[(sizeof(world.w[world.curY - 1][world.curX]->nsX) / sizeof(world.w[world.curY - 1][world.curX]->nsX[0])) - 1]] == '#')
+            // {
+            //     topExit = world.w[world.curY - 1][world.curX]->nsX[(sizeof(world.w[world.curY - 1][world.curX]->nsX) / sizeof(world.w[world.curY - 1][world.curX]->nsX[0])) - 1];
+            // }
+            topExit = world.w[world.curY - 1][world.curX]->bottomExit;
         }
         // Bottom neighbor
         if (world.curY < WORLD_HEIGHT - 1 && world.w[world.curY + 1][world.curX])
         {
-            if (world.w[world.curY + 1][world.curX]->m[0][world.w[world.curY + 1][world.curX]->nsX[0]] == '#')
-            {
-                bottomExit = world.w[world.curY + 1][world.curX]->nsX[0];
-            }
+            // if (world.w[world.curY + 1][world.curX]->m[0][world.w[world.curY + 1][world.curX]->nsX[0]] == '#')
+            // {
+            //     bottomExit = world.w[world.curY + 1][world.curX]->nsX[0];
+            // }
+            bottomExit = world.w[world.curY + 1][world.curX]->topExit;
         }
         // Left neighbor
         if (world.curX > 0 && world.w[world.curY][world.curX - 1])
         {
-            if (world.w[world.curY][world.curX - 1]->m[world.w[world.curY][world.curX - 1]->ewY[(sizeof(world.w[world.curY][world.curX - 1]->ewY) / sizeof(world.w[world.curY][world.curX - 1]->ewY[0])) - 1]][MAP_WIDTH - 1] == '#')
-            {
-                leftExit = world.w[world.curY][world.curX - 1]->ewY[(sizeof(world.w[world.curY][world.curX - 1]->ewY) / sizeof(world.w[world.curY][world.curX - 1]->ewY[0])) - 1];
-            }
+            // if (world.w[world.curY][world.curX - 1]->m[world.w[world.curY][world.curX - 1]->ewY[(sizeof(world.w[world.curY][world.curX - 1]->ewY) / sizeof(world.w[world.curY][world.curX - 1]->ewY[0])) - 1]][MAP_WIDTH - 1] == '#')
+            // {
+            //     leftExit = world.w[world.curY][world.curX - 1]->ewY[(sizeof(world.w[world.curY][world.curX - 1]->ewY) / sizeof(world.w[world.curY][world.curX - 1]->ewY[0])) - 1];
+            // }
+            leftExit = world.w[world.curY][world.curX - 1]->rightExit;
         }
 
         // Right neighbor
         if (world.curX < WORLD_WIDTH - 1 && world.w[world.curY][world.curX + 1])
         {
-
-            if (world.w[world.curY][world.curX + 1]->m[world.w[world.curY][world.curX + 1]->ewY[0]][0] == '#')
-            {
-                rightExit = world.w[world.curY][world.curX + 1]->ewY[0];
-            }
+            // if (world.w[world.curY][world.curX + 1]->m[world.w[world.curY][world.curX + 1]->ewY[0]][0] == '#')
+            // {
+            //     rightExit = world.w[world.curY][world.curX + 1]->ewY[0];
+            // }
+            rightExit = world.w[world.curY][world.curX + 1]->leftExit;
         }
 
         createPaths(world.w[world.curY][world.curX], topExit, leftExit, bottomExit, rightExit);
@@ -517,8 +587,8 @@ int main(int argc, char *argv[])
 {
     srand(time(NULL));
     world_init();
-    newMapCaller(); // This should automatically use world.curY and world.curX
-    placePlayer(world.w[world.curY][world.curX]);  // place '@' on road, called once bc there is only one player in the world
+    newMapCaller();                               // This should automatically use world.curY and world.curX
+    placePlayer(world.w[world.curY][world.curX]); // place '@' on road, called once bc there is only one player in the world
     // input commands
     char c;
     int fx, fy; // flying coordinates
