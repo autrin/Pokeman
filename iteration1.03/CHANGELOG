@@ -1,3 +1,21 @@
+commit e8bc29afa3f216aeb43866816f0e82ae391f790f
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 18 23:06:26 2024 -0600
+
+    worked on createSingleCenterOrMart() and placePlayer(), and path_t. Also started the heap and heap_node
+
+commit ecfded54783bbccb6f8dab7704d31eaf040a1da9
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sat Feb 17 14:53:01 2024 -0600
+
+    placed the @ on map
+
+commit d25aea8e1a73ea8e4260941e96334c13dd57fa0e
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Fri Feb 16 10:44:56 2024 -0600
+
+    added CHANGELOG and Makefile
+
 commit 277a8221fe38dc6e049fd9cf98c713c3057b1643
 Author: Autrin <ahakimi@iastate.edu>
 Date:   Fri Feb 16 10:43:19 2024 -0600
