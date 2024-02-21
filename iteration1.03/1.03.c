@@ -525,6 +525,11 @@ static int32_t path_cmp(const void *key, const void *with)
     return ((path_t *)key)->cost - ((path_t *)with)->cost;
 }
 
+static int32_t edge_penalty(int8_t x, int8_t y)
+{
+    return (x == 1 || y == 1 || x == MAP_WIDTH - 2 || y == MAP_HEIGHT - 2) ? 2 : 1;
+}
+
 void dijkstra(map_t *m, pair_t from, pair_t to)
 {
     // shortest path that a hiker and a rival can travel to get to the world.pc.

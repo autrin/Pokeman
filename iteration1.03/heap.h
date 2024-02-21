@@ -23,6 +23,8 @@ extern "C"
         void (*datum_delete)(void*));
     void* heap_remove_min(heap_t* h);
     heap_node_t* heap_insert(heap_t* h, void* v);
+    int heap_decrease_key_no_replace(heap_t* h, heap_node_t* n); // you have the heap node to avoid the linear search in the heap
+    // you will call this when you want find a shortest path and u want to adjust the path
 
 #ifdef __cplusplus
 }

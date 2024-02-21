@@ -6,25 +6,25 @@
 
 struct heap_node
 {
-    heap_node_t *next;
-    heap_node_t *prev;
-    heap_node_t *parent;
-    heap_node_t *child;
+    heap_node_t* next;
+    heap_node_t* prev;
+    heap_node_t* parent;
+    heap_node_t* child;
     uint32_t degree;
     uint32_t mark;
-    void *data;
+    void* data;
 };
 
-void heap_init(heap_t *h, int32_t (*compare)(const void *key, const void *with), void (*delete_data)(void *))
+void heap_init(heap_t* h, int32_t(*compare)(const void* key, const void* with), void (*delete_data)(void*))
 {
     h->min = NULL;
     h->size = 0;
     h->datum_delete = delete_data;
     h->compare = compare;
 }
-heap_node_t *heap_insert(heap_t *h, void *v)
+heap_node_t* heap_insert(heap_t* h, void* v)
 {
-    heap_node_t *n;
+    heap_node_t* n;
     assert((n = calloc(1, sizeof(*n))));
     n->data = v;
     if (h->min)
@@ -38,7 +38,7 @@ heap_node_t *heap_insert(heap_t *h, void *v)
     {
         n->next = n->prev = n; // nothing in heap so everything is n
     }
-    if(!h->min || (h->compare(v, h->min->data) < 0)){
+    if (!h->min || (h->compare(v, h->min->data) < 0)) {
         h->min = n;
     }
     h->size++;
@@ -46,11 +46,11 @@ heap_node_t *heap_insert(heap_t *h, void *v)
 }
 
 
-static void heap_consolidate(heap_t *h)
+static void heap_consolidate(heap_t* h)
 {
     uint32_t i;
-    heap_node_t *x, *y, *n;
-    heap_node_t *a[64]; /* Need ceil(lg(h->size)), so this is good  *
+    heap_node_t* x, * y, * n;
+    heap_node_t* a[64]; /* Need ceil(lg(h->size)), so this is good  *
                          * to the limit of a 64-bit address space,  *
                          * and much faster than any lg calculation. */
 
@@ -96,24 +96,24 @@ static void heap_consolidate(heap_t *h)
     }
 }
 
-void *heap_remove_min(heap_t *h){
-    void *v;
-    heap_node_t *n;
+void* heap_remove_min(heap_t* h) {
+    void* v;
+    heap_node_t* n;
     v = NULL;
-    if(h->min){
+    if (h->min) {
         v = h->min->data;
-        if(h->size == 1){
+        if (h->size == 1) {
             free(h->min);
             h->min = NULL;
         }
-        else{
-            if((n = h->min->child)){
-                for(;n->parent; n = n->next){
+        else {
+            if ((n = h->min->child)) {
+                for (;n->parent; n = n->next) {
                     n->parent = NULL;
                 }
             }
-            if(h->min && h->min->child){
-                h->min->next->prev = h->min->child->prev; 
+            if (h->min && h->min->child) {
+                h->min->next->prev = h->min->child->prev;
                 h->min->child->prev->next = h->min->next;
                 h->min->next = h->min->child;
                 h->min->child->prev = h->min;   //?
@@ -128,4 +128,69 @@ void *heap_remove_min(heap_t *h){
         h->size--;
     }
     return v;
+}
+
+static void heap_cut(heap_t* h, heap_node_t* n, heap_node_t* p)
+{
+    if (!--p->degree)
+    {
+        p->child = NULL;
+    }
+    if (p->child == n)
+    {
+        p->child = p->child->next;
+    }
+
+    // remove the node
+    n->next->prev = n->prev;
+    n->prev->next = n->next;
+
+    n->parent = NULL;
+    n->mark = 0;
+
+    // Now insert the node
+    n->next = h->min; 
+    n->prev = h->min->prev;
+    n->prev->next = n;
+    h->min->prev = n;
+}
+
+static void heap_cascading_cut(heap_t *h, heap_node_t *n)
+{
+    heap_node_t *p;
+
+    if ((p = n->parent))
+    {
+        if (!n->mark)
+        {
+            n->mark = 1;
+        }
+        else
+        {
+            heap_cut(h, n, p);
+            heap_cascading_cut(h, n);
+        }
+    }
+}
+
+int heap_decrease_key_no_replace(heap_t* h, heap_node_t* n)
+{
+    /* No tests that the value hasn't actually increased.  Change *
+     * occurs in place, so the check is not possible here.  The   *
+     * user is completely responsible for ensuring that they      *
+     * don't fubar the queue.                                     */
+
+    heap_node_t* p;
+
+    p = n->parent;
+
+    if (p && (h->compare(n->data, p->data) < 0)) {
+        heap_cut(h, n, p);
+        heap_cascading_cut(h, p);
+    }
+    if (h->compare(n->data, h->min->data) < 0) {
+        h->min = n;
+    }
+
+    return 0;
 }
