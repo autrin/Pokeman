@@ -5,16 +5,25 @@
 #include <time.h>
 #include <stdbool.h>
 #include <sys/time.h>
-
+#include "heap.h"
 #define MAP_WIDTH 80     // width of the map
 #define MAP_HEIGHT 21    // height of the map
 #define NUM_REGIONS 5    // Number of regions
 #define WORLD_HEIGHT 401 // world of all of the maps
 #define WORLD_WIDTH 401
-
+#define INT_MAX __INT_MAX__ // used for dijkstra
+#define mapxy(x, y) (m->m[y][x])
 void newMapCaller(void);
 
 char symbols[] = {'%', '^', ':', '.', '~'}; // Simplified symbols array
+
+typedef struct path
+{
+    heap_node_t *hn;
+    uint8_t pos[2];
+    uint8_t from[2];
+    int32_t cost;
+} path_t;
 
 // Define a structure to represent a region
 struct Region
@@ -31,6 +40,8 @@ typedef struct
 
 Position validPositionsForBuildings[MAP_WIDTH * MAP_HEIGHT]; // Adjust size accordingly
 int validPositionsCount = 0;                                 // Keep track of how many valid positions are stored
+
+typedef int16_t pair_t[3];
 
 typedef struct map
 {
@@ -60,6 +71,34 @@ typedef struct world
 world_t world;
 
 // pc_t pc; // making it global since there is only one world.pc in the world.
+
+// Function to add a valid position (ensure not to add duplicates)
+void addValidPosition(int x, int y)
+{
+    validPositionsForBuildings[validPositionsCount].x = x;
+    validPositionsForBuildings[validPositionsCount].y = y;
+    validPositionsCount++;
+}
+
+// After createPaths, populate validPositionsForBuildings with adjacent non-path tiles
+void collectValidPositions(map_t *m)
+{
+    validPositionsCount = 0; // Reset count
+    // Iterate over the map to find and add valid positions
+    for (int y = 1; y < MAP_HEIGHT - 1; y++)
+    {
+        for (int x = 1; x < MAP_WIDTH - 1; x++)
+        {
+            // Example condition: adjacent to path and not a building or border
+            if (m->m[y][x] == '#' &&
+                (m->m[y + 1][x] == '.' || m->m[y - 1][x] == '.' ||
+                 m->m[y][x + 1] == '.' || m->m[y][x - 1] == '.'))
+            {
+                addValidPosition(x, y);
+            }
+        }
+    }
+}
 
 void createSingleCenterOrMart(map_t *m, char building);
 
@@ -252,6 +291,7 @@ void createMap(map_t *m, struct Region regions[NUM_REGIONS])
     }
 }
 
+
 void createSingleCenterOrMart(map_t *m, char building)
 {
     if (validPositionsCount == 0)
@@ -269,13 +309,13 @@ void createSingleCenterOrMart(map_t *m, char building)
     {
         m->m[pos.y][pos.x - 1] = building;
     }
-    else if (m->m[pos.y - 1][pos.x] == '.')
-    {
-        m->m[pos.y - 1][pos.x] = building;
-    }
     else if (m->m[pos.y + 1][pos.x] == '.')
     {
         m->m[pos.y + 1][pos.x] = building;
+    }
+    else if (m->m[pos.y - 1][pos.x] == '.')
+    {
+        m->m[pos.y - 1][pos.x] = building;
     }
 }
 
@@ -480,14 +520,124 @@ void placePlayer(map_t *m)
     world.pc.y = pos.y;
 }
 
-void dijkstra(map_t *m)
+static int32_t path_cmp(const void *key, const void *with)
+{
+    return ((path_t *)key)->cost - ((path_t *)with)->cost;
+}
+
+void dijkstra(map_t *m, pair_t from, pair_t to)
 {
     // shortest path that a hiker and a rival can travel to get to the world.pc.
     // we need the world.pc's information.
-    int i = 0;
-    // while (i < WORLD_HEIGHT && i < WORLD_WIDTH){ // might need to be have a j if WORLD_HEIGHT and WORLD_WIDTH are different in the future.
-    //     // calculate the shortest path from each square
-    // }
+    static path_t path[MAP_HEIGHT][MAP_WIDTH]; // maintain the value accross function calls.
+    static uint32_t initialized = 0;
+    static path_t *p;
+    heap_t h;
+    uint32_t x, y;
+    if (!initialized)
+    {
+        for (y = 0; y < MAP_HEIGHT; y++)
+        {
+            for (x = 0; x < MAP_WIDTH; x++)
+            {
+                path[y][x].pos[1] = y; // willl never change again
+                path[y][x].pos[0] = x; // willl never change again
+            }
+        }
+        initialized = 1;
+    }
+    for (y = 0; y < MAP_HEIGHT; y++)
+    { // iterate through all the nodes
+        for (x = 0; x < MAP_WIDTH; x++)
+        {
+            path[y][x].cost = INT_MAX;
+        }
+    }
+    heap_init(&h, path_cmp, NULL); // deleting things that are not dynamic is an error
+
+    for (y = 1; y < MAP_HEIGHT - 1; y++)
+    {
+        for (x = 1; x < MAP_WIDTH - 1; x++)
+        {
+            path[y][x].hn = heap_insert(&h, &path[y][x]);
+        }
+    }
+    while ((p = heap_remove_min(&h)))
+    {
+        p->hn = NULL;
+        if ((p->pos[1] == to[1]) && (p->pos[0] == to[0]))
+        {
+            for (x = to[0], y = to[1]; x != from[0] || y != from[1]; p = &path[y][x],
+                x = p->from[0], y = p->from[1])
+            {
+                // we don't want to overwrite the gates
+                if (x != to[0] || y != to[1]) // ?
+                {
+                    mapxy(x, y) = '#'; // ?
+                    // heightxy(x, y) = 0
+                }
+            }
+            heap_delete(&h);
+            return;
+        }
+
+        if ((path[p->pos[1] - 1][p->pos[0]].hn) && // is the north neighbor in the heap?
+            (path[p->pos[1] - 1][p->pos[0]].cost > // copmparing the cost
+             ((p->cost + heightpair(p->pos)) *             // then update the cost
+              edge_penalty(p->pos[0], p->pos[1] - 1))))
+        {
+            path[p->pos[1] - 1][p->pos[0]].cost =
+                ((p->cost + heightpair(p->pos)) *
+                 edge_penalty(p->pos[0], p->pos[1] - 1));
+            path[p->pos[1] - 1][p->pos[0]].from[1] = p->pos[1]; // might not need this
+            path[p->pos[1] - 1][p->pos[0]].from[0] = p->pos[0]; // might not need this
+            heap_decrease_key_no_replace(&h, path[p->pos[1] - 1]
+                                                 [p->pos[0]]
+                                                     .hn);
+        }
+        if ((path[p->pos[1]][p->pos[0] - 1].hn) &&
+            (path[p->pos[1]][p->pos[0] - 1].cost >
+             ((p->cost + heightpair(p->pos)) *
+              edge_penalty(p->pos[0] - 1, p->pos[1]))))
+        {
+            path[p->pos[1]][p->pos[0] - 1].cost =
+                ((p->cost + heightpair(p->pos)) *
+                 edge_penalty(p->pos[0] - 1, p->pos[1]));
+            path[p->pos[1]][p->pos[0] - 1].from[1] = p->pos[1];
+            path[p->pos[1]][p->pos[0] - 1].from[0] = p->pos[0];
+            heap_decrease_key_no_replace(&h, path[p->pos[1]]
+                                                 [p->pos[0] - 1]
+                                                     .hn);
+        }
+        if ((path[p->pos[1]][p->pos[0] + 1].hn) &&
+            (path[p->pos[1]][p->pos[0] + 1].cost >
+             ((p->cost + heightpair(p->pos)) *
+              edge_penalty(p->pos[0] + 1, p->pos[1]))))
+        {
+            path[p->pos[1]][p->pos[0] + 1].cost =
+                ((p->cost + heightpair(p->pos)) *
+                 edge_penalty(p->pos[0] + 1, p->pos[1]));
+            path[p->pos[1]][p->pos[0] + 1].from[1] = p->pos[1];
+            path[p->pos[1]][p->pos[0] + 1].from[0] = p->pos[0];
+            heap_decrease_key_no_replace(&h, path[p->pos[1]]
+                                                 [p->pos[0] + 1]
+                                                     .hn);
+        }
+        if ((path[p->pos[1] + 1][p->pos[0]].hn) &&
+            (path[p->pos[1] + 1][p->pos[0]].cost >
+             ((p->cost + heightpair(p->pos)) *
+              edge_penalty(p->pos[0], p->pos[1] + 1))))
+        {
+            path[p->pos[1] + 1][p->pos[0]].cost =
+                ((p->cost + heightpair(p->pos)) *
+                 edge_penalty(p->pos[0], p->pos[1] + 1));
+            path[p->pos[1] + 1][p->pos[0]].from[1] = p->pos[1];
+            path[p->pos[1] + 1][p->pos[0]].from[0] = p->pos[0];
+            heap_decrease_key_no_replace(&h, path[p->pos[1] + 1]
+                                                 [p->pos[0]]
+                                                     .hn);
+        }
+    }
 }
 
 void newMapCaller()
@@ -505,6 +655,29 @@ void newMapCaller()
         createMap(world.w[world.curY][world.curX], regions); // add gates parameters
 
         int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1;
+        /* Adjust gate positions based on existing neighboring maps */
+        // Top neighbor
+        if (world.curY > 0 && world.w[world.curY - 1][world.curX])
+        {
+            topExit = world.w[world.curY - 1][world.curX]->bottomExit;
+        }
+        // Bottom neighbor
+        if (world.curY < WORLD_HEIGHT - 1 && world.w[world.curY + 1][world.curX])
+        {
+            bottomExit = world.w[world.curY + 1][world.curX]->topExit;
+        }
+        // Left neighbor
+        if (world.curX > 0 && world.w[world.curY][world.curX - 1])
+        {
+            leftExit = world.w[world.curY][world.curX - 1]->rightExit;
+        }
+
+        // Right neighbor
+        if (world.curX < WORLD_WIDTH - 1 && world.w[world.curY][world.curX + 1])
+        {
+            rightExit = world.w[world.curY][world.curX + 1]->leftExit;
+        }
+
         createPaths(world.w[world.curY][world.curX], topExit, leftExit, bottomExit, rightExit);
         collectValidPositions(world.w[world.curY][world.curX]);
         createBorder(world.w[world.curY][world.curX]);
