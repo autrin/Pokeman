@@ -1,3 +1,39 @@
+commit d1f143d8c8faaa4fafe6c4cdcff5b1f754aba3c4
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 21 20:27:52 2024 -0600
+
+    dijkstra, heap, heap_node, perlin's noise, faster rand, improved C/M placement. Fantastic.
+
+commit d9ed64a3d104de55ec79754a7e582e9a34508afd
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 21 14:09:32 2024 -0600
+
+    updating makefile
+
+commit a2e598662929a642cbd128d4ece1e31d916ff156
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 20 20:28:35 2024 -0600
+
+    worked on heap
+
+commit 7e7b9848b9032b0f4c81253cb3d625d6096ae23a
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 20 20:02:46 2024 -0600
+
+    worked on dijkstra and heaps
+
+commit d152a43d72dfe2549b2ef5c6605c183276f95277
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 20 15:32:17 2024 -0600
+
+    updated changelog
+
+commit 098850fc6cc6352775b98a9d69737d98b39fb16d
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Mon Feb 19 01:31:50 2024 -0600
+
+    fixed C and M and @ placements
+
 commit e8bc29afa3f216aeb43866816f0e82ae391f790f
 Author: Autrin <ahakimi@iastate.edu>
 Date:   Sun Feb 18 23:06:26 2024 -0600
