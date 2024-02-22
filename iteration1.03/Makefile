@@ -7,7 +7,7 @@ RM = rm -f
 CFLAGS = -Wall -Werror -ggdb -funroll-loops -DTERM=$(TERM)
 CXXFLAGS = -Wall -Werror -ggdb -funroll-loops -DTERM=$(TERM)
 
-LDFLAGS = 
+LDFLAGS = -lm # Link against the math library
 
 BIN = 1.03
 OBJS = 1.03.o heap.o

@@ -5,21 +5,26 @@
 #include <time.h>
 #include <stdbool.h>
 #include <sys/time.h>
+#include <limits.h> 
+#include <math.h>
+
 #include "heap.h"
+
 #define MAP_WIDTH 80     // width of the map
 #define MAP_HEIGHT 21    // height of the map
 #define NUM_REGIONS 5    // Number of regions
 #define WORLD_HEIGHT 401 // world of all of the maps
 #define WORLD_WIDTH 401
-#define INT_MAX __INT_MAX__ // used for dijkstra
+#define SHRT_MAX __SHRT_MAX__
 #define mapxy(x, y) (m->m[y][x])
+
 void newMapCaller(void);
 
-char symbols[] = {'%', '^', ':', '.', '~'}; // Simplified symbols array
+char symbols[] = { '%', '^', ':', '.', '~' }; // Simplified symbols array
 
 typedef struct path
 {
-    heap_node_t *hn;
+    heap_node_t* hn;
     uint8_t pos[2];
     uint8_t from[2];
     int32_t cost;
@@ -47,10 +52,6 @@ typedef struct map
 {
     char m[MAP_HEIGHT][MAP_WIDTH];
     int topExit, bottomExit, leftExit, rightExit;
-    // int ewX[MAP_WIDTH * 2];  // The x-axis of east-west path //* sizes are multiplied by 2 because the paths are not straigh but curved
-    // int ewY[MAP_HEIGHT * 2]; // The y-axis of east-west path
-    // int nsX[MAP_WIDTH * 2];  // The x-axis North-south path
-    // int nsY[MAP_HEIGHT * 2]; // The y-axis North-south path
 } map_t;
 
 typedef struct pc
@@ -60,7 +61,7 @@ typedef struct pc
 } pc_t;
 typedef struct world
 {
-    map_t *w[WORLD_HEIGHT][WORLD_WIDTH];
+    map_t* w[WORLD_HEIGHT][WORLD_WIDTH];
     int32_t curX; // x of the current map
     int32_t curY; // y of the current map
     pc_t pc;
@@ -70,7 +71,79 @@ typedef struct world
 
 world_t world;
 
-// pc_t pc; // making it global since there is only one world.pc in the world.
+// Define character types
+typedef enum {
+    PC,
+    Hiker,
+    Rival,
+    Swimmer,
+    Other,
+    Num_Character_Types // Keeps track of the number of character types
+} CharacterType; //? Do I need other?
+
+// Define terrain types
+typedef enum {
+    BOULDER, TREE, PATH, MART, CENTER, GRASS, CLEARING, MOUNTAIN, FOREST, WATER, GATE,
+    Num_Terrain_Types // Keeps track of the number of terrain types
+} TerrainType;
+
+// Store the cost of each character going through every terrain type 
+int32_t cost[Num_Character_Types][Num_Terrain_Types] = {
+    // BOULDER, TREE, PATH, MART, CENTER, GRASS, CLEARING, MOUNTAIN, FOREST, WATER, GATE
+    [PC] = {SHRT_MAX, SHRT_MAX, 10, 10, 10, 20, 10, SHRT_MAX, SHRT_MAX, SHRT_MAX, 10},
+    [Hiker] = {SHRT_MAX, SHRT_MAX, 10, 50, 50, 15, 10, 15, 15, SHRT_MAX, SHRT_MAX},
+    [Rival] = {SHRT_MAX, SHRT_MAX, 10, 50, 50, 20, 10, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX},
+    [Swimmer] = {SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX, 7, SHRT_MAX},
+    [Other] = {SHRT_MAX, SHRT_MAX, 10, 50 , 50 , 20, 10 , SHRT_MAX, SHRT_MAX, SHRT_MAX, SHRT_MAX,}
+};
+
+
+int32_t get_cost(char terrainChar, int x, int y, CharacterType character) {
+
+    TerrainType terrain;
+    switch (terrainChar) {
+    case '%':
+        terrain = BOULDER;
+        break;
+    case '^':
+        terrain = TREE;
+        break;
+    case '#':
+        if ((x == world.w[world.curY][world.curX]->topExit && y == 0) ||
+            (x == world.w[world.curY][world.curX]->bottomExit && y == MAP_HEIGHT - 1) ||
+            (y == world.w[world.curY][world.curX]->leftExit && x == 0) ||
+            (y == world.w[world.curY][world.curX]->rightExit && x == MAP_WIDTH - 1)) {
+            terrain = GATE;
+        }
+        else {
+            terrain = PATH;
+        }
+        break;
+    case 'M':
+        terrain = MART;
+        break;
+    case ':':
+        terrain = GRASS;
+        break;
+    case '.':
+        terrain = CLEARING;
+        break;
+    case '~':
+        terrain = WATER;
+        break;
+    case 'C':
+        terrain = CENTER;
+        break;
+    case '@':
+        return 10;
+    default:
+        printf("@Error in get_cost()! Terrain type '%c' is unidentified.\n", terrainChar);
+        // Return a high cost for unidentified terrain to avoid using it in pathfinding.
+        return SHRT_MAX;
+    }
+    return cost[character][terrain];
+}
+
 
 // Function to add a valid position (ensure not to add duplicates)
 void addValidPosition(int x, int y)
@@ -81,18 +154,23 @@ void addValidPosition(int x, int y)
 }
 
 // After createPaths, populate validPositionsForBuildings with adjacent non-path tiles
-void collectValidPositions(map_t *m)
+void collectValidPositions(map_t* m)
 {
     validPositionsCount = 0; // Reset count
     // Iterate over the map to find and add valid positions
-    for (int y = 1; y < MAP_HEIGHT - 1; y++)
+    for (int y = 2; y < MAP_HEIGHT - 2; y++)
     {
-        for (int x = 1; x < MAP_WIDTH - 1; x++)
+        for (int x = 2; x < MAP_WIDTH - 2; x++)
         {
             // Example condition: adjacent to path and not a building or border
-            if (m->m[y][x] == '#' &&
-                (m->m[y + 1][x] == '.' || m->m[y - 1][x] == '.' ||
-                 m->m[y][x + 1] == '.' || m->m[y][x - 1] == '.'))
+            if (m->m[y][x] == '#'
+                // &&(m->m[y + 1][x] == '.' || m->m[y - 1][x] == '.' ||
+                //     m->m[y][x + 1] == '.' || m->m[y][x - 1] == '.' ||
+                //     m->m[y + 1][x] == ':' || m->m[y - 1][x] == ':' ||
+                //     m->m[y][x + 1] == ':' || m->m[y][x - 1] == ':' ||
+                //     m->m[y + 1][x] == '^' || m->m[y - 1][x] == '.' ||
+                //     m->m[y][x + 1] == '.' || m->m[y][x - 1] == '.' )
+                )
             {
                 addValidPosition(x, y);
             }
@@ -100,7 +178,7 @@ void collectValidPositions(map_t *m)
     }
 }
 
-void createSingleCenterOrMart(map_t *m, char building);
+void createSingleCenterOrMart(map_t* m, char building);
 
 int world_init()
 { // initializing each map of the world to NULL
@@ -112,41 +190,13 @@ int world_init()
         }
     }
     world.curX = WORLD_WIDTH / 2; // the starting point is the center, which is (200, 200) internally to us developers,
-                                  // but (0, 0) externally in the output.
+    // but (0, 0) externally in the output.
     world.curY = WORLD_HEIGHT / 2;
     return 0;
 }
 
-// Function to add a valid position (ensure not to add duplicates)
-void addValidPosition(int x, int y)
-{
-    validPositionsForBuildings[validPositionsCount].x = x;
-    validPositionsForBuildings[validPositionsCount].y = y;
-    validPositionsCount++;
-}
-
-// After createPaths, populate validPositionsForBuildings with adjacent non-path tiles
-void collectValidPositions(map_t *m)
-{
-    validPositionsCount = 0; // Reset count
-    // Iterate over the map to find and add valid positions
-    for (int y = 1; y < MAP_HEIGHT - 1; y++)
-    {
-        for (int x = 1; x < MAP_WIDTH - 1; x++)
-        {
-            // Example condition: adjacent to path and not a building or border
-            if (m->m[y][x] == '#' &&
-                (m->m[y + 1][x] == '.' || m->m[y - 1][x] == '.' ||
-                 m->m[y][x + 1] == '.' || m->m[y][x - 1] == '.'))
-            {
-                addValidPosition(x, y);
-            }
-        }
-    }
-}
-
 // Function to create the border of the map
-void createBorder(map_t *m)
+void createBorder(map_t* m)
 {
     for (int i = 0; i < MAP_WIDTH; i++)
     {
@@ -244,7 +294,7 @@ void assignRegions(struct Region regions[NUM_REGIONS])
                 notSame = true;
             }
             else if (secondTallGrass - 1 >= 0 && secondTallGrass - 1 != firstWater && secondTallGrass - 1 != firstTallGrass &&
-                     secondTallGrass - 1 != firstRock && secondTallGrass - 1 != tallGrass)
+                secondTallGrass - 1 != firstRock && secondTallGrass - 1 != tallGrass)
             {
                 regions[secondTallGrass - 1].symbol = ':';
                 notSame = true;
@@ -253,11 +303,132 @@ void assignRegions(struct Region regions[NUM_REGIONS])
     }
 }
 
+/* Using Perlin's noise to make the map prettier and very very unexpected.*/
+typedef struct {
+    float x, y;
+} Vector2D;
+
+typedef struct {
+    Vector2D grad[2][2]; // Gradients for the corners of a grid cell
+} GradientGrid;
+
+// Linear interpolation
+float lerp(float a, float b, float t) {
+    return a + t * (b - a);
+}
+
+// Smoothstep function for smoother transitions
+float smoothstep(float t) {
+    return t * t * (3 - 2 * t);
+}
+
+// Dot product of two Vector2D
+float dot(Vector2D a, Vector2D b) {
+    return a.x * b.x + a.y * b.y;
+}
+
+// Generate a random gradient vector
+Vector2D randomGradient() {
+    float angle = (float)rand() / (float)RAND_MAX * 2 * M_PI;
+    Vector2D v;
+    v.x = cos(angle);
+    v.y = sin(angle);
+    return v;
+}
+
+// Perlin noise function using improved gradients
+float perlinNoise(float x, float y, GradientGrid* grid) {
+    // Determine grid cell coordinates
+    int x0 = (int)floor(x);
+    int y0 = (int)floor(y);
+
+    // Local coordinates within the grid cell
+    float localX = x - (float)x0;
+    float localY = y - (float)y0;
+
+    // Fetch gradients for the corners of the grid cell
+    Vector2D g00 = grid->grad[0][0];
+    Vector2D g10 = grid->grad[1][0];
+    Vector2D g01 = grid->grad[0][1];
+    Vector2D g11 = grid->grad[1][1];
+
+    // Calculate noise contributions from each of the four corners
+    float n00 = dot(g00, (Vector2D) { localX, localY });
+    float n10 = dot(g10, (Vector2D) { localX - 1, localY });
+    float n01 = dot(g01, (Vector2D) { localX, localY - 1 });
+    float n11 = dot(g11, (Vector2D) { localX - 1, localY - 1 });
+
+    // Interpolate along x
+    float ix0 = lerp(n00, n10, smoothstep(localX));
+    float ix1 = lerp(n01, n11, smoothstep(localX));
+
+    // Interpolate along y and return the final noise value
+    float value = lerp(ix0, ix1, smoothstep(localY));
+
+    return value;
+}
+
+// Map noise values to terrain types
+TerrainType terrainTypeBasedOnNoiseValue(float noise) {
+    if (noise < -0.1) {
+        return WATER;
+    }
+    else if (noise < 0.0) {
+        return GRASS;
+    }
+    else if (noise < 0.1) {
+        return CLEARING;
+    }
+    else if (noise < 0.2) {
+        return TREE;
+    }
+    else {
+        return BOULDER;
+    }
+}
+
+void generateTerrainWithNoise(map_t* m) {
+    GradientGrid grid;
+    // Assign random gradients to each corner of the grid
+    grid.grad[0][0] = randomGradient();
+    grid.grad[1][0] = randomGradient();
+    grid.grad[0][1] = randomGradient();
+    grid.grad[1][1] = randomGradient();
+
+    double scale = 0.1; // Adjust for more or less frequency in terrain changes
+    TerrainType terrain;
+    double noiseValue;
+    for (int y = 0; y < MAP_HEIGHT; y++) {
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            noiseValue = perlinNoise(x * scale, y * scale, &grid);
+            terrain = terrainTypeBasedOnNoiseValue(noiseValue);
+            switch (terrain) {
+            case GRASS:
+                m->m[y][x] = ':';
+                break;
+            case CLEARING:
+                m->m[y][x] = '.';
+                break;
+            case TREE:
+                m->m[y][x] = '^';
+                break;
+            case BOULDER:
+                m->m[y][x] = '%';
+                break;
+            case WATER:
+                m->m[y][x] = '~';
+                break;
+            default:
+                printf("\nError! Unexpected TerrainType was found in generateTerrainWithNoise()\n");
+            }
+        }
+    }
+}
+
+
 void setRegionCoordinates(struct Region regions[NUM_REGIONS])
 {
-    // Assuming NUM_REGIONS is now 6 for even distribution
-    for (int i = 0; i < NUM_REGIONS; i++) // ! this was NUM_REGIONS + 1 before.
-    // TODO now you need to refactor the lines below to make it randomized
+    for (int i = 0; i < NUM_REGIONS; i++)
     {
         regions[i].fromX = (i % 3) * (MAP_WIDTH / 3);
         regions[i].toX = ((i % 3) + 1) * (MAP_WIDTH / 3) - 1;
@@ -267,7 +438,7 @@ void setRegionCoordinates(struct Region regions[NUM_REGIONS])
 }
 
 // Function to create the map using region information
-void createMap(map_t *m, struct Region regions[NUM_REGIONS])
+void createMap(map_t* m, struct Region regions[NUM_REGIONS])
 {
     // Initially fill the map with a default terrain to avoid empty spaces
     for (int y = 0; y < MAP_HEIGHT; y++)
@@ -292,44 +463,51 @@ void createMap(map_t *m, struct Region regions[NUM_REGIONS])
 }
 
 
-void createSingleCenterOrMart(map_t *m, char building)
+void createSingleCenterOrMart(map_t* m, char building)
 {
     if (validPositionsCount == 0)
         return; // No valid positions available
+    int idx;
+    Position pos;
+    while (true) {
+        idx = rand() % validPositionsCount;
+        pos = validPositionsForBuildings[idx];
 
-    int idx = rand() % validPositionsCount;
-    Position pos = validPositionsForBuildings[idx];
-
-    // Example logic to place building next to selected path position
-    if (m->m[pos.y][pos.x + 1] == '.')
-    {
-        m->m[pos.y][pos.x + 1] = building;
-    }
-    else if (m->m[pos.y][pos.x - 1] == '.')
-    {
-        m->m[pos.y][pos.x - 1] = building;
-    }
-    else if (m->m[pos.y + 1][pos.x] == '.')
-    {
-        m->m[pos.y + 1][pos.x] = building;
-    }
-    else if (m->m[pos.y - 1][pos.x] == '.')
-    {
-        m->m[pos.y - 1][pos.x] = building;
+        // Example logic to place building next to selected path position
+        if (m->m[pos.y][pos.x + 1] != 'M' && m->m[pos.y][pos.x + 1] != 'C' && m->m[pos.y][pos.x + 1] != '#')
+        {
+            m->m[pos.y][pos.x + 1] = building;
+            return;
+        }
+        else if (m->m[pos.y][pos.x - 1] != 'M' && m->m[pos.y][pos.x - 1] != 'C' && m->m[pos.y][pos.x - 1] != '#')
+        {
+            m->m[pos.y][pos.x - 1] = building;
+            return;
+        }
+        else if (m->m[pos.y + 1][pos.x] != 'M' && m->m[pos.y + 1][pos.x] != 'C' && m->m[pos.y + 1][pos.x] != '#')
+        {
+            m->m[pos.y + 1][pos.x] = building;
+            return;
+        }
+        else if (m->m[pos.y - 1][pos.x] != 'M' && m->m[pos.y - 1][pos.x] != 'C' && m->m[pos.y + 1][pos.x] != '#')
+        {
+            m->m[pos.y - 1][pos.x] = building;
+            return;
+        }
     }
 }
 
-void createCC(map_t *m)
+void createCC(map_t* m)
 {
     createSingleCenterOrMart(m, 'C');
 }
 
-void createPokemart(map_t *m)
+void createPokemart(map_t* m)
 {
     createSingleCenterOrMart(m, 'M');
 }
 
-void printMap(map_t *m)
+void printMap(map_t* m)
 {
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
@@ -341,7 +519,7 @@ void printMap(map_t *m)
     }
 }
 
-void sprinkle(map_t *m)
+void sprinkle(map_t* m)
 {
 
     for (int i = 0; i < 50; i++)
@@ -391,8 +569,9 @@ void fly(int newX, int newY)
     }
 }
 
-void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightExit) //! The issue with north (either first map or all of them) is that I think the gate does not exist on the first map
-                    // ! But I think they exist because of the if statements. Anyways fix the bottom gates.
+void createPaths(map_t* m, int topExit, int leftExit, int bottomExit, int rightExit)
+//! The issue with north (either first map or all of them) is that I think the gate does not exist on the first map
+// ! But I think they exist because of the if statements. Anyways fix the bottom gates.
 {
 
     // Correctly align top and bottom exits with adjacent maps if they exist
@@ -507,7 +686,7 @@ void createPaths(map_t *m, int topExit, int leftExit, int bottomExit, int rightE
     }
 }
 
-void placePlayer(map_t *m)
+void placePlayer(map_t* m)
 {
     if (validPositionsCount == 0)
         return; // No valid positions available
@@ -520,23 +699,21 @@ void placePlayer(map_t *m)
     world.pc.y = pos.y;
 }
 
-static int32_t path_cmp(const void *key, const void *with)
-{
-    return ((path_t *)key)->cost - ((path_t *)with)->cost;
+
+static int32_t compRival(const void* key, const void* with) { // comparator for rivals
+    return (world.rivalDist[((path_t*)key)->pos[1]][((path_t*)key)->pos[0]] - world.rivalDist[((path_t*)with)->pos[1]][((path_t*)with)->pos[0]]);
+}
+static int32_t compHiker(const void* key, const void* with) { // comparator for rivals
+    return (world.hikerDist[((path_t*)key)->pos[1]][((path_t*)key)->pos[0]] - world.hikerDist[((path_t*)with)->pos[1]][((path_t*)with)->pos[0]]);
 }
 
-static int32_t edge_penalty(int8_t x, int8_t y)
-{
-    return (x == 1 || y == 1 || x == MAP_WIDTH - 2 || y == MAP_HEIGHT - 2) ? 2 : 1;
-}
 
-void dijkstra(map_t *m, pair_t from, pair_t to)
+// A function to find the shortest path for hiker and rival to get to the pc.
+void dijkstra(map_t* m)
 {
-    // shortest path that a hiker and a rival can travel to get to the world.pc.
-    // we need the world.pc's information.
     static path_t path[MAP_HEIGHT][MAP_WIDTH]; // maintain the value accross function calls.
     static uint32_t initialized = 0;
-    static path_t *p;
+    static path_t* p;
     heap_t h;
     uint32_t x, y;
     if (!initialized)
@@ -551,97 +728,201 @@ void dijkstra(map_t *m, pair_t from, pair_t to)
         }
         initialized = 1;
     }
-    for (y = 0; y < MAP_HEIGHT; y++)
-    { // iterate through all the nodes
+    for (y = 0; y < MAP_HEIGHT; y++) // Initialize the d value of hiker dist and rival dist and assign them infinity
+    {
         for (x = 0; x < MAP_WIDTH; x++)
         {
-            path[y][x].cost = INT_MAX;
+            world.hikerDist[y][x] = SHRT_MAX;
+            world.rivalDist[y][x] = SHRT_MAX;
         }
     }
-    heap_init(&h, path_cmp, NULL); // deleting things that are not dynamic is an error
+    // Distance for pc
+    world.hikerDist[world.pc.y][world.pc.x] = 0;
+    world.rivalDist[world.pc.y][world.pc.x] = 0;
+
+    /*Rival*/
+    heap_init(&h, compRival, NULL); // initialize the heap for rival
 
     for (y = 1; y < MAP_HEIGHT - 1; y++)
     {
         for (x = 1; x < MAP_WIDTH - 1; x++)
         {
-            path[y][x].hn = heap_insert(&h, &path[y][x]);
+            // Don't add the infinity in the heap because they've not been reached yet
+            if (get_cost(m->m[y][x], x, y, Rival) != SHRT_MAX) {
+                path[y][x].hn = heap_insert(&h, &path[y][x]);
+            }
+            else {
+                path[y][x].hn = NULL;
+            }
         }
     }
     while ((p = heap_remove_min(&h)))
     {
         p->hn = NULL;
-        if ((p->pos[1] == to[1]) && (p->pos[0] == to[0]))
+        if ((path[p->pos[1] - 1][p->pos[0]].hn) && // is the north neighbor in the heap?
+            (world.rivalDist[p->pos[1] - 1][p->pos[0]] > world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival))) // copmparing the cost
         {
-            for (x = to[0], y = to[1]; x != from[0] || y != from[1]; p = &path[y][x],
-                x = p->from[0], y = p->from[1])
-            {
-                // we don't want to overwrite the gates
-                if (x != to[0] || y != to[1]) // ?
-                {
-                    mapxy(x, y) = '#'; // ?
-                    // heightxy(x, y) = 0
-                }
-            }
-            heap_delete(&h);
-            return;
+            world.rivalDist[p->pos[1] - 1][p->pos[0]] = world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival);
+            heap_decrease_key_no_replace(&h, path[p->pos[1] - 1][p->pos[0]].hn);
         }
 
-        if ((path[p->pos[1] - 1][p->pos[0]].hn) && // is the north neighbor in the heap?
-            (path[p->pos[1] - 1][p->pos[0]].cost > // copmparing the cost
-             ((p->cost + heightpair(p->pos)) *             // then update the cost
-              edge_penalty(p->pos[0], p->pos[1] - 1))))
-        {
-            path[p->pos[1] - 1][p->pos[0]].cost =
-                ((p->cost + heightpair(p->pos)) *
-                 edge_penalty(p->pos[0], p->pos[1] - 1));
-            path[p->pos[1] - 1][p->pos[0]].from[1] = p->pos[1]; // might not need this
-            path[p->pos[1] - 1][p->pos[0]].from[0] = p->pos[0]; // might not need this
-            heap_decrease_key_no_replace(&h, path[p->pos[1] - 1]
-                                                 [p->pos[0]]
-                                                     .hn);
-        }
         if ((path[p->pos[1]][p->pos[0] - 1].hn) &&
-            (path[p->pos[1]][p->pos[0] - 1].cost >
-             ((p->cost + heightpair(p->pos)) *
-              edge_penalty(p->pos[0] - 1, p->pos[1]))))
+            (world.rivalDist[p->pos[1]][p->pos[0] - 1] > world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival)))
         {
-            path[p->pos[1]][p->pos[0] - 1].cost =
-                ((p->cost + heightpair(p->pos)) *
-                 edge_penalty(p->pos[0] - 1, p->pos[1]));
-            path[p->pos[1]][p->pos[0] - 1].from[1] = p->pos[1];
-            path[p->pos[1]][p->pos[0] - 1].from[0] = p->pos[0];
-            heap_decrease_key_no_replace(&h, path[p->pos[1]]
-                                                 [p->pos[0] - 1]
-                                                     .hn);
+            world.rivalDist[p->pos[1]][p->pos[0] - 1] = world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival);
+            heap_decrease_key_no_replace(&h, path[p->pos[1]][p->pos[0] - 1].hn);
         }
+
         if ((path[p->pos[1]][p->pos[0] + 1].hn) &&
-            (path[p->pos[1]][p->pos[0] + 1].cost >
-             ((p->cost + heightpair(p->pos)) *
-              edge_penalty(p->pos[0] + 1, p->pos[1]))))
+            (world.rivalDist[p->pos[1]][p->pos[0] + 1] > world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival)))
         {
-            path[p->pos[1]][p->pos[0] + 1].cost =
-                ((p->cost + heightpair(p->pos)) *
-                 edge_penalty(p->pos[0] + 1, p->pos[1]));
-            path[p->pos[1]][p->pos[0] + 1].from[1] = p->pos[1];
-            path[p->pos[1]][p->pos[0] + 1].from[0] = p->pos[0];
-            heap_decrease_key_no_replace(&h, path[p->pos[1]]
-                                                 [p->pos[0] + 1]
-                                                     .hn);
+            world.rivalDist[p->pos[1]][p->pos[0] + 1] = world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival);
+            heap_decrease_key_no_replace(&h, path[p->pos[1]][p->pos[0] + 1].hn);
         }
+
         if ((path[p->pos[1] + 1][p->pos[0]].hn) &&
-            (path[p->pos[1] + 1][p->pos[0]].cost >
-             ((p->cost + heightpair(p->pos)) *
-              edge_penalty(p->pos[0], p->pos[1] + 1))))
+            (world.rivalDist[p->pos[1] + 1][p->pos[0]] > world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival)))
         {
-            path[p->pos[1] + 1][p->pos[0]].cost =
-                ((p->cost + heightpair(p->pos)) *
-                 edge_penalty(p->pos[0], p->pos[1] + 1));
-            path[p->pos[1] + 1][p->pos[0]].from[1] = p->pos[1];
-            path[p->pos[1] + 1][p->pos[0]].from[0] = p->pos[0];
-            heap_decrease_key_no_replace(&h, path[p->pos[1] + 1]
-                                                 [p->pos[0]]
-                                                     .hn);
+            world.rivalDist[p->pos[1] + 1][p->pos[0]] = world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival);
+            heap_decrease_key_no_replace(&h, path[p->pos[1] + 1][p->pos[0]].hn);
         }
+
+        if ((path[p->pos[1] + 1][p->pos[0] - 1].hn) &&
+            (world.rivalDist[p->pos[1] + 1][p->pos[0] - 1] > world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival)))
+        {
+            world.rivalDist[p->pos[1] + 1][p->pos[0] - 1] = world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival);
+            heap_decrease_key_no_replace(&h, path[p->pos[1] + 1][p->pos[0] - 1].hn);
+        }
+
+        if ((path[p->pos[1] - 1][p->pos[0] - 1].hn) &&
+            (world.rivalDist[p->pos[1] - 1][p->pos[0] - 1] > world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival)))
+        {
+            world.rivalDist[p->pos[1] - 1][p->pos[0] - 1] = world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival);
+            heap_decrease_key_no_replace(&h, path[p->pos[1] - 1][p->pos[0] - 1].hn);
+        }
+
+        if ((path[p->pos[1] + 1][p->pos[0] + 1].hn) &&
+            (world.rivalDist[p->pos[1] + 1][p->pos[0] + 1] > world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival)))
+        {
+            world.rivalDist[p->pos[1] + 1][p->pos[0] + 1] = world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival);
+            heap_decrease_key_no_replace(&h, path[p->pos[1] + 1][p->pos[0] + 1].hn);
+        }
+
+        if ((path[p->pos[1] - 1][p->pos[0] + 1].hn) &&
+            (world.rivalDist[p->pos[1] - 1][p->pos[0] + 1] > world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival)))
+        {
+            world.rivalDist[p->pos[1] - 1][p->pos[0] + 1] = world.rivalDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Rival);
+            heap_decrease_key_no_replace(&h, path[p->pos[1] - 1][p->pos[0] + 1].hn);
+        }
+    }
+
+    heap_delete(&h);
+
+    /*Hiker*/
+    heap_init(&h, compHiker, NULL); // initialize the heap for rival
+    // deleting things that are not dynamic is an error
+
+    for (y = 1; y < MAP_HEIGHT - 1; y++)
+    {
+        for (x = 1; x < MAP_WIDTH - 1; x++)
+        {
+            // Don't add the infinity in the heap because they've not been reached yet
+            if (get_cost(m->m[y][x], x, y, Hiker) != SHRT_MAX) {
+                path[y][x].hn = heap_insert(&h, &path[y][x]);
+            }
+            else {
+                path[y][x].hn = NULL;
+            }
+        }
+    }
+    while ((p = heap_remove_min(&h)))
+    {
+        p->hn = NULL;
+        if ((path[p->pos[1] - 1][p->pos[0]].hn) && // is the north neighbor in the heap?
+            (world.hikerDist[p->pos[1] - 1][p->pos[0]] > world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker))) // copmparing the cost
+        {
+            world.hikerDist[p->pos[1] - 1][p->pos[0]] = world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker);
+            heap_decrease_key_no_replace(&h, path[p->pos[1] - 1][p->pos[0]].hn);
+        }
+
+        if ((path[p->pos[1]][p->pos[0] - 1].hn) &&
+            (world.hikerDist[p->pos[1]][p->pos[0] - 1] > world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker)))
+        {
+            world.hikerDist[p->pos[1]][p->pos[0] - 1] = world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker);
+            heap_decrease_key_no_replace(&h, path[p->pos[1]][p->pos[0] - 1].hn);
+        }
+
+        if ((path[p->pos[1]][p->pos[0] + 1].hn) &&
+            (world.hikerDist[p->pos[1]][p->pos[0] + 1] > world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker)))
+        {
+            world.hikerDist[p->pos[1]][p->pos[0] + 1] = world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker);
+            heap_decrease_key_no_replace(&h, path[p->pos[1]][p->pos[0] + 1].hn);
+        }
+
+        if ((path[p->pos[1] + 1][p->pos[0]].hn) &&
+            (world.hikerDist[p->pos[1] + 1][p->pos[0]] > world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker)))
+        {
+            world.hikerDist[p->pos[1] + 1][p->pos[0]] = world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker);
+            heap_decrease_key_no_replace(&h, path[p->pos[1] + 1][p->pos[0]].hn);
+        }
+
+        if ((path[p->pos[1] + 1][p->pos[0] - 1].hn) &&
+            (world.hikerDist[p->pos[1] + 1][p->pos[0] - 1] > world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker)))
+        {
+            world.hikerDist[p->pos[1] + 1][p->pos[0] - 1] = world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker);
+            heap_decrease_key_no_replace(&h, path[p->pos[1] + 1][p->pos[0] - 1].hn);
+        }
+
+        if ((path[p->pos[1] - 1][p->pos[0] - 1].hn) &&
+            (world.hikerDist[p->pos[1] - 1][p->pos[0] - 1] > world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker)))
+        {
+            world.hikerDist[p->pos[1] - 1][p->pos[0] - 1] = world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker);
+            heap_decrease_key_no_replace(&h, path[p->pos[1] - 1][p->pos[0] - 1].hn);
+        }
+
+        if ((path[p->pos[1] + 1][p->pos[0] + 1].hn) &&
+            (world.hikerDist[p->pos[1] + 1][p->pos[0] + 1] > world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker)))
+        {
+            world.hikerDist[p->pos[1] + 1][p->pos[0] + 1] = world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker);
+            heap_decrease_key_no_replace(&h, path[p->pos[1] + 1][p->pos[0] + 1].hn);
+        }
+
+        if ((path[p->pos[1] - 1][p->pos[0] + 1].hn) &&
+            (world.hikerDist[p->pos[1] - 1][p->pos[0] + 1] > world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker)))
+        {
+            world.hikerDist[p->pos[1] - 1][p->pos[0] + 1] = world.hikerDist[p->pos[1]][p->pos[0]] + get_cost(m->m[p->pos[1]][p->pos[0]], p->pos[0], p->pos[1], Hiker);
+            heap_decrease_key_no_replace(&h, path[p->pos[1] - 1][p->pos[0] + 1].hn);
+        }
+    }
+
+    heap_delete(&h);
+}
+
+void printHiker_RivalMap() {
+    int i, j;
+    for (i = 0; i < MAP_HEIGHT; i++) {
+        for (j = 0; j < MAP_WIDTH; j++) {
+            if (world.hikerDist[i][j] == SHRT_MAX) { // If infinity then print space 
+                printf("   ");
+            }
+            else {
+                printf("%02d ", world.hikerDist[i][j] % 100);
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
+
+    for (i = 0; i < MAP_HEIGHT; i++) {
+        for (j = 0; j < MAP_WIDTH; j++) {
+            if (world.rivalDist[i][j] == SHRT_MAX) { // If infinity then print space
+                printf("   ");
+            }
+            else {
+                printf("%02d ", world.rivalDist[i][j] % 100);
+            }
+        }
+        printf("\n");
     }
 }
 
@@ -658,8 +939,10 @@ void newMapCaller()
         assignRegions(regions);
         setRegionCoordinates(regions);
         createMap(world.w[world.curY][world.curX], regions); // add gates parameters
+        generateTerrainWithNoise(world.w[world.curY][world.curX]);
 
         int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1;
+
         /* Adjust gate positions based on existing neighboring maps */
         // Top neighbor
         if (world.curY > 0 && world.w[world.curY - 1][world.curX])
@@ -730,13 +1013,31 @@ void freeAllMaps()
     }
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    srand(time(NULL));
+    struct timeval tv;
+    uint32_t seed;
+    if (argc == 2)
+    {
+        seed = atoi(argv[1]);
+    }
+    else
+    {
+        gettimeofday(&tv, NULL);
+        seed = (tv.tv_usec ^ (tv.tv_sec << 20)) & 0xffffffff;
+    }
+    srand(seed);
+
     world_init();
     newMapCaller(); // This should automatically use world.curY and world.curX
     collectValidPositions(world.w[world.curY][world.curX]);
     placePlayer(world.w[world.curY][world.curX]); // place '@' on road, called once bc there is only one player in the world
+    dijkstra(world.w[world.curY][world.curX]);
+    printMap(world.w[world.curY][world.curX]);
+    printHiker_RivalMap();
+    freeAllMaps();
+    return 0; // We only need the code upto this part for this iteration.
+
     // input commands
     char c;
     int fx, fy; // flying coordinates

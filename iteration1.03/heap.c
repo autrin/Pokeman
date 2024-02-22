@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "heap.h"
 
@@ -14,6 +15,12 @@ struct heap_node
     uint32_t mark;
     void* data;
 };
+
+#define swap(a, b) ({     \
+    typeof(a) _tmp = (a); \
+    (a) = (b);            \
+    (b) = _tmp;           \
+})
 
 void heap_init(heap_t* h, int32_t(*compare)(const void* key, const void* with), void (*delete_data)(void*))
 {
@@ -45,6 +52,27 @@ heap_node_t* heap_insert(heap_t* h, void* v)
     return n;
 }
 
+static void heap_link(heap_t* h, heap_node_t* node, heap_node_t* root)
+{
+    /*  remove_heap_node_from_list(node);*/
+    if (root->child)
+    {
+        // Now insert the node
+        node->next = root->child;
+        node->prev = root->child->prev;
+        node->prev->next = node;
+        root->child->prev = node;
+
+    }
+    else
+    {
+        root->child = node;
+        node->next = node->prev = node;
+    }
+    node->parent = root;
+    root->degree++;
+    node->mark = 0;
+}
 
 static void heap_consolidate(heap_t* h)
 {
@@ -81,7 +109,11 @@ static void heap_consolidate(heap_t* h)
         {
             if (h->min)
             {
-                insert_heap_node_in_list(a[i], h->min);
+                // Now insert the node
+                a[i]->next = h->min;
+                a[i]->prev = h->min->prev;
+                a[i]->prev->next = a[i];
+                h->min->prev = a[i];
                 if (h->compare(a[i]->data, h->min->data) < 0)
                 {
                     h->min = a[i];
@@ -149,15 +181,15 @@ static void heap_cut(heap_t* h, heap_node_t* n, heap_node_t* p)
     n->mark = 0;
 
     // Now insert the node
-    n->next = h->min; 
+    n->next = h->min;
     n->prev = h->min->prev;
     n->prev->next = n;
     h->min->prev = n;
 }
 
-static void heap_cascading_cut(heap_t *h, heap_node_t *n)
+static void heap_cascading_cut(heap_t* h, heap_node_t* n)
 {
-    heap_node_t *p;
+    heap_node_t* p;
 
     if ((p = n->parent))
     {
@@ -193,4 +225,37 @@ int heap_decrease_key_no_replace(heap_t* h, heap_node_t* n)
     }
 
     return 0;
+}
+
+void heap_node_delete(heap_t *h, heap_node_t *hn)
+{
+    heap_node_t *next;
+
+    hn->prev->next = NULL;
+    while (hn)
+    {
+        if (hn->child)
+        {
+            heap_node_delete(h, hn->child);
+        }
+        next = hn->next;
+        if (h->datum_delete)
+        {
+            h->datum_delete(hn->data);
+        }
+        free(hn);
+        hn = next;
+    }
+}
+
+void heap_delete(heap_t* h)
+{
+    if (h->min)
+    {
+        heap_node_delete(h, h->min);
+    }
+    h->min = NULL;
+    h->size = 0;
+    h->compare = NULL;
+    h->datum_delete = NULL;
 }
