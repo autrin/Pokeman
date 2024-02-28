@@ -1028,6 +1028,15 @@ int main(int argc, char* argv[])
     }
     srand(seed);
 
+    // input numtrainers
+    int numtrainers = 10; // Default
+    for (int i = 1; i < argc; i++) { // Starting from 1 because the first el. of argv is the name of the program. So skip it
+        if (strcmp(argv[i], "--numtrainers") == 0 && i + 1 < argc && argv[i + 1] > 0) {
+            numtrainers = atoi(argv[i + 1]);
+            i++; // Skip next argument since we've processed it
+        }
+    } // TODO check for the argument to be a number.
+    
     world_init();
     newMapCaller(); // This should automatically use world.curY and world.curX
     collectValidPositions(world.w[world.curY][world.curX]);
