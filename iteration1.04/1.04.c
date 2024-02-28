@@ -820,7 +820,6 @@ void dijkstra(map_t* m)
 
     /*Hiker*/
     heap_init(&h, compHiker, NULL); // initialize the heap for rival
-    // deleting things that are not dynamic is an error
 
     for (y = 1; y < MAP_HEIGHT - 1; y++)
     {
@@ -959,7 +958,6 @@ void newMapCaller()
         {
             leftExit = world.w[world.curY][world.curX - 1]->rightExit;
         }
-
         // Right neighbor
         if (world.curX < WORLD_WIDTH - 1 && world.w[world.curY][world.curX + 1])
         {
@@ -1043,7 +1041,7 @@ int main(int argc, char* argv[])
     placePlayer(world.w[world.curY][world.curX]); // place '@' on road, called once bc there is only one player in the world
     dijkstra(world.w[world.curY][world.curX]);
     printMap(world.w[world.curY][world.curX]);
-    printHiker_RivalMap();
+    // printHiker_RivalMap(); // Not needed for this iteration
     freeAllMaps();
     return 0; // We only need the code upto this part for this iteration.
 
