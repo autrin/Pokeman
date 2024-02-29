@@ -7,7 +7,7 @@
 #include <sys/time.h>
 #include <limits.h> 
 #include <math.h>
-
+#include <unistd.h>
 #include "heap.h"
 
 #define MAP_WIDTH 80     // width of the map
@@ -169,7 +169,11 @@ int32_t get_cost(char terrainChar, int x, int y, CharacterType character) {
 
 heap_t event_heap;
 
-
+int32_t characters_turn_comp(const void *key, const void *with)
+{
+  return ((((character_t *)key)->next_turn == ((character_t *)with)->next_turn) ? (((character_t *)key)->sequence_number - ((character_t *)with)->sequence_number)
+            : (((character_t *)key)->next_turn - ((character_t *)with)->next_turn)); // If there is a tie, compare teh sequence numbers.
+}
 character_t* create_character(Position pos, CharacterType type) {
     character_t* new_char = malloc(sizeof(character_t));
     new_char->x = pos.x;
@@ -180,13 +184,53 @@ character_t* create_character(Position pos, CharacterType type) {
     return new_char;
 }
 
-bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npc_type) {
-    // Implement checks based on npc_type, e.g., avoid water for non-swimmers
-    // Avoid exits, other NPCs, or terrains with infinite cost
+bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npc_type) { 
+    // Check bounds first to ensure we're looking within the map's dimensions
+    if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {
+        return false; // Position is out of bounds
+    }
 
+    // Check if the position is an exit (assuming exits are marked with '#')
+    if (world.w[world.curY][world.curX]->m[y][x] == '#' && ((x == world.w[world.curY][world.curX]->topExit && y == 0) ||
+            (x == world.w[world.curY][world.curX]->bottomExit && y == MAP_HEIGHT - 1) ||
+            (y == world.w[world.curY][world.curX]->leftExit && x == 0) ||
+            (y == world.w[world.curY][world.curX]->rightExit && x == MAP_WIDTH - 1))) { //* PC can go through gates for later iterations
+        return false; // NPCs should avoid exits
+    }
+    // Check for the presence of other NPCs at the position
+    for (int i = 0; i < world.npc_count; i++) {
+        if (world.npcs[i]->x == x && world.npcs[i]->y == y) {
+            return false; // Position is already occupied by another NPC
+        }
+    }
 
-    return true; // Placeholder, implement actual logic
+    // Specific terrain checks based on NPC type
+    char terrain = world.w[world.curY][world.curX]->m[y][x];
+    switch (npc_type) {
+        case Swimmer:
+            // Swimmers can only move in water
+            if (terrain != '~') {
+                return false;
+            }
+            break;
+        case Hiker:
+        case Rival:
+            // Hikers and Rivals cannot move through boulders or water
+            if (terrain == '%' || terrain == '~') {
+                return false;
+            }
+            break;
+        default:
+            // Other types have specific restrictions or may be more flexible
+            if (terrain == '%' || terrain == '^') {
+                return false;
+            }
+            break;
+    }
+
+    return true; // If none of the checks failed, the position is valid for this NPC
 }
+
 
 Position find_valid_position_for_npc(CharacterType npc_type) {
     Position pos;
@@ -200,24 +244,24 @@ Position find_valid_position_for_npc(CharacterType npc_type) {
 void generate_npcs(int numtrainers) {
     for (int i = 0; i < numtrainers; i++) {
         int npc_type = rand() % Num_Character_Types; // Randomly select NPC type
-        Position pos = find_valid_position_for_npc(npc_type); // Implement this function
+        Position pos = find_valid_position_for_npc(npc_type);
         character_t* npc = create_character(pos, npc_type);
         world.npcs[world.npc_count++] = npc;
     }
 }
 
 
-int32_t event_compare(const void* a, const void* b) {
-    const character_t* char_a = a;
-    const character_t* char_b = b;
+// int32_t event_compare(const void* a, const void* b) {
+//     const character_t* char_a = a;
+//     const character_t* char_b = b;
 
-    if (char_a->next_turn != char_b->next_turn) {
-        return (char_a->next_turn < char_b->next_turn) ? -1 : 1;
-    }
-    else {
-        return (char_a->sequence_number < char_b->sequence_number) ? -1 : 1;
-    }
-}
+//     if (char_a->next_turn != char_b->next_turn) {
+//         return (char_a->next_turn < char_b->next_turn) ? -1 : 1;
+//     }
+//     else {
+//         return (char_a->sequence_number < char_b->sequence_number) ? -1 : 1;
+//     }
+// }
 
 
 // Assume this helper function exists to reinsert a character into the event heap
@@ -233,9 +277,28 @@ void reinsert_into_event_heap(character_t* c) {
     }
 }
 
+character_t* character_at_position(int x, int y) {
+    // Check bounds first to ensure we're looking within the map's dimensions
+    if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {
+        return NULL; // Position is out of bounds
+    }
+
+    // Check the current map's character map for a character at the given position
+    character_t* character = &world.npcs[y][x];
+
+    // If there's a character at the position, return a pointer to it
+    if (character) {
+        return character;
+    }
+
+    // No character at the given position
+    return NULL;
+}
+
+
 void move_character(character_t* c, int32_t new_x, int32_t new_y, map_t* map) {
     // Before moving, check if another character occupies the new position
-    if (character_at_position(new_x, new_y)) { //TODO
+    if (character_at_position(new_x, new_y)) { 
         printf("Movement blocked! Another character is at the new location.\n");
         c->next_turn += 10;
         return;
@@ -421,23 +484,34 @@ void move_explorer(character_t* npc) {
 //     npc->next_turn += 10; // Increment next turn as a wait action
 // }
 void move_swimmer(character_t* npc) {
-    // Check if the swimmer can see the player character and move towards them
-    map_t* m = world.w[world.curY][world.curX];
-
-    if (can_see(world.w[world.curY][world.curX], npc, &world.pc)) {
-        // Move towards player character
-        move_towards_player_swimmer(npc);
-    } else {
-        // Move randomly within water tiles
+    // Swimmer moves randomly within water tiles
+    int attempts = 0;
+    bool moved = false;
+    while (!moved && attempts < 8) { // Limit attempts to avoid infinite loops
         int dir_index = rand() % 8; // Choose a random direction
-        Position new_pos = {npc->x + directions[dir_index].x, npc->y + directions[dir_index].y};
+        int new_x = npc->x + directions[dir_index].x;
+        int new_y = npc->y + directions[dir_index].y;
 
-        // Ensure the new position is a water tile and not occupied
-        if (mapxy(new_pos.x, new_pos.y) == '~' && !is_position_occupied(new_pos.x, new_pos.y)) {
-            move_character(npc, new_pos.x, new_pos.y, world.w[world.curY][world.curX]);
+        // Check if the new position is within map bounds
+        if (new_x >= 0 && new_x < MAP_WIDTH && new_y >= 0 && new_y < MAP_HEIGHT) {
+            char terrain = world.w[world.curY][world.curX]->m[new_y][new_x];
+
+            // Ensure the new position is a water tile and not occupied by another character
+            if (terrain == '~' && !character_at_position(new_x, new_y)) {
+                move_character(npc, new_x, new_y, world.w[world.curY][world.curX]);
+                moved = true; // Successfully moved
+            }
         }
+
+        attempts++;
+    }
+
+    // If the swimmer couldn't move, it simply waits (i.e., increment its next turn without changing position)
+    if (!moved) {
+        npc->next_turn += 10; // Adjust this value based on your game's timing system
     }
 }
+
 
 
 void move_npc(character_t* npc) {
@@ -539,7 +613,7 @@ void world_init() {
             world.w[i][j] = NULL;
         }
     }
-    heap_init(&event_heap, event_compare, NULL);
+    heap_init(&event_heap, characters_turn_comp, NULL);
     global_sequence_number = 0;
     world.npc_count = 0;
 }
@@ -886,36 +960,6 @@ void sprinkle(map_t* m)
         {
             m->m[y2][x2] = '%';
         }
-    }
-}
-
-void fly(int newX, int newY)
-{
-    // Convert newX and newY to internal world coordinates if necessary
-    int internalX = newX + 200; // Assuming the center (0,0) is at (200,200)
-    int internalY = newY + 200;
-
-    // Validate coordinates to ensure they're within bounds
-    if (internalX < 0 || internalX >= WORLD_WIDTH || internalY < 0 || internalY >= WORLD_HEIGHT)
-    {
-        printf("Cannot fly to (%d, %d): Out of bounds.\n", newX, newY);
-        return;
-    }
-    // Update current position
-    world.curY = internalY;
-
-    // Check if a map exists at the new location
-    world.curX = internalX;
-    if (world.w[world.curY][world.curX] == NULL)
-    {
-        // If not, generate a new map for this location
-        newMapCaller(); // Assumes newMapCaller uses world.curX and world.curY
-    }
-    else
-    {
-        // If the map already exists, there's nothing else we need to do
-        // The map will be rendered in the next iteration of the main loop
-        printf("Flying to (%d, %d).\n", newX, newY);
     }
 }
 
@@ -1387,19 +1431,38 @@ void render_game_state() {
         putchar('\n');
     }
 }
-extern world_t world; // The game world containing the player character and NPCs
-extern int goal_x, goal_y; // Coordinates for the game's goal location
+// extern world_t world; // The game world containing the player character and NPCs
+// extern int goal_x, goal_y; // Coordinates for the game's goal location
 
-bool check_game_over() {
-    // Check if the player has reached the goal location
-    if (world.pc.x == goal_x && world.pc.y == goal_y) {
-        printf("Congratulations! You've reached the goal.\n");
-        return true; // Game over
+// bool check_game_over() {
+//     // Check if the player has reached the goal location
+//     if (world.pc.x == goal_x && world.pc.y == goal_y) {
+//         printf("Congratulations! You've reached the goal.\n");
+//         return true; // Game over
+//     }
+
+//     // Additional game-over conditions can be checked here
+
+//     return false; // Game continues
+// }
+void update_character_turn(character_t* character) {
+    // Assuming character is already at its new position after moving
+    map_t* current_map = world.w[world.curY][world.curX]; // Get the current map
+    char terrain = current_map->m[character->y][character->x]; // Get the terrain character is on
+    
+    // Get the movement cost for the character on this terrain
+    int32_t move_cost = get_cost(terrain, character->x, character->y, character->type);
+    
+    // Update character's next turn. (Might add a base turn duration if needed.)
+    character->next_turn += move_cost;
+    
+    // After calculating the next turn, the character must be reinserted into the event heap
+    // to maintain the correct turn order.
+    if (character->heap_node) {
+        heap_decrease_key_no_replace(&event_heap, character->heap_node);
+    } else {
+        character->heap_node = heap_insert(&event_heap, character);
     }
-
-    // Additional game-over conditions can be checked here
-
-    return false; // Game continues
 }
 
 int main(int argc, char* argv[])
@@ -1436,26 +1499,31 @@ int main(int argc, char* argv[])
     generate_npcs(numtrainers); // Place after map is created
 
     // Make sure to initialize the heap with this comparison function
-    heap_init(&event_heap, event_compare, free);
-    character_t *c;
+    heap_init(&event_heap, characters_turn_comp, free);
+    character_t *current_char;
     bool game_running = true;
     while (game_running) { 
-        c = heap_remove_min(&event_heap);
-                if (!c) {
-            // If no characters are left in the heap, break or handle accordingly
+        current_char = heap_remove_min(&event_heap);
+        if (!current_char) {
+            // If no characters are left in the heap
             break;
         }
-        // Update NPC positions
-        for (int i = 0; i < world.npc_count; i++) {
-            move_npc(world.npcs[i]);
+        if (current_char->type == PC) {
+            // Placeholder for PC action (e.g., random move or wait)
+            // Redraw map and potentially wait for real user input in future iterations
+            render_game_state();
+            usleep(250000); // Wait to allow observation of the game state
+        } else {
+            // Process NPC movement
+            move_npc(current_char);
         }
 
-        // Render the game state to the screen
-        // render_game_state(); //TODO
-        system("clear");
-        printmap();
-        // Check for game-ending conditions
-        game_running = !check_game_over();
+        // Calculate next turn for the character and reinsert into event heap
+        update_character_turn(current_char);
+        heap_insert(&event_heap, current_char);
+
+        // Check if game conditions are met to continue
+        // game_running = !check_game_over();
     }
 
 
