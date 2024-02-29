@@ -1,0 +1,11 @@
+Character Movement and Behavior: Characters in the simulation, including the player character (PC), NPCs (Non-Playable Characters such as hikers, rivals, 
+and others), exhibit distinct movement patterns. NPCs move according to their specific behaviors (e.g., hikers, rivals, wanderers), making the world feel 
+alive and dynamic. The movement system is governed by a pathfinding algorithm, factoring in terrain costs to determine the most efficient paths for character
+movements.
+
+Simulation Loop: A game loop drives the simulation, handling character actions, movements, and interactions within the game world. Characters take turns based 
+on a priority queue, allowing for orderly execution of actions in the simulated environment.
+
+Interaction with the Environment: Characters can interact with the environment, such as traversing different terrains, encountering obstacles like boulders 
+and trees, and potentially engaging with special terrain features like Pokecenters and Pokemarts, which are placed using specific rules to ensure accessibility
+and challenge.
