@@ -166,11 +166,11 @@ heap_t event_heap;
 int32_t characters_turn_comp(const void* key, const void* with)
 {
     return ((((character_t*)key)->next_turn == ((character_t*)with)->next_turn) ? (((character_t*)key)->sequence_number - ((character_t*)with)->sequence_number)
-        : (((character_t*)key)->next_turn - ((character_t*)with)->next_turn)); // If there is a tie, compare teh sequence numbers.
+        : (((character_t*)key)->next_turn - ((character_t*)with)->next_turn)); // If there is a tie, compare the sequence numbers.
 }
 character_t* create_character(Position pos, CharacterType type, char symbol) {
     character_t* new_char = malloc(sizeof(character_t));
-    if (new_char == NULL) {
+    if (!new_char) {
         // Handle malloc failure
         return NULL;
     }

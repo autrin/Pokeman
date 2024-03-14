@@ -54,7 +54,7 @@ heap_node_t* heap_insert(heap_t* h, void* v)
 
 static void heap_link(heap_t* h, heap_node_t* node, heap_node_t* root)
 {
-    /*  remove_heap_node_from_list(node);*/
+    /*  remove_heap_node_from_list(node)*/
     if (root->child)
     {
         // Now insert the node
@@ -95,7 +95,7 @@ static void heap_consolidate(heap_t* h)
             y = a[x->degree];
             if (h->compare(x->data, y->data) > 0)
             {
-                swap(x, y);
+                swap(x, y); // x should be smaller, so swap it with its next one, which is bigger
             }
             a[x->degree] = NULL;
             heap_link(h, y, x);
