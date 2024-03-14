@@ -282,9 +282,9 @@ void generate_npcs(int numtrainers, map_t* map) {
         }
 
         character_t* npc = create_character(pos, npc_type, symbol);
-        if(npc){
+        if (npc) {
             npc->heap_node = heap_insert(&event_heap, npc);
-            world.npcs[world.npc_count++] = npc;
+            world.npcs[world.npc_count++] = npc; //!!!!!!!!!!!!!! do i need this array?
         }
 
         // Place NPC symbol on the map for initial rendering
@@ -475,7 +475,7 @@ void move_explorer(character_t* npc) {
             break; // Move has been made, exit loop
         }
     }
-    if(!moved){
+    if (!moved) {
         char current_terrain = world.w[world.curY][world.curX]->m[npc->y][npc->x];
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
         npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost  
@@ -505,7 +505,7 @@ void move_swimmer(character_t* npc) {
     }
 
     // If the swimmer couldn't move, it simply waits (i.e., increment its next turn without changing position)
-    if(!moved){
+    if (!moved) {
         char current_terrain = world.w[world.curY][world.curX]->m[npc->y][npc->x];
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
         npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost  
@@ -598,7 +598,7 @@ void world_init() {
             world.w[i][j] = NULL;
         }
     }
-    // heap_init(&event_heap, characters_turn_comp, NULL);
+    // heap_init(&event_heap, characters_turn_comp, NULL); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! event heap?
     global_sequence_number = 0;
     world.npc_count = 0;
 }
@@ -947,10 +947,12 @@ void sprinkle(map_t* m)
     }
 }
 
-void createPaths(map_t* m, int topExit, int leftExit, int bottomExit, int rightExit)
+void createPaths(map_t* m)
 //! The issue with north (either first map or all of them) is that I think the gate does not exist on the first map
 // ! But I think they exist because of the if statements. Anyways fix the bottom gates.
 {
+    int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1;
+
     // Correctly align top and bottom exits with adjacent maps if they exist
     if (world.curY > 0 && world.w[world.curY - 1][world.curX])
     {
@@ -1002,6 +1004,10 @@ void createPaths(map_t* m, int topExit, int leftExit, int bottomExit, int rightE
         }
         m->m[y][currentX] = '#';
 
+        if (y >= 2 && y < MAP_HEIGHT - 2 && currentX >= 2 && currentX < MAP_WIDTH - 2) {
+            addValidPosition(currentX, y);
+        }
+
         // Random deviation in the first half
         if (y < MAP_HEIGHT / 2)
         {
@@ -1039,6 +1045,9 @@ void createPaths(map_t* m, int topExit, int leftExit, int bottomExit, int rightE
         }
         m->m[currentY][x] = '#';
 
+        if (currentY >= 2 && currentY < MAP_HEIGHT - 2 && x >= 2 && x < MAP_WIDTH - 2) {
+            addValidPosition(x, currentY);
+        }
         // Random deviation in the first half
         if (x < MAP_WIDTH / 2)
         {
@@ -1325,7 +1334,7 @@ void freeAllMaps()
 
 void cleanup_characters() {
     for (int i = 0; i < world.npc_count; i++) {
-        if (world.npcs[i] != NULL) {
+        if (world.npcs[i]) {
             free(world.npcs[i]);
             world.npcs[i] = NULL;
         }
@@ -1378,32 +1387,31 @@ void newMapCaller()
         createMap(world.w[world.curY][world.curX], regions); // add gates parameters
         generateTerrainWithNoise(world.w[world.curY][world.curX]);
 
-        int topExit = -1, leftExit = -1, bottomExit = -1, rightExit = -1;
 
-        /* Adjust gate positions based on existing neighboring maps */
-        // Top neighbor
-        if (world.curY > 0 && world.w[world.curY - 1][world.curX])
-        {
-            topExit = world.w[world.curY - 1][world.curX]->bottomExit;
-        }
-        // Bottom neighbor
-        if (world.curY < WORLD_HEIGHT - 1 && world.w[world.curY + 1][world.curX])
-        {
-            bottomExit = world.w[world.curY + 1][world.curX]->topExit;
-        }
-        // Left neighbor
-        if (world.curX > 0 && world.w[world.curY][world.curX - 1])
-        {
-            leftExit = world.w[world.curY][world.curX - 1]->rightExit;
-        }
-        // Right neighbor
-        if (world.curX < WORLD_WIDTH - 1 && world.w[world.curY][world.curX + 1])
-        {
-            rightExit = world.w[world.curY][world.curX + 1]->leftExit;
-        }
+        // /* Adjust gate positions based on existing neighboring maps */
+        // // Top neighbor
+        // if (world.curY > 0 && world.w[world.curY - 1][world.curX])
+        // {
+        //     topExit = world.w[world.curY - 1][world.curX]->bottomExit;
+        // }
+        // // Bottom neighbor
+        // if (world.curY < WORLD_HEIGHT - 1 && world.w[world.curY + 1][world.curX])
+        // {
+        //     bottomExit = world.w[world.curY + 1][world.curX]->topExit;
+        // }
+        // // Left neighbor
+        // if (world.curX > 0 && world.w[world.curY][world.curX - 1])
+        // {
+        //     leftExit = world.w[world.curY][world.curX - 1]->rightExit;
+        // }
+        // // Right neighbor
+        // if (world.curX < WORLD_WIDTH - 1 && world.w[world.curY][world.curX + 1])
+        // {
+        //     rightExit = world.w[world.curY][world.curX + 1]->leftExit;
+        // }
 
-        createPaths(world.w[world.curY][world.curX], topExit, leftExit, bottomExit, rightExit);
-        collectValidPositions(world.w[world.curY][world.curX]);
+        createPaths(world.w[world.curY][world.curX]);
+        // collectValidPositions(world.w[world.curY][world.curX]); // Done in place to make it faster
         createBorder(world.w[world.curY][world.curX]);
 
         int d = abs(world.curX - (WORLD_WIDTH / 2)) + abs(world.curY - (WORLD_HEIGHT / 2)); // Manhattan distance from the center
@@ -1422,7 +1430,6 @@ void newMapCaller()
         {
             createPokemart(world.w[world.curY][world.curX]); // Place a Pokémart
         }
-
 
         sprinkle(world.w[world.curY][world.curX]);
         // After generating the map, store the pointer in the world
@@ -1470,7 +1477,7 @@ int main(int argc, char* argv[])
         current_char = heap_remove_min(&event_heap);
         if (!current_char) {
             // No characters left to process, potentially exit the loop or handle the end of the game
-            break; // For example, you might break here
+            break;
         }
         // printf("\n%c: (%d,%d) next_turn: %d sequence_number: (%d)\n", current_char->symbol, current_char->x,
         // current_char->y, current_char->next_turn, current_char->sequence_number);  
