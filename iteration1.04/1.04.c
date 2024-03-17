@@ -74,7 +74,6 @@ typedef enum {
 // direction vectors: N, NE, E, SE, S, SW, W, NW
 static Position directions[8] = { {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1} };
 
-
 typedef struct character {
     int32_t x, y; // Position
     uint32_t next_turn;
@@ -187,9 +186,9 @@ character_t* create_character(Position pos, CharacterType type, char symbol) {
 
 bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npc_type) {
     // Check bounds first to ensure we're looking within the map's dimensions
-    if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {
-        return false; // Position is out of bounds
-    }
+    // if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) { // Might need this for PC but npcs check this in their move functions
+    //     return false; // Position is out of bounds           // this function is only for npc so delete this?
+    // }
 
     // Check if the position is an exit (assuming exits are marked with '#')
     if (world.w[world.curY][world.curX]->m[y][x] == '#' && ((x == world.w[world.curY][world.curX]->topExit && y == 0) ||
@@ -294,17 +293,17 @@ void generate_npcs(int numtrainers, map_t* map) {
 
 
 // Assume this helper function exists to reinsert a character into the event heap
-void reinsert_into_event_heap(character_t* c) {
-    // Check if character is already in the heap
-    if (c->heap_node != NULL) {
-        // If so, update its position in the heap based on the new next_turn value
-        heap_decrease_key_no_replace(&event_heap, c->heap_node);
-    }
-    else {
-        // Otherwise, insert the character into the heap
-        c->heap_node = heap_insert(&event_heap, c);
-    }
-}
+// void reinsert_into_event_heap(character_t* c) {
+//     // Check if character is already in the heap
+//     if (c->heap_node != NULL) {
+//         // If so, update its position in the heap based on the new next_turn value
+//         heap_decrease_key_no_replace(&event_heap, c->heap_node);
+//     }
+//     else {
+//         // Otherwise, insert the character into the heap
+//         c->heap_node = heap_insert(&event_heap, c);
+//     }
+// }
 
 character_t* character_at_position(int x, int y) {
     // Check bounds first to ensure we're looking within the map's dimensions
@@ -324,9 +323,9 @@ character_t* character_at_position(int x, int y) {
     return NULL;
 }
 
-void update_map(character_t* character, int old_x, int old_y) {
+void update_map(character_t* character, int old_x, int old_y) { // !! this is supposed to change the map
     // Clear the old position
-    world.w[world.curY][world.curX]->m[old_y][old_x] = '.'; // Assuming '.' represents an empty space
+    world.w[world.curY][world.curX]->m[old_y][old_x] = '.'; //!!!! Assuming '.' represents an empty space. It has to go back to the ORIGINAL terrain
 
     // Mark the new position
     world.w[world.curY][world.curX]->m[character->y][character->x] = character->symbol;
@@ -337,17 +336,17 @@ void move_character(character_t* character, int direction_x, int direction_y, ma
     int old_x = character->x;
     int old_y = character->y;
 
-    int new_x = character->x + direction_x; // direction_x is the change in x direction
-    int new_y = character->y + direction_y; // direction_y is the change in y direction
+    // int new_x = character->x + direction_x; // direction_x is the change in x direction
+    // int new_y = character->y + direction_y; // direction_y is the change in y direction
 
-    int32_t movement_cost = get_cost(m->m[new_y][new_x], new_x, new_y, character->type);
+    int32_t movement_cost = get_cost(m->m[direction_y][direction_x], direction_x, direction_y, character->type);
 
     // Update the character's next turn based on movement cost
     character->next_turn += movement_cost;
 
     // Move the character to the new position
-    character->x = new_x;
-    character->y = new_y;
+    character->x = direction_x;
+    character->y = direction_y;
 
     update_map(character, old_x, old_y);
     // Update character's turn and reinsert into the event heap
@@ -395,18 +394,21 @@ void move_wanderer(character_t* npc) {
         // Update npc->next_turn based on the cost of the terrain they are staying on.
         char current_terrain = world.w[world.curY][world.curX]->m[npc->y][npc->x];
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
-        npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost    
+        npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost
+        
+        update_character_turn(npc);
     }
-} 
+}
 
 void move_towards_player_hiker(character_t* npc) {
     int bestDist = SHRT_MAX; // Initialize with maximum possible distance
     Position bestMove = { 0, 0 };
+    int base = rand() & 0x7;
 
     // Iterate over all possible directions, including diagonals
-    for (int i = 0; i < 8; i++) {
-        int newX = npc->x + directions[i].x;
-        int newY = npc->y + directions[i].y;
+    for (int i = base; i < 8 + base; i++) {
+        int newX = npc->x + directions[i & 0x7].x;
+        int newY = npc->y + directions[i & 0x7].y;
 
         // Ensure the new position is within bounds and valid
         if (newX > 0 && newX < MAP_WIDTH - 1 && newY > 0 && newY < MAP_HEIGHT - 1 && is_position_valid_for_npc(newX, newY, npc->type)) {
@@ -415,6 +417,7 @@ void move_towards_player_hiker(character_t* npc) {
                 bestDist = dist;
                 bestMove.x = newX;
                 bestMove.y = newY;
+                // break;
             }
         }
     }
@@ -427,17 +430,19 @@ void move_towards_player_hiker(character_t* npc) {
         char current_terrain = world.w[world.curY][world.curX]->m[npc->y][npc->x];
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
         npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost  
+        
+        update_character_turn(npc);
     }
 }
 
 void move_towards_player_rival(character_t* npc) {
     int bestDist = SHRT_MAX; // Initialize with maximum possible distance
     Position bestMove = { 0, 0 };
-
+    int base = rand() & 0x7;
     // Iterate over all possible directions, including diagonals
-    for (int i = 0; i < 8; i++) {
-        int newX = npc->x + directions[i].x;
-        int newY = npc->y + directions[i].y;
+    for (int i = base; i < 8 + base; i++) {
+        int newX = npc->x + directions[i & 0x7].x;
+        int newY = npc->y + directions[i & 0x7].y;
 
         // Ensure the new position is within bounds and valid
         if (newX > 0 && newX < MAP_WIDTH - 1 && newY > 0 && newY < MAP_HEIGHT - 1 && is_position_valid_for_npc(newX, newY, npc->type)) {
@@ -446,6 +451,7 @@ void move_towards_player_rival(character_t* npc) {
                 bestDist = dist;
                 bestMove.x = newX;
                 bestMove.y = newY;
+                // break;
             }
         }
     }
@@ -457,15 +463,20 @@ void move_towards_player_rival(character_t* npc) {
     else {
         char current_terrain = world.w[world.curY][world.curX]->m[npc->y][npc->x];
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
-        npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost  
+        npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost
+
+        update_character_turn(npc);
+
     }
 }
 void move_explorer(character_t* npc) {
     // Explorers try to avoid water but can move freely otherwise
     map_t* m = world.w[world.curY][world.curX];
     bool moved = false;
-    for (int i = 0; i < 8; i++) {
-        Position new_pos = { npc->x + directions[i].x, npc->y + directions[i].y };
+    int base = rand() & 0x7;
+
+    for (int i = base; i < 8 + base; i++) {
+        Position new_pos = { npc->x + directions[i & 0x7].x, npc->y + directions[i & 0x7].y };
 
         // Check if the new position is valid and not water
         if (is_position_valid_for_npc(new_pos.x, new_pos.y, npc->type) && mapxy(new_pos.x, new_pos.y) != '~') {
@@ -477,7 +488,10 @@ void move_explorer(character_t* npc) {
     if (!moved) {
         char current_terrain = world.w[world.curY][world.curX]->m[npc->y][npc->x];
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
-        npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost  
+        npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost
+
+        update_character_turn(npc);
+
     }
 }
 void move_swimmer(character_t* npc) {
@@ -507,7 +521,9 @@ void move_swimmer(character_t* npc) {
     if (!moved) {
         char current_terrain = world.w[world.curY][world.curX]->m[npc->y][npc->x];
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
-        npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost  
+        npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost
+
+        update_character_turn(npc);
     }
 }
 
@@ -532,34 +548,38 @@ void move_npc(character_t* npc) {
             break;
         case 's':
             // Sentries do not move.
-            npc->next_turn += 10;
+            npc->next_turn += get_cost(world.w[world.curY][world.curX]->m[npc->y][npc->x], npc->x, npc->y, npc->type);
             break;
         case 'e':
             move_explorer(npc);
             break;
         default:
             printf("Error in move_npc()! Unknown NPC type.\n");
-            npc->next_turn += 10;
+            npc->next_turn += get_cost(world.w[world.curY][world.curX]->m[npc->y][npc->x], npc->x, npc->y, npc->type);
+            
+            update_character_turn(npc);
             break;
         }
         break;
     default:
         printf("Error in move_npc()! Unhandled NPC type.\n");
-        npc->next_turn += 10;
+        npc->next_turn += get_cost(world.w[world.curY][world.curX]->m[npc->y][npc->x], npc->x, npc->y, npc->type);
+
+        update_character_turn(npc);
         break;
     }
 }
 
-void move_character_with_collision(character_t* c, int new_x, int new_y, map_t* map) {
-    // Check for collision with other characters or invalid terrain
-    if (map->m[new_y][new_x] != '.' && map->m[new_y][new_x] != ':') { // Assuming '.' and ':' are walkable terrains
-        printf("Movement blocked! Terrain or character at the new location.\n");
-        c->next_turn += 10; // Arbitrary cost for blocked movement
-    }
-    else {
-        move_character(c, new_x, new_y, map); // Use your existing move_character function
-    }
-}
+// void move_character_with_collision(character_t* c, int new_x, int new_y, map_t* map) {
+//     // Check for collision with other characters or invalid terrain
+//     if (map->m[new_y][new_x] != '.' && map->m[new_y][new_x] != ':') { // Assuming '.' and ':' are walkable terrains
+//         printf("Movement blocked! Terrain or character at the new location.\n");
+//         c->next_turn += 10; // Arbitrary cost for blocked movement
+//     }
+//     else {
+//         move_character(c, new_x, new_y, map); // Use your existing move_character function
+//     }
+// }
 
 // Function to add a valid position (ensure not to add duplicates)
 void addValidPosition(int x, int y)
@@ -1485,6 +1505,11 @@ int main(int argc, char* argv[])
         if (current_char->type == PC) {
             // Print the map and NPC movements
             render_game_state(world.w[world.curY][world.curX]);
+            update_character_turn(current_char);
+            int32_t cost = get_cost(world.w[world.curY][world.curX]->m[current_char->y][current_char->x], current_char->x, current_char->y, current_char->type);
+            current_char->next_turn += cost;
+            
+            update_character_turn(current_char);
 
             // Optional: Add a delay before the next turn
             usleep(250000);
