@@ -355,14 +355,13 @@ void move_character(character_t* character, int direction_x, int direction_y, ma
 
 }
 
-
 void move_pacer(character_t* npc) {
     // Assuming npc->direction stores the pacer's current direction (e.g., 0 for horizontal, 1 for vertical)
     int dx = (npc->direction == 0) ? 1 : 0; // Move horizontally if direction is 0
     int dy = (npc->direction == 1) ? 1 : 0; // Move vertically if direction is 1
 
     // Check if the next position in the current direction is valid
-    if (is_position_valid_for_npc(npc->x + dx, npc->y + dy, npc->type)) {
+    if (npc->x + dx > 0 && npc->x + dx < MAP_WIDTH - 1 && npc->y + dy > 0 && npc->y + dy < MAP_HEIGHT - 1 && is_position_valid_for_npc(npc->x + dx, npc->y + dy, npc->type)) {
         move_character(npc, npc->x + dx, npc->y + dy, world.w[world.curY][world.curX]);
     }
     else {
@@ -382,7 +381,7 @@ void move_wanderer(character_t* npc) {
         int dir_index = rand() % 8; // Choose a random direction
         int new_x = npc->x + directions[dir_index].x;
         int new_y = npc->y + directions[dir_index].y;
-        if (is_position_valid_for_npc(new_x, new_y, npc->type)) {
+        if (new_x > 0 && new_x < MAP_WIDTH - 1 && new_y > 0 && new_y < MAP_HEIGHT - 1 && is_position_valid_for_npc(new_x, new_y, npc->type)) {
             move_character(npc, new_x, new_y, world.w[world.curY][world.curX]);
             moved = true;
         }
@@ -398,7 +397,7 @@ void move_wanderer(character_t* npc) {
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
         npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost    
     }
-}
+} 
 
 void move_towards_player_hiker(character_t* npc) {
     int bestDist = SHRT_MAX; // Initialize with maximum possible distance
@@ -441,7 +440,7 @@ void move_towards_player_rival(character_t* npc) {
         int newY = npc->y + directions[i].y;
 
         // Ensure the new position is within bounds and valid
-        if (newX >= 0 && newX < MAP_WIDTH && newY >= 0 && newY < MAP_HEIGHT && is_position_valid_for_npc(newX, newY, npc->type)) {
+        if (newX > 0 && newX < MAP_WIDTH - 1 && newY > 0 && newY < MAP_HEIGHT - 1 && is_position_valid_for_npc(newX, newY, npc->type)) {
             int dist = world.rivalDist[newY][newX]; // Distance to the player from the new position
             if (dist < bestDist) {
                 bestDist = dist;
@@ -491,7 +490,7 @@ void move_swimmer(character_t* npc) {
         int new_y = npc->y + directions[dir_index].y;
 
         // Check if the new position is within map bounds
-        if (new_x >= 0 && new_x < MAP_WIDTH && new_y >= 0 && new_y < MAP_HEIGHT) {
+        if (new_x > 0 && new_x < MAP_WIDTH - 1 && new_y > 0 && new_y < MAP_HEIGHT - 1) {
             char terrain = world.w[world.curY][world.curX]->m[new_y][new_x];
 
             // Ensure the new position is a water tile and not occupied by another character
