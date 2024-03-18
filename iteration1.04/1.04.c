@@ -94,11 +94,11 @@ typedef struct world
     int rivalDist[MAP_HEIGHT][MAP_WIDTH];
     character_t* npcs[MAP_HEIGHT * MAP_WIDTH];
     int npc_count;
+    uint32_t global_sequence_number; 
+
 } world_t;
 
 world_t world;
-
-uint32_t global_sequence_number; // Updated globally
 
 
 // Define terrain types
@@ -176,7 +176,7 @@ character_t* create_character(Position pos, CharacterType type, char symbol) {
     new_char->x = pos.x;
     new_char->y = pos.y;
     new_char->next_turn = 0; // Initialize to 0 for all characters
-    new_char->sequence_number = global_sequence_number++;
+    new_char->sequence_number = world.global_sequence_number++;
     new_char->type = type;
     new_char->symbol = symbol;
     new_char->heap_node = NULL; // Initialize heap_node to NULL
@@ -496,8 +496,9 @@ void move_explorer(character_t* npc) {
 }
 void move_swimmer(character_t* npc) {
     // Swimmer moves randomly within water tiles
-    int attempts = 0;
     bool moved = false;
+    // int base = rand() & 0x7;
+    int attempts = 0;
     while (!moved && attempts < 8) { // Limit attempts to avoid infinite loops
         int dir_index = rand() % 8; // Choose a random direction
         int new_x = npc->x + directions[dir_index].x;
@@ -508,7 +509,8 @@ void move_swimmer(character_t* npc) {
             char terrain = world.w[world.curY][world.curX]->m[new_y][new_x];
 
             // Ensure the new position is a water tile and not occupied by another character
-            if (terrain == '~' && !character_at_position(new_x, new_y)) {
+            if (terrain == '~' ) {
+                // && !character_at_position(new_x, new_y
                 move_character(npc, new_x, new_y, world.w[world.curY][world.curX]);
                 moved = true; // Successfully moved
             }
@@ -618,7 +620,7 @@ void world_init() {
         }
     }
     // heap_init(&event_heap, characters_turn_comp, NULL); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! event heap?
-    global_sequence_number = 0;
+    world.global_sequence_number = 0;
     world.npc_count = 0;
 }
 
