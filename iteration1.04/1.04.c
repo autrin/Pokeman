@@ -199,12 +199,9 @@ bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npc_type) {
         return false; // NPCs should avoid exits
     }
     // Check for the presence of other NPCs at the position
-    // for (int i = 0; i < world.npc_count; i++) {
     if (world.npcs[y][x]) {
         return false; // Position is already occupied by another NPC
     }
-    // }
-
     // Specific terrain checks based on NPC type
     char terrain = world.w[world.curY][world.curX]->m[y][x];
     switch (npc_type) {
@@ -327,16 +324,12 @@ void generate_npcs(int numtrainers, map_t* map) {
 //     return NULL;
 // }
 
-void update_map(character_t* character, int old_x, int old_y) { // !! this is supposed to change the map
-
-    //TODO
-
-    // Clear the old position
-    world.w[world.curY][world.curX]->m[old_y][old_x] = '.'; //!!!! Assuming '.' represents an empty space. It has to go back to the ORIGINAL terrain
-
-    // Mark the new position
-    world.w[world.curY][world.curX]->m[character->y][character->x] = character->symbol;
-}
+// void update_map(character_t* character, int old_x, int old_y) { // !! this is supposed to change the map
+//     // Clear the old position
+//     world.w[world.curY][world.curX]->m[old_y][old_x] = '.';//It has to go back to the ORIGINAL terrain
+//     // Mark the new position
+//     world.w[world.curY][world.curX]->m[character->y][character->x] = character->symbol;
+// }
 
 
 void move_character(character_t* character, int direction_x, int direction_y, map_t* m) {
@@ -582,17 +575,6 @@ void move_npc(character_t* npc) {
         break;
     }
 }
-
-// void move_character_with_collision(character_t* c, int new_x, int new_y, map_t* map) {
-//     // Check for collision with other characters or invalid terrain
-//     if (map->m[new_y][new_x] != '.' && map->m[new_y][new_x] != ':') { // Assuming '.' and ':' are walkable terrains
-//         printf("Movement blocked! Terrain or character at the new location.\n");
-//         c->next_turn += 10; // Arbitrary cost for blocked movement
-//     }
-//     else {
-//         move_character(c, new_x, new_y, map); // Use your existing move_character function
-//     }
-// }
 
 // Function to add a valid position (ensure not to add duplicates)
 void addValidPosition(int x, int y)
@@ -1115,11 +1097,8 @@ character_t* create_pc(map_t* m) {
 
     int idx = rand() % validPositionsCount;
     Position pos = validPositionsForBuildings[idx];
-
-    // m->m[pos.y][pos.x] = '@';
-    // world.pc.x = pos.x;
-    // world.pc.y = pos.y;
     character_t* pc = create_character(pos, PC, '@');
+    m->m[pos.y][pos.x] = '@';
     return pc;
 }
 
@@ -1468,7 +1447,7 @@ void newMapCaller()
         collectValidPositions(world.w[world.curY][world.curX]);
         // placePlayer(world.w[world.curY][world.curX]); // place '@' on road, called once bc there is only one player in the world
         character_t* pc = create_pc(world.w[world.curY][world.curX]);
-        world.pc = *pc; // Assuming you change world.pc to be of type character_t*
+        world.pc = *pc;
         world.pc.heap_node = heap_insert(&event_heap, &world.pc);
         dijkstra(world.w[world.curY][world.curX]);
     }
