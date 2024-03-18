@@ -92,9 +92,10 @@ typedef struct world
     character_t pc;
     int hikerDist[MAP_HEIGHT][MAP_WIDTH];
     int rivalDist[MAP_HEIGHT][MAP_WIDTH];
-    character_t* npcs[MAP_HEIGHT * MAP_WIDTH];
+    // character_t* npcs[MAP_HEIGHT * MAP_WIDTH];
+    character_t* npcs[MAP_HEIGHT][MAP_WIDTH];
     int npc_count;
-    uint32_t global_sequence_number; 
+    uint32_t global_sequence_number;
 
 } world_t;
 
@@ -186,9 +187,9 @@ character_t* create_character(Position pos, CharacterType type, char symbol) {
 
 bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npc_type) {
     // Check bounds first to ensure we're looking within the map's dimensions
-    // if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) { // Might need this for PC but npcs check this in their move functions
-    //     return false; // Position is out of bounds           // this function is only for npc so delete this?
-    // }
+    if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) { // Might need this for PC but npcs check this in their move functions
+        return false; // Position is out of bounds           // this function is only for npc so delete this?
+    }
 
     // Check if the position is an exit (assuming exits are marked with '#')
     if (world.w[world.curY][world.curX]->m[y][x] == '#' && ((x == world.w[world.curY][world.curX]->topExit && y == 0) ||
@@ -198,11 +199,11 @@ bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npc_type) {
         return false; // NPCs should avoid exits
     }
     // Check for the presence of other NPCs at the position
-    for (int i = 0; i < world.npc_count; i++) {
-        if (world.npcs[i]->x == x && world.npcs[i]->y == y) {
-            return false; // Position is already occupied by another NPC
-        }
+    // for (int i = 0; i < world.npc_count; i++) {
+    if (world.npcs[y][x]) {
+        return false; // Position is already occupied by another NPC
     }
+    // }
 
     // Specific terrain checks based on NPC type
     char terrain = world.w[world.curY][world.curX]->m[y][x];
@@ -283,11 +284,11 @@ void generate_npcs(int numtrainers, map_t* map) {
         character_t* npc = create_character(pos, npc_type, symbol);
         if (npc) {
             npc->heap_node = heap_insert(&event_heap, npc);
-            world.npcs[world.npc_count++] = npc; //!!!!!!!!!!!!!! do i need this array?
+            world.npcs[pos.y][pos.x] = npc;
         }
 
         // Place NPC symbol on the map for initial rendering
-        map->m[pos.y][pos.x] = npc->symbol;
+        // map->m[pos.y][pos.x] = npc->symbol;
     }
 }
 
@@ -305,25 +306,31 @@ void generate_npcs(int numtrainers, map_t* map) {
 //     }
 // }
 
-character_t* character_at_position(int x, int y) {
-    // Check bounds first to ensure we're looking within the map's dimensions
-    if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {
-        return NULL; // Position is out of bounds
-    }
+// character_t* character_at_position(int x, int y) {
+//     // Check bounds first to ensure we're looking within the map's dimensions
+//     if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {
+//         return NULL; // Position is out of bounds
+//     }
+//     character_t* character;
+//     // Check the current map's character map for a character at the given position
+//     for(int i = 0; i < world.npc_count; i++){
+//         if (world.npcs[i]->x == x && world.npcs[i]->y == y){    // IF YOU WANT TO USE THIS FUNC FIX THIS
+//             character = world.npcs[i];
+//         }
+//     }
+//     // If there's a character at the position, return a pointer to it
+//     if (character) {
+//         return character;
+//     }
 
-    // Check the current map's character map for a character at the given position
-    character_t* character = &world.npcs[y][x];
-
-    // If there's a character at the position, return a pointer to it
-    if (character) {
-        return character;
-    }
-
-    // No character at the given position
-    return NULL;
-}
+//     // No character at the given position
+//     return NULL;
+// }
 
 void update_map(character_t* character, int old_x, int old_y) { // !! this is supposed to change the map
+
+    //TODO
+
     // Clear the old position
     world.w[world.curY][world.curX]->m[old_y][old_x] = '.'; //!!!! Assuming '.' represents an empty space. It has to go back to the ORIGINAL terrain
 
@@ -348,7 +355,11 @@ void move_character(character_t* character, int direction_x, int direction_y, ma
     character->x = direction_x;
     character->y = direction_y;
 
-    update_map(character, old_x, old_y);
+    // Empty the npc map's old location
+    world.npcs[old_y][old_x] = NULL;
+    // Update the npc map's new location
+    world.npcs[direction_y][direction_x] = character;
+    // update_map(character, old_x, old_y);
     // Update character's turn and reinsert into the event heap
     update_character_turn(character);
 
@@ -395,7 +406,7 @@ void move_wanderer(character_t* npc) {
         char current_terrain = world.w[world.curY][world.curX]->m[npc->y][npc->x];
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
         npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost
-        
+
         update_character_turn(npc);
     }
 }
@@ -430,7 +441,7 @@ void move_towards_player_hiker(character_t* npc) {
         char current_terrain = world.w[world.curY][world.curX]->m[npc->y][npc->x];
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
         npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost  
-        
+
         update_character_turn(npc);
     }
 }
@@ -509,7 +520,7 @@ void move_swimmer(character_t* npc) {
             char terrain = world.w[world.curY][world.curX]->m[new_y][new_x];
 
             // Ensure the new position is a water tile and not occupied by another character
-            if (terrain == '~' ) {
+            if (terrain == '~') {
                 // && !character_at_position(new_x, new_y
                 move_character(npc, new_x, new_y, world.w[world.curY][world.curX]);
                 moved = true; // Successfully moved
@@ -558,7 +569,7 @@ void move_npc(character_t* npc) {
         default:
             printf("Error in move_npc()! Unknown NPC type.\n");
             npc->next_turn += get_cost(world.w[world.curY][world.curX]->m[npc->y][npc->x], npc->x, npc->y, npc->type);
-            
+
             update_character_turn(npc);
             break;
         }
@@ -943,7 +954,12 @@ void printMap(map_t* m)
     {
         for (int x = 0; x < MAP_WIDTH; x++)
         {
-            printf("%c", m->m[y][x]);
+            if (world.npcs[y][x]) {
+                printf("%c", world.npcs[y][x]->symbol);
+            }
+            else {
+                printf("%c", m->m[y][x]);
+            }
         }
         printf("\n");
     }
@@ -1354,25 +1370,18 @@ void freeAllMaps()
 }
 
 void cleanup_characters() {
-    for (int i = 0; i < world.npc_count; i++) {
-        if (world.npcs[i]) {
-            free(world.npcs[i]);
-            world.npcs[i] = NULL;
+    for (int y = 0; y < WORLD_HEIGHT; y++)
+    {
+        for (int x = 0; x < WORLD_WIDTH; x++)
+        {
+            if (world.npcs[y][x]) {
+                free(world.npcs[y][x]);
+                world.npcs[y][x] = NULL;
+            }
         }
     }
     world.npc_count = 0; // Reset the NPC count after cleanup
 }
-
-// Rendering function that incorporates NPCs directly from the map
-void render_game_state(map_t* m) {
-    for (int y = 0; y < MAP_HEIGHT; y++) {
-        for (int x = 0; x < MAP_WIDTH; x++) {
-            printf("%c", m->m[y][x]);
-        }
-        printf("\n");
-    }
-}
-
 // void update_character_turn(character_t* character) {
 //     // Assuming character is already at its new position after moving
 //     map_t* current_map = world.w[world.curY][world.curX]; // Get the current map
@@ -1502,36 +1511,27 @@ int main(int argc, char* argv[])
         }
         // printf("\n%c: (%d,%d) next_turn: %d sequence_number: (%d)\n", current_char->symbol, current_char->x,
         // current_char->y, current_char->next_turn, current_char->sequence_number);  
-        // current_time = current_char->next_turn;
-        // Check if it's the PC's turn
+        // current_time = current_char->next_trn;
+        // if it's the PC's turn
         if (current_char->type == PC) {
-            // Print the map and NPC movements
-            render_game_state(world.w[world.curY][world.curX]);
-            update_character_turn(current_char);
+            printMap(world.w[world.curY][world.curX]);
+            // update_character_turn(current_char);
             int32_t cost = get_cost(world.w[world.curY][world.curX]->m[current_char->y][current_char->x], current_char->x, current_char->y, current_char->type);
             current_char->next_turn += cost;
-            
             update_character_turn(current_char);
-
-            // Optional: Add a delay before the next turn
             usleep(250000);
         }
         else {
-            // Handle NPC movement
             move_npc(current_char);
-
             // Calculate the next turn for the NPC and reinsert into the event heap
             update_character_turn(current_char);
         }
 
         // Reinsert the current character back into the event heap
         heap_insert(&event_heap, current_char);
-
-        // Check for a condition or a signal to stop the game, if necessary
-        // For now, we'll assume game_running is manually set to false to stop the game
     }
 
-    printMap(world.w[world.curY][world.curX]);
+    // printMap(world.w[world.curY][world.curX]);
     // printHiker_RivalMap(); // Not needed for this iteration
     freeAllMaps();
     cleanup_characters();
