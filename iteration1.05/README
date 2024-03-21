@@ -1,0 +1,4 @@
+In this iteration, I/O was addded using the ncurses library to enhance the game apperance. The input is the key the user
+presses. There is no delay. The position of the pc changes on the map and npcs follow it.
+The battle is on hold for now. 
+Colors are added.
