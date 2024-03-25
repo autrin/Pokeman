@@ -1,0 +1,179 @@
+
+1.05.c,4704
+#define MAP_WIDTH 14,238
+#define MAP_HEIGHT 15,283
+#define NUM_REGIONS 16,329
+#define WORLD_HEIGHT 17,375
+#define WORLD_WIDTH 18,428
+#define SHRT_MAX 19,452
+#define mapxy(20,482
+int quit 21,515
+char symbols[symbols25,596
+typedef struct path27,671
+    heap_node_t* hn;29,693
+    uint8_t pos[pos30,714
+    uint8_t from[from31,734
+    int32_t cost;32,755
+} path_t;33,773
+struct Region36,828
+    int32_t fromX,38,844
+    int32_t fromX, fromY,38,844
+    int32_t fromX, fromY, toX,38,844
+    int32_t fromX, fromY, toX, toY;38,844
+    char symbol;39,880
+    int x,45,963
+    int x, y;45,963
+} Position;46,977
+Position validPositionsForBuildings[validPositionsForBuildings48,990
+int validPositionsCount 49,1078
+typedef int16_t pair_t[pair_t51,1193
+typedef struct map53,1221
+    char m[m55,1242
+    int topExit,56,1277
+    int topExit, bottomExit,56,1277
+    int topExit, bottomExit, leftExit,56,1277
+    int topExit, bottomExit, leftExit, rightExit;56,1277
+} map_t;57,1327
+typedef struct pc59,1337
+    int32_t x;61,1391
+    int32_t y;62,1406
+    heap_node_t* heap_node;63,1421
+} pc_t;64,1449
+    PC,68,1499
+    Hiker,69,1507
+    Rival,70,1518
+    Swimmer,71,1529
+    Other,72,1542
+    Num_Character_Types 73,1553
+} CharacterType;74,1625
+static Position directions[directions77,1692
+typedef struct character 79,1799
+    int32_t x,80,1826
+    int32_t x, y;80,1826
+    uint32_t next_turn;81,1856
+    uint32_t sequence_number;82,1880
+    CharacterType type;83,1910
+    char symbol;84,1934
+    heap_node_t* heap_node;85,1951
+    uint32_t direction;86,1979
+    int lost;87,2003
+    int changedMove;88,2017
+} character_t;89,2038
+typedef struct world91,2054
+    map_t* w[w93,2077
+    int32_t curX;94,2118
+    int32_t curY;95,2160
+    character_t pc;96,2202
+    int hikerDist[hikerDist97,2222
+    int rivalDist[rivalDist98,2264
+    character_t* npcs[npcs100,2356
+    int npc_count;101,2402
+    uint32_t global_sequence_number;102,2421
+} world_t;104,2459
+world_t world;106,2471
+    BOULDER,110,2526
+    BOULDER, TREE,110,2526
+    BOULDER, TREE, PATH,110,2526
+    BOULDER, TREE, PATH, MART,110,2526
+    BOULDER, TREE, PATH, MART, CENTER,110,2526
+    BOULDER, TREE, PATH, MART, CENTER, GRASS,110,2526
+    BOULDER, TREE, PATH, MART, CENTER, GRASS, CLEARING,110,2526
+    BOULDER, TREE, PATH, MART, CENTER, GRASS, CLEARING, MOUNTAIN,110,2526
+    BOULDER, TREE, PATH, MART, CENTER, GRASS, CLEARING, MOUNTAIN, FOREST,110,2526
+    BOULDER, TREE, PATH, MART, CENTER, GRASS, CLEARING, MOUNTAIN, FOREST, WATER,110,2526
+    BOULDER, TREE, PATH, MART, CENTER, GRASS, CLEARING, MOUNTAIN, FOREST, WATER, GATE,110,2526
+    Num_Terrain_Types 111,2613
+} TerrainType;112,2681
+int32_t cost[cost115,2767
+int32_t get_cost(124,3404
+heap_t event_heap;167,4474
+int32_t characters_turn_comp(169,4494
+character_t* create_character(174,4854
+bool is_position_valid_for_npc(192,5453
+Position find_valid_position_for_npc(236,7416
+void update_character_turn(245,7728
+void generate_npcs(251,7923
+void move_character(286,9366
+void move_pacer(303,10022
+void move_wanderer(321,11011
+void move_towards_player_hiker(349,12253
+void move_towards_player_rival(382,13627
+void move_explorer(413,14979
+void move_swimmer(434,15994
+void move_npc(466,17436
+void addValidPosition(516,18866
+void collectValidPositions(524,19139
+void world_init(542,19570
+void createBorder(558,20024
+void initializeRegions(585,20570
+void assignRegions(593,20751
+    float x,663,23344
+    float x, y;663,23344
+} Vector2D;664,23360
+    Vector2D grad[grad667,23390
+} GradientGrid;668,23459
+float lerp(671,23500
+float smoothstep(676,23619
+float dot(681,23713
+Vector2D randomGradient(686,23823
+float perlinNoise(695,24040
+TerrainType terrainTypeBasedOnNoiseValue(727,25131
+void generateTerrainWithNoise(745,25453
+void setRegionCoordinates(784,26681
+void createMap(796,27183
+void createSingleCenterOrMart(820,27826
+void createCC(854,28989
+void createPokemart(859,29056
+void printMap(864,29129
+void sprinkle(881,29478
+void createPaths(900,30071
+character_t* create_pc(1025,34396
+static int32_t compRival(1037,34718
+static int32_t compHiker(1040,34953
+void dijkstra(1046,35268
+void freeMap(1233,45343
+void freeAllMaps(1242,45619
+void cleanup_characters(1253,45833
+void newMapCaller(1268,46245
+void enter_pokemart(1313,48524
+void enter_pokemon_center(1318,48629
+static const char* character_type_to_string(1323,48746
+static void display_trainers(1334,49032
+void display(1354,49696
+static void list_trainers(1412,51756
+void battle(1435,52338
+uint32_t move_pc(1445,52655
+void get_input(1509,54305
+void init_io(1597,56729
+int main(1613,57370
+
+heap.c,574
+struct heap_node8,99
+    heap_node_t* next;10,118
+    heap_node_t* prev;11,141
+    heap_node_t* parent;12,164
+    heap_node_t* child;13,189
+    uint32_t degree;14,213
+    uint32_t mark;15,234
+    void* data;16,253
+#define swap(19,273
+void heap_init(25,389
+heap_node_t* heap_insert(32,598
+static void heap_link(55,1066
+static void heap_consolidate(77,1545
+void* heap_remove_min(131,2926
+static void heap_cut(165,3832
+static void heap_cascading_cut(190,4275
+int heap_decrease_key_no_replace(208,4565
+void heap_node_delete(230,5153
+void heap_delete(251,5523
+
+heap.h,274
+#define HEAP_H2,15
+    typedef struct heap_node heap_node_t;11,113
+    typedef struct heap13,156
+        heap_node_t* min;15,186
+        uint32_t size;16,212
+        int32_t(*compare)compare17,235
+        void (*datum_delete)datum_delete18,297
+    } heap_t;19,334

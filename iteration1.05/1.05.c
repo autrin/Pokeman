@@ -18,7 +18,7 @@
 #define WORLD_WIDTH 401
 #define SHRT_MAX __SHRT_MAX__
 #define mapxy(x, y) (m->m[y][x])
-int quit;
+int quit = 0;
 void newMapCaller(void);
 void display(void);
 void get_input(void);
@@ -84,8 +84,8 @@ typedef struct character {
     char symbol;
     heap_node_t* heap_node;
     uint32_t direction;
-	int lost;
-	int changedMove;
+    int lost;
+    int changedMove;
 } character_t;
 
 typedef struct world
@@ -184,8 +184,8 @@ character_t* create_character(Position pos, CharacterType type, char symbol) {
     new_char->type = type;
     new_char->symbol = symbol;
     new_char->heap_node = NULL; // Initialize heap_node to NULL
-	new_char->lost = 0;
-	new_char->changedMove = 0;
+    new_char->lost = 0;
+    new_char->changedMove = 0;
     return new_char;
 }
 
@@ -291,9 +291,10 @@ void move_character(character_t* character, int direction_x, int direction_y, ma
     character->next_turn += movement_cost;
 
     // Move the character to the new position
-    character->x = direction_x;
-    character->y = direction_y;
-
+    if(character->type != PC){
+        character->x = direction_x;
+        character->y = direction_y;
+    }
     // Empty the npc map's old location
     world.npcs[old_y][old_x] = NULL;
     // Update the npc map's new location
@@ -466,20 +467,20 @@ void move_swimmer(character_t* npc) {
 void move_npc(character_t* npc) {
     switch (npc->type) {
     case Hiker:
-		if(npc->changedMove){
-        	move_pacer(npc);
-		}
-        else{
-			move_towards_player_hiker(npc);
-		}
+        if (npc->changedMove) {
+            move_pacer(npc);
+        }
+        else {
+            move_towards_player_hiker(npc);
+        }
         break;
     case Rival:
-		if(npc->changedMove){
-        	move_pacer(npc);
-		}
-        else{
-			move_towards_player_rival(npc);
-		}
+        if (npc->changedMove) {
+            move_pacer(npc);
+        }
+        else {
+            move_towards_player_rival(npc);
+        }
         break;
     case Swimmer:
         move_swimmer(npc);
@@ -1029,7 +1030,8 @@ character_t* create_pc(map_t* m) {
     int idx = rand() % validPositionsCount;
     Position pos = validPositionsForBuildings[idx];
     character_t* pc = create_character(pos, PC, '@');
-    m->m[pos.y][pos.x] = '@';
+    // m->m[pos.y][pos.x] = '@';
+    world.npcs[pos.y][pos.x] = pc; //!
     return pc;
 }
 
@@ -1310,40 +1312,40 @@ void newMapCaller()
         dijkstra(world.w[world.curY][world.curX]);
     }
 }
-void enter_pokemart(){
+void enter_pokemart() {
     mvprintw(0, 0, "Tried to enter the Pokemart");
     refresh();
     getch();
 }
-void enter_pokemon_center(){
+void enter_pokemon_center() {
     mvprintw(0, 0, "Tried to enter the Pokeman Center");
     refresh();
     getch();
 }
 static const char* character_type_to_string(CharacterType type) {
     switch (type) {
-        case PC: return "PC";
-        case Hiker: return "Hiker";
-        case Rival: return "Rival";
-        case Swimmer: return "Swimmer";
-        case Other: return "Trainer";
-        default: return "Unknown";
+    case PC: return "PC";
+    case Hiker: return "Hiker";
+    case Rival: return "Rival";
+    case Swimmer: return "Swimmer";
+    case Other: return "Trainer";
+    default: return "Unknown";
     }
 }
 
-static void display_trainers(character_t **c, uint32_t count) {
+static void display_trainers(character_t** c, uint32_t count) {
     uint32_t i;
     mvprintw(1, 0, "You know of %d trainers:", count);
 
     for (i = 0; i < count && i < LINES - 3; ++i) {
         const char* typeStr = character_type_to_string(c[i]->type);
         mvprintw(i + 2, 0, "%16s %c: %2d %s by %2d %s",
-                 typeStr,
-                 c[i]->symbol,
-                 abs(c[i]->y - world.pc.y),
-                 (c[i]->y - world.pc.y <= 0 ? "North" : "South"),
-                 abs(c[i]->x - world.pc.x),
-                 (c[i]->x - world.pc.x <= 0 ? "West" : "East"));
+            typeStr,
+            c[i]->symbol,
+            abs(c[i]->y - world.pc.y),
+            (c[i]->y - world.pc.y <= 0 ? "North" : "South"),
+            abs(c[i]->x - world.pc.x),
+            (c[i]->x - world.pc.x <= 0 ? "West" : "East"));
     }
 
     mvprintw(LINES - 1, 0, "Press any key to return. Use Arrow keys for more.");
@@ -1351,66 +1353,70 @@ static void display_trainers(character_t **c, uint32_t count) {
 }
 
 
-void display(){
+void display() {
     uint32_t y, x;
     clear();
-    for(y = 0; y < MAP_HEIGHT; y++){
-        for(x = 0; x < MAP_WIDTH; x++){
-            if(world.npcs[y][x]){
-                mvaddch(y+1, x, world.npcs[y][x]->symbol);
+    for (y = 0; y < MAP_HEIGHT; y++) {
+        for (x = 0; x < MAP_WIDTH; x++) {
+            if (world.npcs[y][x]) {
+                mvaddch(y + 1, x, world.npcs[y][x]->symbol);
             }
-            else{
-                switch(world.w[world.curY][world.curX]->m[y][x]){
-                    case '^':
-                    case ':':
-                    case '.':
-                        attron(COLOR_PAIR(COLOR_GREEN));
-                        mvaddch(y + 1, x, '^');
-                        attroff(COLOR_PAIR(COLOR_GREEN));
+            else {
+                switch (world.w[world.curY][world.curX]->m[y][x]) {
+                case '^':
+                case ':':
+                case '.':
+                    attron(COLOR_PAIR(COLOR_GREEN));
+                    mvaddch(y + 1, x, '^');
+                    attroff(COLOR_PAIR(COLOR_GREEN));
                     break;
-                    case '%':
-                        attron(COLOR_PAIR(COLOR_MAGENTA));
-                        mvaddch(y+1, x, '%');
-                        attroff(COLOR_PAIR(COLOR_MAGENTA));
+                case '%':
+                    attron(COLOR_PAIR(COLOR_MAGENTA));
+                    mvaddch(y + 1, x, '%');
+                    attroff(COLOR_PAIR(COLOR_MAGENTA));
                     break;
-                    case '#':
-                        attron(COLOR_PAIR(COLOR_RED));
-                        mvaddch(y + 1, x, '#');
-                        attroff(COLOR_PAIR(COLOR_RED));
-                        break;
-                    case '~':
-                        attron(COLOR_PAIR(COLOR_BLUE));
-                        mvaddch(y + 1, x, '~');
-                        attroff(COLOR_PAIR(COLOR_BLUE));
-                        break;
-                    case 'M':
-                        attron(COLOR_PAIR(COLOR_CYAN));
-                        mvaddch(y + 1, x, 'M');
-                        attroff(COLOR_PAIR(COLOR_CYAN));
-                        break;
-                    case 'C':
-                        attron(COLOR_PAIR(COLOR_YELLOW));
-                        mvaddch(y + 1, x, 'C');
-                        attroff(COLOR_PAIR(COLOR_YELLOW));
-                        break;
-                    case '@':
-                        attron(COLOR_PAIR(COLOR_WHITE));
-                        mvaddch(y + 1, x, '@');
-                        attroff(COLOR_PAIR(COLOR_WHITE));
-                        break;
-                    default:
-                        attron(COLOR_PAIR(COLOR_RED));
-                        mvaddch(y + 1, x, '?');
-                        attroff(COLOR_PAIR(COLOR_RED)); 
+                case '#':
+                    attron(COLOR_PAIR(COLOR_RED));
+                    mvaddch(y + 1, x, '#');
+                    attroff(COLOR_PAIR(COLOR_RED));
+                    break;
+                case '~':
+                    attron(COLOR_PAIR(COLOR_BLUE));
+                    mvaddch(y + 1, x, '~');
+                    attroff(COLOR_PAIR(COLOR_BLUE));
+                    break;
+                case 'M':
+                    attron(COLOR_PAIR(COLOR_CYAN));
+                    mvaddch(y + 1, x, 'M');
+                    attroff(COLOR_PAIR(COLOR_CYAN));
+                    break;
+                case 'C':
+                    attron(COLOR_PAIR(COLOR_YELLOW));
+                    mvaddch(y + 1, x, 'C');
+                    attroff(COLOR_PAIR(COLOR_YELLOW));
+                    break;
+                case '@':
+                    attron(COLOR_PAIR(COLOR_WHITE));
+                    mvaddch(y + 1, x, '@');
+                    attroff(COLOR_PAIR(COLOR_WHITE));
+                    break;
+                default:
+                    attron(COLOR_PAIR(COLOR_RED));
+                    mvaddch(y + 1, x, '?');
+                    attroff(COLOR_PAIR(COLOR_RED));
                 }
             }
         }
     }
     refresh();
+}
+static void move_pc_func(character_t* character, map_t* m){
+    display();
     get_input();
+    move_character(character, character.x, character.y, m);
 }
 static void list_trainers() {
-    character_t **c;
+    character_t** c;
     uint32_t x, y, count = 0;
 
     c = malloc(world.npc_count * sizeof(*c));
@@ -1432,105 +1438,154 @@ static void list_trainers() {
     free(c);
 }
 
-void battle(character_t* character){
-	display();
-	mvprintw(0,0,"Battle? You wanna fight?");
-	refresh();
-	getch();
-	character->lost = 1;
-	if(character->type == Hiker || character->type == Rival){
-		character->changedMove = 1; // Will no longer path to the PC. It moves like pacers
-	}
+void battle(character_t* character) {
+    display();
+    mvprintw(0, 0, "Battle? You wanna fight?");
+    refresh();
+    getch();
+    character->lost = 1;
+    if (character->type == Hiker || character->type == Rival) {
+        character->changedMove = 1; // Will no longer path to the PC. It moves like pacers
+    }
 }
-void get_input(){
-    int input;
-    uint32_t out;
-    do{
-        switch (input = getch()) {
-            case 1:
-            case 'b':
-                world.pc.y++;
-                world.pc.x--;
-                break;
-            case 2:
-            case 'j':
-            case KEY_DOWN:
-                world.pc.y++;
-                break;
-            case 3:
-            case 'n':
-                world.pc.y++;
-                world.pc.x++;
-                break;
-            case 4:
-            case 'h':
-            case KEY_LEFT:
-                world.pc.x--;
-                break;
-            case 5:
-            case ' ':
-            case '.':
-                out = 0;
-                break;
-            case 6:
-            case 'l':
-            case KEY_RIGHT:
-                world.pc.x++;
-                break;
-            case 7:
-            case 'y':
-                world.pc.y--;
-                world.pc.x--;
-                break;
-            case 8:
-            case 'k':
-            case KEY_UP:
-                world.pc.y--;
-                break;
-            case 9:
-            case 'u':
-                world.pc.y--;
-                world.pc.x++;
-                break;
-            case '>':
-                if (world.w[world.curY][world.curX]->m[world.pc.y][world.pc.x] == 'M') {
-                    enter_pokemart();
-                }
-                if (world.w[world.curY][world.curX]->m[world.pc.y][world.pc.x] == 'C') {
-                    enter_pokemon_center();
-                }
-                break;
-            case 'Q':
-                out = 0;
-                quit = 1;
-                break;
-            case 't':
-                list_trainers();
-                out = 1;
-				break;
+uint32_t move_pc(uint32_t input) {
+    Position pos;
+    pos.y = world.pc.x;
+    pos.x = world.pc.y;
+    switch (input) {
+    case 1:
+    case 2:
+    case 3:
+        pos.y++;
+        break;
+    case 4:
+    case 5:
+    case 6:
+        break;
+    case 7:
+    case 8:
+    case 9:
+        pos.y--;
+        break;
+    }
+    switch (input) {
+    case 1:
+    case 4:
+    case 7:
+        pos.x--;
+        break;
+    case 2:
+    case 5:
+    case 8:
+        break;
+    case 3:
+    case 6:
+    case 9:
+        pos.x++;
+        break;
+    case '>':
+    case '<':
+        if (world.w[world.curY][world.curX]->m[world.pc.y][world.pc.x] == 'M') {
+            enter_pokemart();
         }
-        if ((world.pc.x == world.w[world.curY][world.curX]->topExit && world.pc.y == 0) ||
+        if (world.w[world.curY][world.curX]->m[world.pc.y][world.pc.x] == 'C') {
+            enter_pokemon_center();
+        }
+        break;
+    }
+    if ((world.pc.x == world.w[world.curY][world.curX]->topExit && world.pc.y == 0) ||
         (world.pc.x == world.w[world.curY][world.curX]->bottomExit && world.pc.y == MAP_HEIGHT - 1) ||
         (world.pc.y == world.w[world.curY][world.curX]->leftExit && world.pc.x == 0) ||
         (world.pc.y == world.w[world.curY][world.curX]->rightExit && world.pc.x == MAP_WIDTH - 1)) {
-            out = 1;
-        }
-        int cost = get_cost(world.w[world.curY][world.curX]->m[world.pc.y][world.pc.x], world.pc.x, world.pc.y, PC);
-        if(cost == SHRT_MAX){
-            out = 1;
-        }
-		if(world.npcs[world.pc.y][world.pc.x] && world.npcs[world.pc.y][world.pc.x]->lost){
-			out = 1;
-		}
-        // Battle
-		else if(world.npcs[world.pc.y][world.pc.x]) { // Not lost
-			battle(world.npcs[world.pc.y][world.pc.x]);
-		}
-	refresh();
-    }while(out);
+        return 1;
+    }
+    int cost = get_cost(world.w[world.curY][world.curX]->m[world.pc.y][world.pc.x], world.pc.x, world.pc.y, PC);
+    if (world.npcs[world.pc.y][world.pc.x] && world.npcs[world.pc.y][world.pc.x]->lost) {
+        return 1;
+    }
+    // Battle
+    else if (world.npcs[world.pc.y][world.pc.x]) { // Not lost
+        battle(world.npcs[world.pc.y][world.pc.x]);
+    }
+    if (cost == SHRT_MAX) {
+        return 1;
+    }
+    return 0;
 }
 
-void init_io(){
+void get_input() {
+    int input;
+    uint32_t out;
+    do {
+        switch (input = getch()) {
+        case 1:
+        case 'b':
+        case KEY_END:
+            out = move_pc(1);
+            break;
+        case 2:
+        case 'j':
+        case KEY_DOWN:
+            out = move_pc(2);
+            break;
+        case 3:
+        case 'n':
+        case KEY_NPAGE:
+            out = move_pc(3);
+            break;
+        case 4:
+        case 'h':
+        case KEY_LEFT:
+            out = move_pc(4);
+            break;
+        case 5:
+        case ' ':
+        case '.':
+        case KEY_B2:
+            out = 0;
+            break;
+        case 6:
+        case 'l':
+        case KEY_RIGHT:
+            out = move_pc(6);
+            break;
+        case 7:
+        case 'y':
+        case KEY_HOME:
+            out = move_pc(7);
+            break;
+        case 8:
+        case 'k':
+        case KEY_UP:
+            out = move_pc(8);
+            break;
+        case 9:
+        case 'u':
+        case KEY_UP:
+            out = move_pc(9);
+            break;
+        case '>':
+            out = move_pc('>')
+            break;
+        case 'Q':
+            out = 0;
+            quit = 1;
+            break;
+            break; //?
+        case 't':
+            list_trainers(); //?
+            out = 1;
+            break;
+        default:
+            mvprintw(0,0, "Unbound key: %#o", input);
+            out = 1;
+        }
+
+        refresh();
+    } while (out);
+}
+
+void init_io() {
     initscr(); // Initializes the terminal in cursor mode.
     raw(); //Disable inline buffering
     noecho();// Switches off echoing
@@ -1585,9 +1640,7 @@ int main(int argc, char* argv[])
         // current_char->y, current_char->next_turn, current_char->sequence_number);  
         if (current_char->type == PC) {
             // move the pc
-            display();
-			cost = get_cost(world.w[world.curY][world.curX]->m[current_char->y][current_char->x], current_char->x, current_char->y, current_char->type);
-			current_char->next_turn += cost;
+            move_pc_func(current_char, world.w[world.curY][world.curX]);
         }
         else {
             move_npc(current_char);
