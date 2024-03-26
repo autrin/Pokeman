@@ -158,8 +158,9 @@ int32_t get_cost(char terrainChar, int x, int y, CharacterType character) {
         break;
     case '@':
         return 10;
-    default:
-        terrain = Other;
+    // default:
+    //     // terrain = Other;
+    //     printf("Error in get_cost(): entered default.");
     }
     return cost[character][terrain];
 }
