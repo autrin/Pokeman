@@ -1,5 +1,5 @@
 
-1.05.c,4704
+1.05.c,4741
 #define MAP_WIDTH 14,238
 #define MAP_HEIGHT 15,283
 #define NUM_REGIONS 16,329
@@ -94,58 +94,59 @@ Position find_valid_position_for_npc(236,7416
 void update_character_turn(245,7728
 void generate_npcs(251,7923
 void move_character(286,9366
-void move_pacer(303,10022
-void move_wanderer(321,11011
-void move_towards_player_hiker(349,12253
-void move_towards_player_rival(382,13627
-void move_explorer(413,14979
-void move_swimmer(434,15994
-void move_npc(466,17436
-void addValidPosition(516,18866
-void collectValidPositions(524,19139
-void world_init(542,19570
-void createBorder(558,20024
-void initializeRegions(585,20570
-void assignRegions(593,20751
-    float x,663,23344
-    float x, y;663,23344
-} Vector2D;664,23360
-    Vector2D grad[grad667,23390
-} GradientGrid;668,23459
-float lerp(671,23500
-float smoothstep(676,23619
-float dot(681,23713
-Vector2D randomGradient(686,23823
-float perlinNoise(695,24040
-TerrainType terrainTypeBasedOnNoiseValue(727,25131
-void generateTerrainWithNoise(745,25453
-void setRegionCoordinates(784,26681
-void createMap(796,27183
-void createSingleCenterOrMart(820,27826
-void createCC(854,28989
-void createPokemart(859,29056
-void printMap(864,29129
-void sprinkle(881,29478
-void createPaths(900,30071
-character_t* create_pc(1025,34396
-static int32_t compRival(1037,34718
-static int32_t compHiker(1040,34953
-void dijkstra(1046,35268
-void freeMap(1233,45343
-void freeAllMaps(1242,45619
-void cleanup_characters(1253,45833
-void newMapCaller(1268,46245
-void enter_pokemart(1313,48524
-void enter_pokemon_center(1318,48629
-static const char* character_type_to_string(1323,48746
-static void display_trainers(1334,49032
-void display(1354,49696
-static void list_trainers(1412,51756
-void battle(1435,52338
-uint32_t move_pc(1445,52655
-void get_input(1509,54305
-void init_io(1597,56729
-int main(1613,57370
+void move_pacer(304,10066
+void move_wanderer(322,11055
+void move_towards_player_hiker(350,12297
+void move_towards_player_rival(383,13671
+void move_explorer(414,15023
+void move_swimmer(435,16038
+void move_npc(467,17480
+void addValidPosition(517,18910
+void collectValidPositions(525,19183
+void world_init(543,19614
+void createBorder(559,20068
+void initializeRegions(586,20614
+void assignRegions(594,20795
+    float x,664,23388
+    float x, y;664,23388
+} Vector2D;665,23404
+    Vector2D grad[grad668,23434
+} GradientGrid;669,23503
+float lerp(672,23544
+float smoothstep(677,23663
+float dot(682,23757
+Vector2D randomGradient(687,23867
+float perlinNoise(696,24084
+TerrainType terrainTypeBasedOnNoiseValue(728,25175
+void generateTerrainWithNoise(746,25497
+void setRegionCoordinates(785,26725
+void createMap(797,27227
+void createSingleCenterOrMart(821,27870
+void createCC(855,29033
+void createPokemart(860,29100
+void printMap(865,29173
+void sprinkle(882,29522
+void createPaths(901,30115
+character_t* create_pc(1026,34440
+static int32_t compRival(1039,34804
+static int32_t compHiker(1042,35039
+void dijkstra(1048,35354
+void freeMap(1235,45429
+void freeAllMaps(1244,45705
+void cleanup_characters(1255,45919
+void newMapCaller(1270,46331
+void enter_pokemart(1315,48610
+void enter_pokemon_center(1320,48715
+static const char* character_type_to_string(1325,48832
+static void display_trainers(1336,49118
+void display(1356,49782
+static void move_pc_func(1413,51825
+static void list_trainers(1418,51981
+void battle(1441,52563
+uint32_t move_pc(1451,52880
+void get_input(1516,54534
+void init_io(1588,55998
+int main(1604,56639
 
 heap.c,574
 struct heap_node8,99

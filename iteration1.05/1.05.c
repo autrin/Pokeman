@@ -1413,7 +1413,7 @@ void display() {
 static void move_pc_func(character_t* character, map_t* m){
     display();
     get_input();
-    move_character(character, character.x, character.y, m);
+    move_character(character, character->x, character->y, m);
 }
 static void list_trainers() {
     character_t** c;
@@ -1561,11 +1561,11 @@ void get_input() {
             break;
         case 9:
         case 'u':
-        case KEY_UP:
+        case KEY_PPAGE:
             out = move_pc(9);
             break;
         case '>':
-            out = move_pc('>')
+            out = move_pc('>');
             break;
         case 'Q':
             out = 0;
@@ -1629,7 +1629,7 @@ int main(int argc, char* argv[])
     }
     generate_npcs(numtrainers, world.w[world.curY][world.curX]); // Place after map is created
     character_t* current_char;
-    int32_t cost;
+    // int32_t cost;
     while (!quit) {
         current_char = heap_remove_min(&event_heap);
         if (!current_char) {
