@@ -158,9 +158,9 @@ int32_t get_cost(char terrainChar, int x, int y, CharacterType character) {
         break;
     case '@':
         return 10;
-    // default:
-    //     // terrain = Other;
-    //     printf("Error in get_cost(): entered default.");
+        // default:
+        //     // terrain = Other;
+        //     printf("Error in get_cost(): entered default.");
     }
     return cost[character][terrain];
 }
@@ -292,7 +292,7 @@ void move_character(character_t* character, int direction_x, int direction_y, ma
     character->next_turn += movement_cost;
 
     // Move the character to the new position
-    if(character->type != PC){
+    if (character->type != PC) {
         character->x = direction_x;
         character->y = direction_y;
     }
@@ -1233,27 +1233,13 @@ void dijkstra(map_t* m)
 
     heap_delete(&h);
 }
-void freeMap(int y, int x)
-{
-    if (world.w[y][x])
-    {                         // Check if the map at the location has been allocated.
-        free(world.w[y][x]);  // Free the map structure.
-        world.w[y][x] = NULL; // Set the pointer to NULL after freeing.
-    }
-}
 
-void freeAllMaps()
-{
-    for (int y = 0; y < WORLD_HEIGHT; y++)
-    {
-        for (int x = 0; x < WORLD_WIDTH; x++)
-        {
-            freeMap(y, x); // Free each map if it has been allocated
-        }
-    }
-}
 
-void cleanup_characters() {
+void cleanup_characters(void *v) {
+    free((character_t *) v);
+}
+void free_npcs(){
+    world.npc_count = 0; // Reset the NPC count after cleanup
     for (int y = 0; y < WORLD_HEIGHT; y++)
     {
         for (int x = 0; x < WORLD_WIDTH; x++)
@@ -1264,9 +1250,23 @@ void cleanup_characters() {
             }
         }
     }
-    world.npc_count = 0; // Reset the NPC count after cleanup
 }
-
+void freeAllMaps()
+{
+    free_npcs();
+    heap_delete(&event_heap); //* Need to iterate in the future
+    for (int y = 0; y < WORLD_HEIGHT; y++)
+    {
+        for (int x = 0; x < WORLD_WIDTH; x++)
+        {
+            if (world.w[y][x])
+            {
+                free(world.w[y][x]);
+                world.w[y][x] = NULL;
+            }
+        }
+    }
+}
 /* calls all of the functions neccessary to create a single map */
 void newMapCaller()
 {
@@ -1411,7 +1411,7 @@ void display() {
     }
     refresh();
 }
-static void move_pc_func(character_t* character, map_t* m){
+static void move_pc_func(character_t* character, map_t* m) {
     display();
     get_input();
     move_character(character, character->x, character->y, m);
@@ -1578,7 +1578,7 @@ void get_input() {
             out = 1;
             break;
         default:
-            mvprintw(0,0, "Unbound key: %#o", input);
+            mvprintw(0, 0, "Unbound key: %#o", input);
             out = 1;
         }
 
@@ -1650,7 +1650,7 @@ int main(int argc, char* argv[])
         heap_insert(&event_heap, current_char);
     }
     freeAllMaps();
-    cleanup_characters();
+    // cleanup_characters();
     endwin();
     return 0;
 }
