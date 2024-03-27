@@ -148,45 +148,33 @@ void get_input(1530,55018
 void init_io(1609,56813
 int main(1625,57454
 
-heap.c,1022
-struct heap_node 9,100
-  heap_node_t *next;next10,119
-  heap_node_t *prev;prev11,140
-  heap_node_t *parent;parent12,161
-  heap_node_t *child;child13,184
-  void *datum;datum14,206
-  uint32_t degree;15,221
-  uint32_t mark;16,240
-#define swap(19,261
-#define splice_heap_node_lists(25,373
-#define insert_heap_node_in_list(34,685
-#define remove_heap_node_from_list(41,909
-void print_heap_node(46,1042
-void print_heap(62,1364
-void print_heap_node_list(79,1666
-void heap_init(95,1865
-void heap_node_delete(105,2101
-void heap_delete(123,2405
-heap_node_t *heap_insert(heap_insert134,2570
-void *heap_peek_min(heap_peek_min154,2896
-static void heap_link(159,2972
-static void heap_consolidate(173,3294
-void *heap_remove_min(heap_remove_min214,4227
-int heap_combine(249,4761
-static void heap_cut(278,5412
-static void heap_cascading_cut(292,5693
-int heap_decrease_key(306,5919
-int heap_decrease_key_no_replace(320,6161
-int32_t compare(344,6735
-char *print_int(print_int349,6834
-int main(358,6952
+heap.c,574
+struct heap_node8,99
+    heap_node_t* next;10,118
+    heap_node_t* prev;11,141
+    heap_node_t* parent;12,164
+    heap_node_t* child;13,189
+    uint32_t degree;14,213
+    uint32_t mark;15,234
+    void* data;16,253
+#define swap(19,273
+void heap_init(25,389
+heap_node_t* heap_insert(32,598
+static void heap_link(55,1066
+static void heap_consolidate(77,1545
+void* heap_remove_min(131,2926
+static void heap_cut(165,3832
+static void heap_cascading_cut(190,4275
+int heap_decrease_key_no_replace(208,4565
+void heap_node_delete(230,5153
+void heap_delete(251,5523
 
-heap.h,254
-# define HEAP_H37,962
-typedef struct heap_node heap_node_t;46,1061
-typedef struct heap 48,1100
-  heap_node_t *min;min49,1122
-  uint32_t size;50,1142
-  int32_t (*compare)compare51,1159
-  void (*datum_delete)datum_delete52,1216
-} heap_t;53,1248
+heap.h,274
+#define HEAP_H2,15
+    typedef struct heap_node heap_node_t;11,113
+    typedef struct heap13,156
+        heap_node_t* min;15,186
+        uint32_t size;16,212
+        int32_t(*compare)compare17,235
+        void (*datum_delete)datum_delete18,297
+    } heap_t;19,334
