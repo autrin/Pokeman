@@ -27,7 +27,7 @@ typedef struct
 
 void newMapCaller(void);
 void display(void);
-void get_input(Position pos);
+void get_input(Position *pos);
 char symbols[] = { '%', '^', ':', '.', '~' }; // Simplified symbols array
 
 typedef struct path
@@ -283,7 +283,7 @@ void generate_npcs(int numtrainers, map_t* map) {
     }
 }
 
-void move_character(character_t* character, int direction_x, int direction_y, map_t* m, Position pos) {
+void move_character(character_t* character, int direction_x, int direction_y, map_t* m, Position *pos) {
     int old_x = character->x;
     int old_y = character->y;
     int32_t movement_cost = get_cost(m->m[direction_y][direction_x], direction_x, direction_y, character->type);
@@ -291,16 +291,18 @@ void move_character(character_t* character, int direction_x, int direction_y, ma
     character->next_turn += movement_cost;
 
     // Move the character to the new position
-    if (character->type != PC) {
+    // if (character->type != PC) {
         character->x = direction_x;
         character->y = direction_y;
-    }
+    // }
     // Empty the npc map's old location
     world.npcs[old_y][old_x] = NULL;
     // Update the npc map's new location
     world.npcs[direction_y][direction_x] = character;
-    printf("%d %d\n", pos.x, pos.y);
+    // printf("%d %d\n", pos.x, pos.y);
     if (character->type == PC) {
+        // world.pc.x = pos->x;
+        // world.pc.y = pos->y;
         world.pc.x = direction_x;
         world.pc.y = direction_y;
     }
@@ -310,7 +312,7 @@ void move_pacer(character_t* npc) {
     // Assuming npc->direction stores the pacer's current direction (e.g., 0 for horizontal, 1 for vertical)
     int dx = (npc->direction == 0) ? 1 : 0; // Move horizontally if direction is 0
     int dy = (npc->direction == 1) ? 1 : 0; // Move vertically if direction is 1
-    Position pos;
+    Position *pos=NULL;
     // Check if the next position in the current direction is valid
     if (npc->x + dx > 0 && npc->x + dx < MAP_WIDTH - 1 && npc->y + dy > 0 && npc->y + dy < MAP_HEIGHT - 1 && is_position_valid_for_npc(npc->x + dx, npc->y + dy, npc->type)) {
         move_character(npc, npc->x + dx, npc->y + dy, world.w[world.curY][world.curX], pos);
@@ -327,7 +329,7 @@ void move_pacer(character_t* npc) {
 void move_wanderer(character_t* npc) {
     bool moved = false;
     int attempts = 0;
-    Position pos;
+    Position *pos=NULL;
     while (!moved && attempts < 8) {
         // Example for a randomly moving NPC (like a wanderer)
         int dir_index = rand() % 8; // Choose a random direction
@@ -359,7 +361,7 @@ void move_towards_player_hiker(character_t* npc) {
     int base = rand() & 0x7;
     int newX;
     int newY;
-    Position pos;
+    Position *pos=NULL;
     // Iterate over all possible directions, including diagonals
     for (int i = base; i < 8 + base; i++) {
         newX = npc->x + directions[i & 0x7].x;
@@ -390,6 +392,7 @@ void move_towards_player_hiker(character_t* npc) {
 void move_towards_player_rival(character_t* npc) {
     int bestDist = SHRT_MAX; // Initialize with maximum possible distance
     Position bestMove = { 0, 0 };
+    Position *pos = NULL;
     int base = rand() & 0x7;
     // Iterate over all possible directions, including diagonals
     for (int i = base; i < 8 + base; i++) {
@@ -409,7 +412,7 @@ void move_towards_player_rival(character_t* npc) {
 
     // Move the NPC if a better position was found
     if (bestDist != SHRT_MAX) {
-        move_character(npc, bestMove.x, bestMove.y, world.w[world.curY][world.curX], bestMove);
+        move_character(npc, bestMove.x, bestMove.y, world.w[world.curY][world.curX], pos);
     }
     else {
         char current_terrain = world.w[world.curY][world.curX]->m[npc->y][npc->x];
@@ -422,7 +425,7 @@ void move_explorer(character_t* npc) {
     // Explorers try to avoid water but can move freely otherwise
     map_t* m = world.w[world.curY][world.curX];
     bool moved = false;
-    Position pos;
+    Position *pos= NULL;
     int base = rand() & 0x7;
     for (int i = base; i < 8 + base; i++) {
         Position new_pos = { npc->x + directions[i & 0x7].x, npc->y + directions[i & 0x7].y };
@@ -443,7 +446,7 @@ void move_explorer(character_t* npc) {
 void move_swimmer(character_t* npc) {
     // Swimmer moves randomly within water tiles
     bool moved = false;
-    Position pos;
+    Position *pos = NULL;
     // int base = rand() & 0x7;
     int attempts = 0;
     while (!moved && attempts < 8) { // Limit attempts to avoid infinite loops
@@ -1421,10 +1424,10 @@ void display() {
     }
     refresh();
 }
-static void move_pc_func(character_t* character, map_t* m, Position pos) {
+static void move_pc_func(character_t* character, map_t* m, Position *pos) {
     display();
     get_input(pos);
-    move_character(character, character->x, character->y, m, pos);
+    // move_character(character, character->x, character->y, m, pos);
 }
 static void list_trainers() {
     character_t** c;
@@ -1459,14 +1462,14 @@ void battle(character_t* character) { //TODO needs to be changed in the future
         character->changedMove = 1; // Will no longer path to the PC. It moves like pacers
     }
 }
-uint32_t move_pc(uint32_t input, Position pos) {
-    pos.y = world.pc.y;
-    pos.x = world.pc.x;
+uint32_t move_pc(uint32_t input, Position *pos) {
+    pos->y = world.pc.y; // Line 1466
+    pos->x = world.pc.x;
     switch (input) {
     case 1:
     case 2:
     case 3:
-        pos.y++;
+        pos->y++;
         break;
     case 4:
     case 5:
@@ -1475,14 +1478,14 @@ uint32_t move_pc(uint32_t input, Position pos) {
     case 7:
     case 8:
     case 9:
-        pos.y--;
+        pos->y--;
         break;
     }
     switch (input) {
     case 1:
     case 4:
     case 7:
-        pos.x--;
+        pos->x--;
         break;
     case 2:
     case 5:
@@ -1491,10 +1494,9 @@ uint32_t move_pc(uint32_t input, Position pos) {
     case 3:
     case 6:
     case 9:
-        pos.x++;
+        pos->x++;
         break;
     case '>':
-    case '<':
         if (world.w[world.curY][world.curX]->m[world.pc.y][world.pc.x] == 'M') {
             enter_pokemart();
         }
@@ -1504,33 +1506,33 @@ uint32_t move_pc(uint32_t input, Position pos) {
         break;
     }
 
-    // world.pc.x = pos.x;
-    // world.pc.y = pos.y;
-
-    if ((pos.x == world.w[world.curY][world.curX]->topExit && pos.y == 0) ||
-        (pos.x == world.w[world.curY][world.curX]->bottomExit && pos.y == MAP_HEIGHT - 1) ||
-        (pos.y == world.w[world.curY][world.curX]->leftExit && pos.x == 0) ||
-        (pos.y == world.w[world.curY][world.curX]->rightExit && pos.x == MAP_WIDTH - 1)) {
+    if ((pos->x == world.w[world.curY][world.curX]->topExit && pos->y == 0) ||
+        (pos->x == world.w[world.curY][world.curX]->bottomExit && pos->y == MAP_HEIGHT - 1) ||
+        (pos->y == world.w[world.curY][world.curX]->leftExit && pos->x == 0) ||
+        (pos->y == world.w[world.curY][world.curX]->rightExit && pos->x == MAP_WIDTH - 1)) {
         return 1;
     }
-    if (world.npcs[pos.y][pos.x] && world.npcs[pos.y][pos.x]->lost) {
+    if (world.npcs[pos->y][pos->x] && world.npcs[pos->y][pos->x]->lost) {
         return 1;
     }
     // Battle
-    else if (world.npcs[pos.y][pos.x]) { // Not lost
-        battle(world.npcs[pos.y][pos.x]);
-        pos.y = world.pc.y;
-        pos.x = world.pc.x;
+    else if (world.npcs[pos->y][pos->x]) { // Not lost
+        battle(world.npcs[pos->y][pos->x]);
+        pos->y = world.pc.y;
+        pos->x = world.pc.x;
     }
-    if (get_cost(world.w[world.curY][world.curX]->m[pos.y][pos.x], pos.x, pos.y, PC) == SHRT_MAX) {
+    if (get_cost(world.w[world.curY][world.curX]->m[pos->y][pos->x], pos->x, pos->y, PC) == SHRT_MAX) {
         return 1;
     }
     return 0;
 }
 
-void get_input(Position pos) {
+void get_input(Position *pos) {
     int input;
     uint32_t out;
+    pos = malloc(sizeof(Position));
+    // if (!pos) {
+    // }
     do {
         switch (input = getch()) {
         case 1:
@@ -1557,8 +1559,8 @@ void get_input(Position pos) {
         case ' ':
         case '.':
         case KEY_B2:
-            pos.y = world.pc.y;
-            pos.x = world.pc.x;
+            pos->y = world.pc.y;
+            pos->x = world.pc.x;
             out = 0;
             break;
         case 6:
@@ -1585,8 +1587,8 @@ void get_input(Position pos) {
             out = move_pc('>', pos);
             break;
         case 'Q':
-            pos.y = world.pc.y;
-            pos.x = world.pc.x;
+            pos->y = world.pc.y;
+            pos->x = world.pc.x;
             out = 0;
             quit = 1;
             break;
@@ -1600,6 +1602,8 @@ void get_input(Position pos) {
         }
         refresh();
     } while (out);
+    move_character(&world.pc, pos->x, pos->y, world.w[world.curY][world.curX], pos);
+    free(pos);
 }
 
 void init_io() {
@@ -1646,7 +1650,7 @@ int main(int argc, char* argv[])
     }
     generate_npcs(numtrainers, world.w[world.curY][world.curX]); // Place after map is created
     character_t* current_char;
-    Position pos;
+    Position *pos = NULL;
     // int32_t cost;
     while (!quit) {
         current_char = heap_remove_min(&event_heap);
