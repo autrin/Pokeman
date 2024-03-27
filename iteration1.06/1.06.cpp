@@ -20,62 +20,66 @@
 #define mapxy(x, y) (m->m[y][x])
 int quit = 0;
 // Global or struct to store valid positions
-typedef struct
+class Position
 {
+public:
     int x, y;
-} Position;
+};
 
 void newMapCaller(void);
 void display(void);
-void get_input(Position *pos);
+void get_input(Position* pos);
 char symbols[] = { '%', '^', ':', '.', '~' }; // Simplified symbols array
 
-typedef struct path
-{
+typedef struct path_t {
     heap_node_t* hn;
     uint8_t pos[2];
     uint8_t from[2];
     int32_t cost;
-} path_t;
+}path_t;
 
 // Define a structure to represent a region
-struct Region
+class Region
 {
+public:
     int32_t fromX, fromY, toX, toY;
     char symbol;
 };
 Position validPositionsForBuildings[MAP_WIDTH * MAP_HEIGHT]; // Adjust size accordingly
 int validPositionsCount = 0;                                 // Keep track of how many valid positions are stored
 
-typedef int16_t pair_t[3];
+int16_t pair_t[3]; //!
 
-typedef struct map
+class map
 {
+public:
     char m[MAP_HEIGHT][MAP_WIDTH];
     int topExit, bottomExit, leftExit, rightExit;
-} map_t;
+};
 
-typedef struct pc
-{ // player character, which is '@'
-    int32_t x;
-    int32_t y;
-    heap_node_t* heap_node;
-} pc_t;
+// class pc
+// { // player character, which is '@'
+// public:
+//     int32_t x;
+//     int32_t y;
+//     heap_node_t* heap_node;
+// };
 
 // Define character types
-typedef enum {
+typedef enum __attribute__((__packed__)) CharacterType {
     PC,
-    Hiker,
-    Rival,
-    Swimmer,
-    Other,
-    Num_Character_Types // Keeps track of the number of character types
+        Hiker,
+        Rival,
+        Swimmer,
+        Other,
+        Num_characterypes // Keeps track of the number of character types
 } CharacterType;
 
 // direction vectors: N, NE, E, SE, S, SW, W, NW
 static Position directions[8] = { {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1} };
 
-typedef struct character {
+class character {
+public:
     int32_t x, y; // Position
     uint32_t next_turn;
     uint32_t sequence_number;
@@ -85,33 +89,33 @@ typedef struct character {
     uint32_t direction;
     int lost;
     int changedMove;
-} character_t;
+};
 
-typedef struct world
+class World
 {
-    map_t* w[WORLD_HEIGHT][WORLD_WIDTH];
+public:
+    map* w[WORLD_HEIGHT][WORLD_WIDTH];
     int32_t curX; // x of the current map
     int32_t curY; // y of the current map
-    character_t pc;
+    character pc;
     int hikerDist[MAP_HEIGHT][MAP_WIDTH];
     int rivalDist[MAP_HEIGHT][MAP_WIDTH];
-    // character_t* npcs[MAP_HEIGHT * MAP_WIDTH];
-    character_t* npcs[MAP_HEIGHT][MAP_WIDTH];
+    // character* npcs[MAP_HEIGHT * MAP_WIDTH];
+    character* npcs[MAP_HEIGHT][MAP_WIDTH];
     int npc_count;
     uint32_t global_sequence_number;
+};
 
-} world_t;
-
-world_t world;
+World world;
 
 // Define terrain types
-typedef enum {
+typedef enum __attribute__((__packed__)) TerrainType {
     BOULDER, TREE, PATH, MART, CENTER, GRASS, CLEARING, MOUNTAIN, FOREST, WATER, GATE,
-    Num_Terrain_Types // Keeps track of the number of terrain types
+        Num_Terrain_Types // Keeps track of the number of terrain types
 } TerrainType;
 
 // Store the cost of each character going through every terrain type 
-int32_t cost[Num_Character_Types][Num_Terrain_Types] = {
+int32_t cost[Num_characterypes][Num_Terrain_Types] = {
     // BOULDER, TREE, PATH, MART, CENTER, GRASS, CLEARING, MOUNTAIN, FOREST, WATER, GATE
     [PC] = {SHRT_MAX, SHRT_MAX, 10, 10, 10, 20, 10, SHRT_MAX, SHRT_MAX, SHRT_MAX, 10},
     [Hiker] = {SHRT_MAX, SHRT_MAX, 10, 50, 50, 15, 10, 15, 15, SHRT_MAX, SHRT_MAX},
@@ -168,11 +172,11 @@ heap_t event_heap;
 
 int32_t characters_turn_comp(const void* key, const void* with)
 {
-    return ((((character_t*)key)->next_turn == ((character_t*)with)->next_turn) ? (((character_t*)key)->sequence_number - ((character_t*)with)->sequence_number)
-        : (((character_t*)key)->next_turn - ((character_t*)with)->next_turn)); // If there is a tie, compare the sequence numbers.
+    return ((((character*)key)->next_turn == ((character*)with)->next_turn) ? (((character*)key)->sequence_number - ((character*)with)->sequence_number)
+        : (((character*)key)->next_turn - ((character*)with)->next_turn)); // If there is a tie, compare the sequence numbers.
 }
-character_t* create_character(Position pos, CharacterType type, char symbol) {
-    character_t* new_char = malloc(sizeof(character_t));
+character* create_character(Position pos, CharacterType type, char symbol) {
+    character* new_char = (character*)malloc(sizeof(character));
     if (!new_char) {
         // Handle malloc failure
         return NULL;
@@ -189,7 +193,7 @@ character_t* create_character(Position pos, CharacterType type, char symbol) {
     return new_char;
 }
 
-bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npc_type) {
+bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npcype) {
     // Check bounds first to ensure we're looking within the map's dimensions
     if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) { // Might need this for PC but npcs check this in their move functions
         return false; // Position is out of bounds           // this function is only for npc so delete this?
@@ -209,7 +213,7 @@ bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npc_type) {
 
     // Specific terrain checks based on NPC type
     char terrain = world.w[world.curY][world.curX]->m[y][x];
-    switch (npc_type) {
+    switch (npcype) {
     case Swimmer:
         // Swimmers can only move in water
         if (terrain != '~') {
@@ -233,30 +237,30 @@ bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npc_type) {
 
     return true; // If none of the checks failed, the position is valid for this NPC
 }
-Position find_valid_position_for_npc(CharacterType npc_type) {
+Position find_valid_position_for_npc(CharacterType npcype) {
     Position pos;
     do { //! risky loop
         pos.x = rand() % MAP_WIDTH;
         pos.y = rand() % MAP_HEIGHT;
-    } while (!is_position_valid_for_npc(pos.x, pos.y, npc_type));
+    } while (!is_position_valid_for_npc(pos.x, pos.y, npcype));
     return pos;
 }
 // Update character's next turn and reinsert into the event heap
-void update_character_turn(character_t* character) {
+void update_characterurn(character* character) {
     if (character->heap_node) {
         heap_remove_min(&event_heap);
     }
     character->heap_node = heap_insert(&event_heap, character);
 }
-void generate_npcs(int numtrainers, map_t* map) {
+void generate_npcs(int numtrainers, map* map) {
     for (int i = 0; i < numtrainers; i++) {
-        // Adjusted to avoid selecting PC and Num_Character_Types as NPC types
-        CharacterType npc_type = 1 + rand() % (Num_Character_Types - 1); // Randomly select NPC type, skipping PC and Num_Character_Types
+        // Adjusted to avoid selecting PC and Num_characterypes as NPC types
+        CharacterType npcype = (CharacterType)(1 + rand() % (Num_characterypes - 1)); // Randomly select NPC type, skipping PC and Num_characterypes
 
-        Position pos = find_valid_position_for_npc(npc_type);
+        Position pos = find_valid_position_for_npc(npcype);
 
         char symbol = 'N'; // Default symbol
-        switch (npc_type) {
+        switch (npcype) {
         case Hiker: symbol = 'h'; break;
         case Rival: symbol = 'r'; break;
         case Swimmer: symbol = 'm'; break;
@@ -269,12 +273,12 @@ void generate_npcs(int numtrainers, map_t* map) {
             case 3: symbol = 's'; break; // Sentries
             }
         } break;
-            // Explicitly ignoring PC and Num_Character_Types since they should not be selected
+            // Explicitly ignoring PC and Num_characterypes since they should not be selected
         case PC:
-        case Num_Character_Types:
+        case Num_characterypes:
             continue; // Skip the rest of the loop iteration if these values are somehow selected
         }
-        character_t* npc = create_character(pos, npc_type, symbol);
+        character* npc = create_character(pos, npcype, symbol);
         if (npc) {
             npc->heap_node = heap_insert(&event_heap, npc);
             world.npcs[pos.y][pos.x] = npc;
@@ -283,7 +287,7 @@ void generate_npcs(int numtrainers, map_t* map) {
     }
 }
 
-void move_character(character_t* character, int direction_x, int direction_y, map_t* m, Position *pos) {
+void move_character(character* character, int direction_x, int direction_y, map* m, Position* pos) {
     int old_x = character->x;
     int old_y = character->y;
     int32_t movement_cost = get_cost(m->m[direction_y][direction_x], direction_x, direction_y, character->type);
@@ -292,8 +296,8 @@ void move_character(character_t* character, int direction_x, int direction_y, ma
 
     // Move the character to the new position
     // if (character->type != PC) {
-        character->x = direction_x;
-        character->y = direction_y;
+    character->x = direction_x;
+    character->y = direction_y;
     // }
     // Empty the npc map's old location
     world.npcs[old_y][old_x] = NULL;
@@ -308,11 +312,11 @@ void move_character(character_t* character, int direction_x, int direction_y, ma
     }
 }
 
-void move_pacer(character_t* npc) {
+void move_pacer(character* npc) {
     // Assuming npc->direction stores the pacer's current direction (e.g., 0 for horizontal, 1 for vertical)
     int dx = (npc->direction == 0) ? 1 : 0; // Move horizontally if direction is 0
     int dy = (npc->direction == 1) ? 1 : 0; // Move vertically if direction is 1
-    Position *pos=NULL;
+    Position* pos = NULL;
     // Check if the next position in the current direction is valid
     if (npc->x + dx > 0 && npc->x + dx < MAP_WIDTH - 1 && npc->y + dy > 0 && npc->y + dy < MAP_HEIGHT - 1 && is_position_valid_for_npc(npc->x + dx, npc->y + dy, npc->type)) {
         move_character(npc, npc->x + dx, npc->y + dy, world.w[world.curY][world.curX], pos);
@@ -326,10 +330,10 @@ void move_pacer(character_t* npc) {
     }
 }
 
-void move_wanderer(character_t* npc) {
+void move_wanderer(character* npc) {
     bool moved = false;
     int attempts = 0;
-    Position *pos=NULL;
+    Position* pos = NULL;
     while (!moved && attempts < 8) {
         // Example for a randomly moving NPC (like a wanderer)
         int dir_index = rand() % 8; // Choose a random direction
@@ -351,17 +355,17 @@ void move_wanderer(character_t* npc) {
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
         npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost
 
-        // update_character_turn(npc);//!
+        // update_characterurn(npc);//!
     }
 }
 
-void move_towards_player_hiker(character_t* npc) {
+void move_towards_player_hiker(character* npc) {
     int bestDist = SHRT_MAX; // Initialize with maximum possible distance
     Position bestMove = { 0, 0 };
     int base = rand() & 0x7;
     int newX;
     int newY;
-    Position *pos=NULL;
+    Position* pos = NULL;
     // Iterate over all possible directions, including diagonals
     for (int i = base; i < 8 + base; i++) {
         newX = npc->x + directions[i & 0x7].x;
@@ -385,14 +389,14 @@ void move_towards_player_hiker(character_t* npc) {
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
         npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost  
 
-        // update_character_turn(npc);//!
+        // update_characterurn(npc);//!
     }
 }
 
-void move_towards_player_rival(character_t* npc) {
+void move_towards_player_rival(character* npc) {
     int bestDist = SHRT_MAX; // Initialize with maximum possible distance
     Position bestMove = { 0, 0 };
-    Position *pos = NULL;
+    Position* pos = NULL;
     int base = rand() & 0x7;
     // Iterate over all possible directions, including diagonals
     for (int i = base; i < 8 + base; i++) {
@@ -418,14 +422,14 @@ void move_towards_player_rival(character_t* npc) {
         char current_terrain = world.w[world.curY][world.curX]->m[npc->y][npc->x];
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
         npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost
-        // update_character_turn(npc);//!
+        // update_characterurn(npc);//!
     }
 }
-void move_explorer(character_t* npc) {
+void move_explorer(character* npc) {
     // Explorers try to avoid water but can move freely otherwise
-    map_t* m = world.w[world.curY][world.curX];
+    map* m = world.w[world.curY][world.curX];
     bool moved = false;
-    Position *pos= NULL;
+    Position* pos = NULL;
     int base = rand() & 0x7;
     for (int i = base; i < 8 + base; i++) {
         Position new_pos = { npc->x + directions[i & 0x7].x, npc->y + directions[i & 0x7].y };
@@ -440,13 +444,13 @@ void move_explorer(character_t* npc) {
         char current_terrain = world.w[world.curY][world.curX]->m[npc->y][npc->x];
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
         npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost
-        // update_character_turn(npc);//!
+        // update_characterurn(npc);//!
     }
 }
-void move_swimmer(character_t* npc) {
+void move_swimmer(character* npc) {
     // Swimmer moves randomly within water tiles
     bool moved = false;
-    Position *pos = NULL;
+    Position* pos = NULL;
     // int base = rand() & 0x7;
     int attempts = 0;
     while (!moved && attempts < 8) { // Limit attempts to avoid infinite loops
@@ -472,11 +476,11 @@ void move_swimmer(character_t* npc) {
         char current_terrain = world.w[world.curY][world.curX]->m[npc->y][npc->x];
         int32_t stay_cost = get_cost(current_terrain, npc->x, npc->y, npc->type);
         npc->next_turn += stay_cost; // Adjust next_turn based on the terrain cost
-        // update_character_turn(npc);//!
+        // update_characterurn(npc);//!
     }
 }
 
-void move_npc(character_t* npc) {
+void move_npc(character* npc) {
     switch (npc->type) {
     case Hiker:
         if (npc->changedMove) {
@@ -533,8 +537,8 @@ void addValidPosition(int x, int y)
     validPositionsCount++;
 }
 
-// After createPaths, populate validPositionsForBuildings with adjacent non-path tiles
-void collectValidPositions(map_t* m)
+// After createPaths, populate validPositionsForBuildings with adjacent non-path_ttiles
+void collectValidPositions(map* m)
 {
     validPositionsCount = 0; // Reset count
     // Iterate over the map to find and add valid positions
@@ -550,7 +554,7 @@ void collectValidPositions(map_t* m)
     }
 }
 
-void createSingleCenterOrMart(map_t* m, char building);
+void createSingleCenterOrMart(map* m, char building);
 
 void world_init() {
     int i, j;
@@ -568,7 +572,7 @@ void world_init() {
 
 
 // Function to create the border of the map
-void createBorder(map_t* m)
+void createBorder(map* m)
 {
     for (int i = 0; i < MAP_WIDTH; i++)
     {
@@ -755,7 +759,7 @@ TerrainType terrainTypeBasedOnNoiseValue(float noise) {
     }
 }
 
-void generateTerrainWithNoise(map_t* m) {
+void generateTerrainWithNoise(map* m) {
     GradientGrid grid;
     // Assign random gradients to each corner of the grid
     grid.grad[0][0] = randomGradient();
@@ -806,7 +810,7 @@ void setRegionCoordinates(struct Region regions[NUM_REGIONS])
 }
 
 // Function to create the map using region information
-void createMap(map_t* m, struct Region regions[NUM_REGIONS])
+void createMap(map* m, struct Region regions[NUM_REGIONS])
 {
     // Initially fill the map with a default terrain to avoid empty spaces
     for (int y = 0; y < MAP_HEIGHT; y++)
@@ -830,7 +834,7 @@ void createMap(map_t* m, struct Region regions[NUM_REGIONS])
     }
 }
 
-void createSingleCenterOrMart(map_t* m, char building)
+void createSingleCenterOrMart(map* m, char building)
 {
     if (validPositionsCount == 0)
         return; // No valid positions available
@@ -840,7 +844,7 @@ void createSingleCenterOrMart(map_t* m, char building)
         idx = rand() % validPositionsCount;
         pos = validPositionsForBuildings[idx];
 
-        // Example logic to place building next to selected path position
+        // Example logic to place building next to selected path_tposition
         if (m->m[pos.y][pos.x + 1] != 'M' && m->m[pos.y][pos.x + 1] != 'C' && m->m[pos.y][pos.x + 1] != '#')
         {
             m->m[pos.y][pos.x + 1] = building;
@@ -864,17 +868,17 @@ void createSingleCenterOrMart(map_t* m, char building)
     }
 }
 
-void createCC(map_t* m)
+void createCC(map* m)
 {
     createSingleCenterOrMart(m, 'C');
 }
 
-void createPokemart(map_t* m)
+void createPokemart(map* m)
 {
     createSingleCenterOrMart(m, 'M');
 }
 
-void printMap(map_t* m)
+void printMap(map* m)
 {
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
@@ -891,7 +895,7 @@ void printMap(map_t* m)
     }
 }
 
-void sprinkle(map_t* m)
+void sprinkle(map* m)
 {
     for (int i = 0; i < 50; i++)
     {
@@ -910,7 +914,7 @@ void sprinkle(map_t* m)
     }
 }
 
-void createPaths(map_t* m)
+void createPaths(map* m)
 //! The issue with north (either first map or all of them) is that I think the gate does not exist on the first map
 // ! But I think they exist because of the if statements. Anyways fix the bottom gates.
 {
@@ -1035,13 +1039,13 @@ void createPaths(map_t* m)
     }
 }
 
-character_t* create_pc(map_t* m) {
+character* create_pc(map* m) {
     if (validPositionsCount == 0)
         return NULL; // No valid positions available
 
     int idx = rand() % validPositionsCount;
     Position pos = validPositionsForBuildings[idx];
-    character_t* pc = create_character(pos, PC, '@');
+    character* pc = create_character(pos, PC, '@');
     // m->m[pos.y][pos.x] = '@';
     world.npcs[pos.y][pos.x] = pc; //!
     return pc;
@@ -1056,8 +1060,8 @@ static int32_t compHiker(const void* key, const void* with) { // comparator for 
 }
 
 
-// A function to find the shortest path for hiker and rival to get to the pc.
-void dijkstra(map_t* m)
+// A function to find the shortest path_tfor hiker and rival to get to the pc.
+void dijkstra(map* m)
 {
     static path_t path[MAP_HEIGHT][MAP_WIDTH]; // maintain the value accross function calls.
     static uint32_t initialized = 0;
@@ -1104,7 +1108,7 @@ void dijkstra(map_t* m)
             }
         }
     }
-    while ((p = heap_remove_min(&h)))
+    while ((p = (path_t*)heap_remove_min(&h)))
     {
         p->hn = NULL;
         if ((path[p->pos[1] - 1][p->pos[0]].hn) && // is the north neighbor in the heap?
@@ -1182,7 +1186,7 @@ void dijkstra(map_t* m)
             }
         }
     }
-    while ((p = heap_remove_min(&h)))
+    while ((p = (path_t*)heap_remove_min(&h)))
     {
         p->hn = NULL;
         if ((path[p->pos[1] - 1][p->pos[0]].hn) && // is the north neighbor in the heap?
@@ -1248,7 +1252,7 @@ void dijkstra(map_t* m)
 
 void cleanup_characters(void* v) {
 
-    free((character_t*)v);
+    free((character*)v);
 }
 void free_npcs() {
     world.npc_count = 0; // Reset the NPC count after cleanup
@@ -1287,7 +1291,7 @@ void newMapCaller()
     // Only proceed if the map does not exist
     if (!world.w[world.curY][world.curX])
     {
-        world.w[world.curY][world.curX] = malloc(sizeof(map_t));
+        world.w[world.curY][world.curX] = (map*)malloc(sizeof(map));
         initializeRegions(regions);
         assignRegions(regions);
         setRegionCoordinates(regions);
@@ -1313,14 +1317,13 @@ void newMapCaller()
         {
             createPokemart(world.w[world.curY][world.curX]); // Place a Pokémart
         }
-
         sprinkle(world.w[world.curY][world.curX]);
         // After generating the map, store the pointer in the world
         // *world.w[world.curY][world.curX] = world.w[world.curY][world.curX]->m;
         // heap_init(&event_heap, characters_turn_comp, cleanup_characters);
         collectValidPositions(world.w[world.curY][world.curX]);
         // placePlayer(world.w[world.curY][world.curX]); // place '@' on road, called once bc there is only one player in the world
-        character_t* pc = create_pc(world.w[world.curY][world.curX]);
+        character* pc = create_pc(world.w[world.curY][world.curX]);
         world.pc = *pc;
         world.pc.heap_node = heap_insert(&event_heap, &world.pc);
         dijkstra(world.w[world.curY][world.curX]);
@@ -1336,7 +1339,7 @@ void enter_pokemon_center() {
     refresh();
     getch();
 }
-static const char* character_type_to_string(CharacterType type) {
+static const char* characterype_to_string(CharacterType type) {
     switch (type) {
     case PC: return "PC";
     case Hiker: return "Hiker";
@@ -1347,12 +1350,12 @@ static const char* character_type_to_string(CharacterType type) {
     }
 }
 
-static void display_trainers(character_t** c, uint32_t count) {
-    uint32_t i;
+static void display_trainers(character** c, int count) {
+    int i;
     mvprintw(1, 0, "You know of %d trainers:", count);
 
     for (i = 0; i < count && i < LINES - 3; ++i) {
-        const char* typeStr = character_type_to_string(c[i]->type);
+        const char* typeStr = characterype_to_string(c[i]->type);
         mvprintw(i + 2, 0, "%16s %c: %2d %s by %2d %s",
             typeStr,
             c[i]->symbol,
@@ -1424,16 +1427,16 @@ void display() {
     }
     refresh();
 }
-static void move_pc_func(character_t* character, map_t* m, Position *pos) {
+static void move_pc_func(character* character, map* m, Position* pos) {
     display();
     get_input(pos);
     // move_character(character, character->x, character->y, m, pos);
 }
 static void list_trainers() {
-    character_t** c;
-    uint32_t x, y, count = 0;
+    character** c;
+    int x, y, count = 0;
 
-    c = malloc(world.npc_count * sizeof(*c));
+    c = (character**)malloc(world.npc_count * sizeof(*c));
     // Check for malloc failure
     if (!c) {
         fprintf(stderr, "Memory allocation failed\n");
@@ -1452,17 +1455,17 @@ static void list_trainers() {
     free(c);
 }
 
-void battle(character_t* character) { //TODO needs to be changed in the future
+void battle(character* character) { //TODO needs to be changed in the future
     display();
     mvprintw(0, 0, "Are you ready for a battle?");
     refresh();
     getch();
     character->lost = 1;
     if (character->type == Hiker || character->type == Rival) {
-        character->changedMove = 1; // Will no longer path to the PC. It moves like pacers
+        character->changedMove = 1; // Will no longer path_tto the PC. It moves like pacers
     }
 }
-uint32_t move_pc(uint32_t input, Position *pos) {
+uint32_t move_pc(uint32_t input, Position* pos) {
     pos->y = world.pc.y; // Line 1466
     pos->x = world.pc.x;
     switch (input) {
@@ -1527,10 +1530,10 @@ uint32_t move_pc(uint32_t input, Position *pos) {
     return 0;
 }
 
-void get_input(Position *pos) {
+void get_input(Position* pos) {
     int input;
     uint32_t out;
-    pos = malloc(sizeof(Position));
+    pos = (Position*)malloc(sizeof(Position));
     // if (!pos) {
     // }
     do {
@@ -1643,17 +1646,17 @@ int main(int argc, char* argv[])
     // input numtrainers
     int numtrainers = 10; // Default
     for (int i = 1; i < argc; i++) { // Starting from 1 because the first el. of argv is the name of the program. So skip it
-        if (strcmp(argv[i], "--numtrainers") == 0 && i + 1 < argc && argv[i + 1] > 0) {
+        if (strcmp(argv[i], "--numtrainers") == 0 && i + 1 < argc && argv[i + 1][0] != '\0') {
             numtrainers = atoi(argv[i + 1]);
             i++; // Skip next argument since we've processed it
         }
     }
     generate_npcs(numtrainers, world.w[world.curY][world.curX]); // Place after map is created
-    character_t* current_char;
-    Position *pos = NULL;
+    character* current_char;
+    Position* pos = NULL;
     // int32_t cost;
     while (!quit) {
-        current_char = heap_remove_min(&event_heap);
+        current_char = (character*)heap_remove_min(&event_heap);
         if (!current_char) {
             // No characters left to process, potentially exit the loop or handle the end of the game
             break;
