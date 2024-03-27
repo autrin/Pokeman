@@ -16,7 +16,7 @@ all: $(BIN) etags
 
 $(BIN): $(OBJS)
 	@$(ECHO) Linking $@
-	@$(CC) $^ -o $@ $(LDFLAGS)
+	@$(CXX) $^ -o $@ $(LDFLAGS)
 
 -include $(OBJS:.o=.d)
 
@@ -40,4 +40,4 @@ clobber: clean
 
 etags:
 	@$(ECHO) Updating TAGS
-	@etags *.[ch]
+	@etags *.[ch] *.[ch]pp
