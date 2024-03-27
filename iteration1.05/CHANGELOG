@@ -1,3 +1,69 @@
+commit d3fba4b52e2d64605bb9743055375779d6cb44de
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 10:48:19 2024 -0500
+
+    returned to the original heap versions
+
+commit 1c6886154644c323e532c6aeef5e94a831db0108
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 10:46:09 2024 -0500
+
+    the pc moves and no crash
+
+commit dde209d0b51aa5550be76e62b10c02ec4fb53b28
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Mar 26 23:18:06 2024 -0500
+
+    no memory issues, working on pc movement now
+
+commit c30b37841e0375095f3f182ccf4d21fabbe1a424
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Mar 26 16:36:36 2024 -0500
+
+    make clean
+
+commit 4b4ce4d0a7f9748ddccc7c99b251d56ba866adea
+Author: Autrin Hakimi <autrinhakimi@gmail.com>
+Date:   Tue Mar 26 16:35:38 2024 -0500
+
+    Delete iteration1.05/1.05.o
+
+commit d0e24b4e8e102651bae66bd225c21f0f496452bb
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Mar 26 16:31:06 2024 -0500
+
+    .
+
+commit 215cd13894082122ccae1a29713add9a34c32db5
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Tue Mar 26 13:08:03 2024 -0500
+
+    fixed get cost
+
+commit 44cf6ae97c77134f6bc3f748703ab51a5e0f977e
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Mar 26 12:46:37 2024 -0500
+
+    fixed a few errors
+
+commit 3d740e80c6e883b764025ac03dd14e5eb9f57ccc
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Mar 25 16:24:21 2024 -0500
+
+    worked on updating the pc's location and its movement funcs
+
+commit fc1f8dad3bb8316bcf96b00f7711eee541fd8da8
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Mar 25 14:35:05 2024 -0500
+
+    .
+
+commit 32d7714a60841591215c5f8fd4e53378844d25c8
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 21 04:20:08 2024 -0500
+
+    readme and changelog
+
 commit 729197ea9709fda35fccbc467f0ff1e3b639e6b5
 Author: Autrin <ahakimi@iastate.edu>
 Date:   Thu Mar 21 04:16:18 2024 -0500
