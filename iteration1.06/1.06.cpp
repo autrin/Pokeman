@@ -225,16 +225,129 @@ bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npcype) {
 
     return true; // If none of the checks failed, the position is valid for this NPC
 }
+// void rand_pos(Position *pos)
+// {
+//   pos->x = (rand() % (MAP_WIDTH - 2)) + 1;
+//   pos->y = (rand() % (MAP_HEIGHT - 2)) + 1;
+// }
+// Position find_valid_position_for_npc(CharacterType npcype) {
+//     Position pos;
+//     switch (npcype) {
+//     case Hiker:
+//         do {
+//             pos.x = (rand() % (MAP_WIDTH - 2)) + 1;
+//             pos.y = (rand() % (MAP_HEIGHT - 2)) + 1;
+//         } while (world.hikerDist[pos.y][pos.x] == SHRT_MAX ||
+//             world.w[world.y][world.x]->npcs[pos.y][pos.x]
+//             || pos.x < 3 || pos.x > MAP_WIDTH - 4 ||
+//             pos.y < 3 || pos.y > MAP_HEIGHT - 4);
+//         break;
+//     case Rival:
+//         do {
+//             pos.x = (rand() % (MAP_WIDTH - 2)) + 1;
+//             pos.y = (rand() % (MAP_HEIGHT - 2)) + 1;
+//         } while (world.rivalDist[pos.y][pos.x] == SHRT_MAX || world.rivalDist[pos.y][pos.x] < 0
+//             || world.w[world.y][world.x]->npcs[pos.y][pos.x]
+//             || pos.x < 3 || pos.x > MAP_WIDTH - 4 ||
+//             pos.y < 3 || pos.y > MAP_HEIGHT - 4);
+//         break;
+//     case Swimmer:
+//         do {
+//             pos.x = (rand() % (MAP_WIDTH - 2)) + 1;
+//             pos.y = (rand() % (MAP_HEIGHT - 2)) + 1;
+//         } while (world.w[world.y][world.x]->m[pos.y][pos.x] != '~' || world.w[world.y][world.x]->npcs[pos.y][pos.x]);
+//         break;
+//     case Other:
+//         do {
+//             pos.x = (rand() % (MAP_WIDTH - 2)) + 1;
+//             pos.y = (rand() % (MAP_HEIGHT - 2)) + 1;
+//         } while (world.rivalDist[pos.y][pos.x] == SHRT_MAX || world.rivalDist[pos.y][pos.x] < 0
+//             || world.w[world.y][world.x]->npcs[pos.y][pos.x]
+//             || pos.x < 3 || pos.x > MAP_WIDTH - 4 ||
+//             pos.y < 3 || pos.y > MAP_HEIGHT - 4);
+//         break;
+//     case PC:
+//         do {
+//             pos.x = rand() % ((MAP_WIDTH - 2)) + 1;
+//             pos.y = rand() % ((MAP_HEIGHT - 2)) + 1;
+//         } while (world.w[world.y][world.x]->npcs[pos.y][pos.x] ||
+//             get_cost(world.w[world.y][world.x]->m[pos.y][pos.x], pos.x, pos.y, PC) == SHRT_MAX ||
+//             world.rivalDist[pos.y][pos.x] < 0);
+//             break;
+//     case Num_characterypes:
+//     default:
+//         printf("Error in find_valid_position_for_npc()");
+//         break;
+//     }
+//     return pos;
+// }
 Position find_valid_position_for_npc(CharacterType npcype) {
+    // Position pos = { -1, -1 }; // Initialize to an invalid position
+    // for (int y = 1; y < MAP_HEIGHT - 1; y++) {
+    //     for (int x = 1; x < MAP_WIDTH - 1; x++) {
+    //         switch (npcype) {
+    //         case Hiker:
+    //             if (world.hikerDist[y][x] != SHRT_MAX &&
+    //                 !world.w[world.y][world.x]->npcs[y][x]) {
+    //                 pos.x = x;
+    //                 pos.y = y;
+    //                 return pos; // Found a valid position, return immediately
+    //             }
+    //             break;
+    //         case Rival:
+    //             if (world.rivalDist[y][x] != SHRT_MAX && world.rivalDist[y][x] >= 0
+    //                 && !world.w[world.y][world.x]->npcs[y][x]) {
+    //                 pos.x = x;
+    //                 pos.y = y;
+    //                 return pos;
+    //             }
+    //             break;
+    //         case Swimmer:
+    //             if (world.w[world.y][world.x]->m[y][x] == '~' && !world.w[world.y][world.x]->npcs[y][x]) {
+    //                 pos.x = x;
+    //                 pos.y = y;
+    //                 return pos;
+    //             }
+    //             break;
+    //         case Other:
+    //             if ((world.rivalDist[y][x] != SHRT_MAX && world.rivalDist[y][x] >= 0) && !world.w[world.y][world.x]->npcs[y][x]) {
+    //                 pos.x = x;
+    //                 pos.y = y;
+    //                 return pos;
+    //             }
+    //             break;
+    //         case PC:
+    //             // Assuming `get_cost()` is a function that determines if the position is valid for a PC
+    //             if (!world.w[world.y][world.x]->npcs[y][x] && get_cost(world.w[world.y][world.x]->m[y][x], x, y, PC) != SHRT_MAX &&
+    //                 world.rivalDist[y][x] >= 0) {
+    //                 pos.x = x;
+    //                 pos.y = y;
+    //                 return pos;
+    //             }
+    //             break;
+    //         case Num_characterypes:
+    //         default:
+    //             // Handle unexpected npcype
+    //             printf("Error in find_valid_position_for_npc() with npcype: %d", npcype);
+    //             return pos; // Return the invalid position
+    //         }
+    //     }
+    // }
+    // // No valid position found, return the invalid position
+    // return pos;
     Position pos;
-    do { //! risky loop
-        // pos.x = rand() % (MAP_WIDTH - 3) + 2;
-        // pos.y = rand() % (MAP_HEIGHT - 3) + 2;
-        pos.x = rand() % MAP_WIDTH;
-        pos.y = rand() % MAP_HEIGHT;
-    } while (!is_position_valid_for_npc(pos.x, pos.y, npcype));
+    for (int y = 1; y < MAP_HEIGHT - 1; y++) {
+        for (int x = 1; x < MAP_WIDTH - 1; x++) {
+            pos.x = rand() % MAP_WIDTH;
+            pos.y = rand() % MAP_HEIGHT;
+            if(is_position_valid_for_npc(pos.x, pos.y, npcype)){
+                return pos;
+            }
+        }
+    }
     return pos;
 }
+
 // Update character's next turn and reinsert into the event heap
 void update_character_turn(character* character) {
     if (character->heap_node) {
@@ -1031,12 +1144,10 @@ void createPaths(map* m)
 character* create_pc(map* m) {
     if (validPositionsCount == 0)
         return NULL; // No valid positions available
-
     int idx = rand() % validPositionsCount;
     Position pos = validPositionsForBuildings[idx];
     character* pc = create_character(pos, PC, '@');
-    // m->m[pos.y][pos.x] = '@';
-    world.w[world.y][world.x]->npcs[pos.y][pos.x] = pc; //!
+    world.w[world.y][world.x]->npcs[pos.y][pos.x] = pc;
     return pc;
 }
 
@@ -1348,9 +1459,9 @@ void newMapCaller(int moveMap)
         if (moveMap) {
             do {
                 world.w[world.y][world.x]->npcs[world.pc.y][world.pc.x] = NULL;
-                Position pos = find_valid_position_for_npc(PC);
-                world.pc.x = pos.x;
-                world.pc.y = pos.y;
+                // Position pos = find_valid_position_for_npc(PC);
+                world.pc.x = rand() % ((MAP_WIDTH - 2)) + 1;
+                world.pc.y = rand() % ((MAP_HEIGHT - 2)) + 1;
             } while (world.w[world.y][world.x]->npcs[world.pc.y][world.pc.x] ||
                 get_cost(world.w[world.y][world.x]->m[world.pc.y][world.pc.x], world.pc.x, world.pc.y, PC) == SHRT_MAX ||
                 world.rivalDist[world.pc.y][world.pc.x] < 0);
@@ -1421,7 +1532,6 @@ static void display_trainers(character** c, int count) {
     mvprintw(LINES - 1, 0, "Press any key to return. Use Arrow keys for more.");
     refresh();
 }
-
 
 void display() {
     uint32_t y, x;
@@ -1538,7 +1648,12 @@ void fly(Position* pos)
     world.x = internalX;
     newMapCaller(1); //checks for the existance of the map itself
     // Now try to place the pc
-    *pos = find_valid_position_for_npc(PC);
+    do {
+        pos->x = rand() % ((MAP_WIDTH - 2)) + 1;
+        pos->y = rand() % ((MAP_HEIGHT - 2)) + 1;
+    } while (world.w[world.y][world.x]->npcs[pos->y][pos->x] ||
+        get_cost(world.w[world.y][world.x]->m[pos->y][pos->x], pos->x, pos->y, PC) == SHRT_MAX ||
+        world.rivalDist[pos->y][pos->x] < 0);
 }
 void battle(character* character) { //TODO needs to be changed in the future
     display();
