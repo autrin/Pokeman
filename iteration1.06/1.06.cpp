@@ -1525,7 +1525,7 @@ void fly(Position* pos)
     {
         mvprintw(0, 0, "Enter y destination. Remember the valid range is [-200,200]: ");
         refresh();
-        mvscanw(0, 61, "%d", &newY);
+        mvscanw(0, 64, "%d", &newY);
     } while (newY < -200 || newY > 200);
     refresh();
     noecho();
