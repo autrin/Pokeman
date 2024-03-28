@@ -127,6 +127,10 @@ static void heap_consolidate(heap_t* h)
         }
     }
 }
+void *heap_peek_min(heap_t *h)
+{
+  return h->min ? h->min->data : NULL;
+}
 
 void* heap_remove_min(heap_t* h) {
     void* v;
