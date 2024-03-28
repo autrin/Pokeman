@@ -1,3 +1,33 @@
+commit 0ec31909c5abdc35bd800e728f19dd805bff61a1
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 28 05:15:41 2024 -0500
+
+    readme
+
+commit 917644bbc97afae352fc6f713cf44a15897aaba8
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 28 05:09:07 2024 -0500
+
+    updated
+
+commit b208f6a7ea55b9c56480a6c67ee2b85fe6844288
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 28 02:55:03 2024 -0500
+
+    fly print
+
+commit 61249a6d7e9e45497a683c3db15b1b5171fd811e
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 28 02:31:27 2024 -0500
+
+    finally everything works including moving between maps
+
+commit d76966e4bb9f0e68fcb5c5268d57bfdea38a2fd5
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 28 02:24:23 2024 -0500
+
+    impassible terrain work
+
 commit 4dd4c1b2b7bd47c64391caefb650de0b03e442f3
 Author: Autrin <ahakimi@iastate.edu>
 Date:   Wed Mar 27 23:58:08 2024 -0500
