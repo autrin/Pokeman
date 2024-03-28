@@ -57,6 +57,7 @@ typedef enum __attribute__((__packed__)) CharacterType {
         Num_characterypes
 } CharacterType;
 int16_t pair_t[3];
+
 class character : public Position {
 public:
     uint32_t next_turn;
@@ -72,9 +73,10 @@ class map
 {
 public:
     char m[MAP_HEIGHT][MAP_WIDTH];
+    int topExit, bottomExit, leftExit, rightExit;
     character* npcs[MAP_HEIGHT][MAP_WIDTH];
     int npc_count;
-    int topExit, bottomExit, leftExit, rightExit;
+    heap_t event_heap;
 };
 class World : public Position
 {
@@ -151,8 +153,6 @@ int32_t get_cost(char terrainChar, int x, int y, CharacterType character) {
     return cost[character][terrain];
 }
 
-heap_t event_heap;
-
 int32_t characters_turn_comp(const void* key, const void* with)
 {
     return ((((character*)key)->next_turn == ((character*)with)->next_turn) ? (((character*)key)->sequence_number - ((character*)with)->sequence_number)
@@ -223,17 +223,19 @@ bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npcype) {
 Position find_valid_position_for_npc(CharacterType npcype) {
     Position pos;
     do { //! risky loop
-        pos.x = rand() % (MAP_WIDTH - 3) + 2;
-        pos.y = rand() % (MAP_HEIGHT - 3) + 2;
+        // pos.x = rand() % (MAP_WIDTH - 3) + 2;
+        // pos.y = rand() % (MAP_HEIGHT - 3) + 2;
+        pos.x = rand() % MAP_WIDTH;
+        pos.y = rand() % MAP_HEIGHT;
     } while (!is_position_valid_for_npc(pos.x, pos.y, npcype));
     return pos;
 }
 // Update character's next turn and reinsert into the event heap
 void update_character_turn(character* character) {
     if (character->heap_node) {
-        heap_remove_min(&event_heap);
+        heap_remove_min(&world.w[world.y][world.x]->event_heap);
     }
-    character->heap_node = heap_insert(&event_heap, character);
+    character->heap_node = heap_insert(&world.w[world.y][world.x]->event_heap, character);
 }
 void generate_npcs(int numtrainers, map* map) {
     for (int i = 0; i < numtrainers; i++) {
@@ -263,7 +265,7 @@ void generate_npcs(int numtrainers, map* map) {
         }
         character* npc = create_character(pos, npcype, symbol);
         if (npc) {
-            npc->heap_node = heap_insert(&event_heap, npc);
+            npc->heap_node = heap_insert(&world.w[world.y][world.x]->event_heap, npc);
             world.w[world.y][world.x]->npcs[pos.y][pos.x] = npc;
             world.w[world.y][world.x]->npc_count++;
         }
@@ -548,9 +550,9 @@ void world_init() {
             world.w[i][j] = NULL;
         }
     }
-    heap_init(&event_heap, characters_turn_comp, NULL);
+    heap_init(&world.w[world.y][world.x]->event_heap, characters_turn_comp, NULL);
     world.global_sequence_number = 0;
-    world.w[world.y][world.x]->npc_count = 0;
+    // world.w[world.y][world.x]->npc_count = 0;
 }
 
 
@@ -1237,31 +1239,31 @@ void cleanup_characters(void* v) {
 
     free((character*)v);
 }
-void free_npcs() {
-    world.w[world.y][world.x]->npc_count = 0; // Reset the NPC count after cleanup
-    for (int y = 0; y < WORLD_HEIGHT; y++)
-    {
-        for (int x = 0; x < WORLD_WIDTH; x++)
-        {
-            if (world.w[world.y][world.x]->npcs[y][x]) {
-                // printf("ERROR on line 1249");
-                free(world.w[world.y][world.x]->npcs[y][x]);
-                world.w[world.y][world.x]->npcs[y][x] = NULL;
-            }
-        }
-    }
-}
+// void free_npcs() {
+//     world.w[world.y][world.x]->npc_count = 0; // Reset the NPC count after cleanup
+//     for (int y = 0; y < WORLD_HEIGHT; y++)
+//     {
+//         for (int x = 0; x < WORLD_WIDTH; x++)
+//         {
+//             if (world.w[world.y][world.x]->npcs[y][x]) {
+//                 // printf("ERROR on line 1249");
+//                 free(world.w[world.y][world.x]->npcs[y][x]);
+//                 world.w[world.y][world.x]->npcs[y][x] = NULL;
+//             }
+//         }
+//     }
+// }
 void freeAllMaps()
 {
     // free_npcs();
-    heap_delete(&event_heap); //* Need to iterate in the future
     for (int y = 0; y < WORLD_HEIGHT; y++)
     {
         for (int x = 0; x < WORLD_WIDTH; x++)
         {
-            if (world.w[y][x])
+            if (world.w[y][x])a
             {
-                free(world.w[y][x]);
+                heap_delete(&world.w[y][x]->event_heap);
+                delete world.w[y][x];
                 world.w[y][x] = NULL;
             }
         }
@@ -1304,12 +1306,12 @@ void newMapCaller(int moveMap)
         sprinkle(world.w[world.y][world.x]);
         // After generating the map, store the pointer in the world
         // *world.w[world.y][world.x] = world.w[world.y][world.x]->m;
-        // heap_init(&event_heap, characters_turn_comp, cleanup_characters);
+        // heap_init(&world.w[world.y][world.x]->event_heap, characters_turn_comp, cleanup_characters);
         collectValidPositions(world.w[world.y][world.x]);
         // placePlayer(world.w[world.y][world.x]); // place '@' on road, called once bc there is only one player in the world
         character* pc = create_pc(world.w[world.y][world.x]);
         world.pc = *pc;
-        world.pc.heap_node = heap_insert(&event_heap, &world.pc);
+        world.pc.heap_node = heap_insert(&world.w[world.y][world.x]->event_heap, &world.pc);
         dijkstra(world.w[world.y][world.x]);
         if (moveMap) {
             do {
@@ -1339,7 +1341,7 @@ void newMapCaller(int moveMap)
         }
         world.w[world.y][world.x]->npcs[world.pc.y][world.pc.x] = &world.pc;
         character* cur_character;
-        if ((cur_character = (character*)heap_peek_min(&event_heap))) {
+        if ((cur_character = (character*)heap_peek_min(&world.w[world.y][world.x]->event_heap))) {
             world.pc.next_turn = cur_character->next_turn;
         }
         else {
@@ -1697,6 +1699,7 @@ int main(int argc, char* argv[])
     init_io();
     world_init();
     newMapCaller(0);
+    world.w[world.y][world.x]->npc_count = 0;
     // input numtrainers
     int numtrainers = 10; // Default
     for (int i = 1; i < argc; i++) { // Starting from 1 because the first el. of argv is the name of the program. So skip it
@@ -1710,7 +1713,7 @@ int main(int argc, char* argv[])
     Position* pos = NULL;
     // int32_t cost;
     while (!quit) {
-        current_char = (character*)heap_remove_min(&event_heap);
+        current_char = (character*)heap_remove_min(&world.w[world.y][world.x]->event_heap);
         if (!current_char) {
             // No characters left to process, potentially exit the loop or handle the end of the game
             break;
@@ -1725,7 +1728,7 @@ int main(int argc, char* argv[])
             move_npc(current_char);
         }
         // Reinsert the current character back into the event heap
-        heap_insert(&event_heap, current_char);
+        heap_insert(&world.w[world.y][world.x]->event_heap, current_char);
     }
     freeAllMaps();
     // cleanup_characters();
