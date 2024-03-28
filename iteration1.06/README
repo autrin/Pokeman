@@ -1,0 +1,11 @@
+Flying Mechanism
+Functionality: The flying feature allows players to travel directly to any previously visited map by specifying x and y coordinates. This feature checks whether the target map has been generated before and performs necessary actions accordingly. 
+
+Dynamic NPC Allocation
+Map-Specific NPCs: Each map dynamically generates its own set of Non-Player Characters (NPCs) upon creation. 
+
+Dynamic NPC Allocation
+Map-Specific NPCs: Each map dynamically generates its own set of Non-Player Characters (NPCs) upon creation. 
+
+Inheritance
+Different classes inherit class Position.
