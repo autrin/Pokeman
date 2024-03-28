@@ -19,6 +19,7 @@
 #define SHRT_MAX __SHRT_MAX__
 #define mapxy(x, y) (m->m[y][x])
 int quit = 0;
+int numtrainers = 10; // Default
 // Global or struct to store valid positions
 class Position
 {
@@ -550,7 +551,6 @@ void world_init() {
             world.w[i][j] = NULL;
         }
     }
-    heap_init(&world.w[world.y][world.x]->event_heap, characters_turn_comp, NULL);
     world.global_sequence_number = 0;
     // world.w[world.y][world.x]->npc_count = 0;
 }
@@ -1260,7 +1260,7 @@ void freeAllMaps()
     {
         for (int x = 0; x < WORLD_WIDTH; x++)
         {
-            if (world.w[y][x])a
+            if (world.w[y][x])
             {
                 heap_delete(&world.w[y][x]->event_heap);
                 delete world.w[y][x];
@@ -1278,6 +1278,7 @@ void newMapCaller(int moveMap)
         struct Region regions[NUM_REGIONS];
         // world.w[world.y][world.x] = (map*)malloc(sizeof(map)); //!
         world.w[world.y][world.x] = new map;
+
         initializeRegions(regions);
         assignRegions(regions);
         setRegionCoordinates(regions);
@@ -1309,10 +1310,14 @@ void newMapCaller(int moveMap)
         // heap_init(&world.w[world.y][world.x]->event_heap, characters_turn_comp, cleanup_characters);
         collectValidPositions(world.w[world.y][world.x]);
         // placePlayer(world.w[world.y][world.x]); // place '@' on road, called once bc there is only one player in the world
+        world.w[world.y][world.x]->npc_count = 0;
         character* pc = create_pc(world.w[world.y][world.x]);
         world.pc = *pc;
+            heap_init(&world.w[world.y][world.x]->event_heap, characters_turn_comp, NULL);
         world.pc.heap_node = heap_insert(&world.w[world.y][world.x]->event_heap, &world.pc);
         dijkstra(world.w[world.y][world.x]);
+        generate_npcs(numtrainers, world.w[world.y][world.x]); // Place after map is created
+
         if (moveMap) {
             do {
                 world.w[world.y][world.x]->npcs[world.pc.y][world.pc.x] = NULL;
@@ -1699,16 +1704,14 @@ int main(int argc, char* argv[])
     init_io();
     world_init();
     newMapCaller(0);
-    world.w[world.y][world.x]->npc_count = 0;
+    
     // input numtrainers
-    int numtrainers = 10; // Default
     for (int i = 1; i < argc; i++) { // Starting from 1 because the first el. of argv is the name of the program. So skip it
         if (strcmp(argv[i], "--numtrainers") == 0 && i + 1 < argc && argv[i + 1][0] != '\0') {
             numtrainers = atoi(argv[i + 1]);
             i++; // Skip next argument since we've processed it
         }
     }
-    generate_npcs(numtrainers, world.w[world.y][world.x]); // Place after map is created
     character* current_char;
     Position* pos = NULL;
     // int32_t cost;
@@ -1723,6 +1726,24 @@ int main(int argc, char* argv[])
         if (current_char->type == PC) {
             // move the pc
             move_pc_func(current_char, world.w[world.y][world.x], pos);
+            // If the pc is going to another map
+            if(pos->x == 0 || pos->y == 0 || pos->x == MAP_WIDTH - 1 || pos->y == MAP_HEIGHT - 1){
+                if(pos->x == 0){
+                    world.x--;
+                }
+                else if(pos->y == 0){
+                    world.y--;
+                }
+                else if(pos->x == MAP_WIDTH - 1){
+                    world.x++;
+                }
+                else if(pos->y == MAP_HEIGHT - 1){
+                    world.y++;
+                }
+                newMapCaller(0);
+                pos->y = current_char->y;
+                pos->x = current_char->x;
+            }
         }
         else {
             move_npc(current_char);
