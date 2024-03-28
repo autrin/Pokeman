@@ -199,7 +199,7 @@ bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npcype) {
         return false; // Position is out of bounds           // this function is only for npc so delete this?
     }
 
-    // Check if the position is an exit (assuming exits are marked with '#')
+    // Check if the position is an exit (assuming exits are marked with '#') //! Do I need to change this for pc?
     if (world.w[world.y][world.x]->m[y][x] == '#' && ((x == world.w[world.y][world.x]->topExit && y == 0) ||
         (x == world.w[world.y][world.x]->bottomExit && y == MAP_HEIGHT - 1) ||
         (y == world.w[world.y][world.x]->leftExit && x == 0) ||
@@ -240,8 +240,8 @@ bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npcype) {
 Position find_valid_position_for_npc(CharacterType npcype) {
     Position pos;
     do { //! risky loop
-        pos.x = rand() % MAP_WIDTH;
-        pos.y = rand() % MAP_HEIGHT;
+        pos.x = rand() % (MAP_WIDTH - 3) + 2;
+        pos.y = rand() % (MAP_HEIGHT - 3) + 2;
     } while (!is_position_valid_for_npc(pos.x, pos.y, npcype));
     return pos;
 }
@@ -1287,10 +1287,10 @@ void freeAllMaps()
 /* calls all of the functions neccessary to create a single map */
 void newMapCaller()
 {
-    struct Region regions[NUM_REGIONS];
     // Only proceed if the map does not exist
     if (!world.w[world.y][world.x])
     {
+        struct Region regions[NUM_REGIONS];
         world.w[world.y][world.x] = (map*)malloc(sizeof(map));
         initializeRegions(regions);
         assignRegions(regions);
@@ -1455,6 +1455,38 @@ static void list_trainers() {
     free(c);
 }
 
+void fly(Position* pos)
+{
+    // Make the old pc's position empty
+    world.npcs[world.pc.y][world.pc.x] = NULL;
+    echo(); // show the coordiantes on the screen 
+    curs_set(1);
+    int newX, newY;
+    do
+    {
+        mvprintw(0, 0, "Enter x destination. Remember the valid range is [-200,200]: ");
+        refresh();
+        mvscanw(0, 61, "%d", &newX);
+    } while (newX < -200 || newX > 200);
+    do
+    {
+        mvprintw(0, 0, "Enter y destination. Remember the valid range is [-200,200]: ");
+        refresh();
+        mvscanw(0, 61, "%d", &newY);
+    } while (newY < -200 || newY > 200);
+    refresh();
+    noecho();
+    curs_set(0);
+    // Convert newX and newY to internal world coordinates if necessary
+    int internalX = newX + WORLD_WIDTH / 2; // Assuming the center (0,0) is at (200,200)
+    int internalY = newX + WORLD_HEIGHT / 2;
+    // Update current position
+    world.y = internalY;
+    world.x = internalX;
+    newMapCaller(); //checks for the existance of the map itself
+    // Now try to place the pc
+    *pos = find_valid_position_for_npc(PC);
+}
 void battle(character* character) { //TODO needs to be changed in the future
     display();
     mvprintw(0, 0, "Are you ready for a battle?");
@@ -1508,13 +1540,6 @@ uint32_t move_pc(uint32_t input, Position* pos) {
         }
         break;
     }
-
-    if ((pos->x == world.w[world.y][world.x]->topExit && pos->y == 0) ||
-        (pos->x == world.w[world.y][world.x]->bottomExit && pos->y == MAP_HEIGHT - 1) ||
-        (pos->y == world.w[world.y][world.x]->leftExit && pos->x == 0) ||
-        (pos->y == world.w[world.y][world.x]->rightExit && pos->x == MAP_WIDTH - 1)) {
-        return 1;
-    }
     if (world.npcs[pos->y][pos->x] && world.npcs[pos->y][pos->x]->lost) {
         return 1;
     }
@@ -1526,6 +1551,12 @@ uint32_t move_pc(uint32_t input, Position* pos) {
     }
     if (get_cost(world.w[world.y][world.x]->m[pos->y][pos->x], pos->x, pos->y, PC) == SHRT_MAX) {
         return 1;
+    }
+    if (((pos->x == world.w[world.y][world.x]->topExit && pos->y == 0) ||
+        (pos->x == world.w[world.y][world.x]->bottomExit && pos->y == MAP_HEIGHT - 1) ||
+        (pos->y == world.w[world.y][world.x]->leftExit && pos->x == 0) ||
+        (pos->y == world.w[world.y][world.x]->rightExit && pos->x == MAP_WIDTH - 1)) && pos->x != world.pc.x && pos->y != world.pc.y) {
+        return 1; // not on the gate yet
     }
     return 0;
 }
@@ -1589,15 +1620,20 @@ void get_input(Position* pos) {
         case '>':
             out = move_pc('>', pos);
             break;
+        case 't':
+            list_trainers(); //?
+            out = 1;
+            break;
+        case 'f':
+            flushinp();
+            fly(pos);
+            out = 0;
+            break;
         case 'Q':
             pos->y = world.pc.y;
             pos->x = world.pc.x;
             out = 0;
             quit = 1;
-            break;
-        case 't':
-            list_trainers(); //?
-            out = 1;
             break;
         default:
             mvprintw(0, 0, "Unbound key: %#o", input);

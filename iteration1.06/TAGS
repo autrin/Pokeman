@@ -30,7 +30,7 @@ heap.h,274
         void (*datum_delete)datum_delete18,297
     } heap_t;19,334
 
-1.06.cpp,4580
+1.06.cpp,4601
 #define MAP_WIDTH 14,238
 #define MAP_HEIGHT 15,283
 #define NUM_REGIONS 16,329
@@ -111,60 +111,61 @@ heap_t event_heap;171,4662
 int32_t characters_turn_comp(173,4682
 character* create_character(178,5030
 bool is_position_valid_for_npc(196,5635
-Position find_valid_position_for_npc(240,7558
-void update_characterurn(249,7881
-void generate_npcs(255,8072
-void move_character(290,9510
-void move_pacer(315,10432
-void move_wanderer(333,11442
-void move_towards_player_hiker(362,12699
-void move_towards_player_rival(396,14088
-void move_explorer(428,15455
-void move_swimmer(450,16477
-void move_npc(483,17928
-void addValidPosition(533,19338
-void collectValidPositions(541,19612
-void world_init(559,20039
-void createBorder(575,20438
-void initializeRegions(602,20982
-void assignRegions(610,21163
-    float x,680,23756
-    float x, y;680,23756
-} Vector2D;681,23772
-    Vector2D grad[grad684,23802
-} GradientGrid;685,23871
-float lerp(688,23912
-float smoothstep(693,24031
-float dot(698,24125
-Vector2D randomGradient(703,24235
-float perlinNoise(712,24452
-TerrainType terrainTypeBasedOnNoiseValue(744,25543
-void generateTerrainWithNoise(762,25865
-void setRegionCoordinates(801,27091
-void createMap(813,27593
-void createSingleCenterOrMart(837,28234
-void createCC(871,29396
-void createPokemart(876,29461
-void printMap(881,29532
-void sprinkle(898,29879
-void createPaths(917,30470
-character* create_pc(1042,34733
-static int32_t compRival(1055,35091
-static int32_t compHiker(1058,35326
-void dijkstra(1064,35642
-void cleanup_characters(1253,45735
-void free_npcs(1257,45798
-void freeAllMaps(1271,46182
-void newMapCaller(1288,46611
-void enter_pokemart(1332,48792
-void enter_pokemon_center(1337,48897
-static const char* characterype_to_string(1342,49014
-static void display_trainers(1353,49298
-void display(1373,49948
-static void move_pc_func(1430,51985
-static void list_trainers(1435,52164
-void battle(1458,52752
-uint32_t move_pc(1468,53112
-void get_input(1533,54684
-void init_io(1612,56484
-int main(1628,57125
+Position find_valid_position_for_npc(240,7595
+void update_characterurn(249,7938
+void generate_npcs(255,8129
+void move_character(290,9567
+void move_pacer(315,10489
+void move_wanderer(333,11499
+void move_towards_player_hiker(362,12756
+void move_towards_player_rival(396,14145
+void move_explorer(428,15512
+void move_swimmer(450,16534
+void move_npc(483,17985
+void addValidPosition(533,19395
+void collectValidPositions(541,19669
+void world_init(559,20096
+void createBorder(575,20495
+void initializeRegions(602,21039
+void assignRegions(610,21220
+    float x,680,23813
+    float x, y;680,23813
+} Vector2D;681,23829
+    Vector2D grad[grad684,23859
+} GradientGrid;685,23928
+float lerp(688,23969
+float smoothstep(693,24088
+float dot(698,24182
+Vector2D randomGradient(703,24292
+float perlinNoise(712,24509
+TerrainType terrainTypeBasedOnNoiseValue(744,25600
+void generateTerrainWithNoise(762,25922
+void setRegionCoordinates(801,27148
+void createMap(813,27650
+void createSingleCenterOrMart(837,28291
+void createCC(871,29453
+void createPokemart(876,29518
+void printMap(881,29589
+void sprinkle(898,29936
+void createPaths(917,30527
+character* create_pc(1042,34790
+static int32_t compRival(1055,35148
+static int32_t compHiker(1058,35383
+void dijkstra(1064,35699
+void cleanup_characters(1253,45792
+void free_npcs(1257,45855
+void freeAllMaps(1271,46239
+void newMapCaller(1288,46668
+void enter_pokemart(1332,48853
+void enter_pokemon_center(1337,48958
+static const char* characterype_to_string(1342,49075
+static void display_trainers(1353,49359
+void display(1373,50009
+static void move_pc_func(1430,52046
+static void list_trainers(1435,52225
+void fly(1458,52813
+void battle(1490,53887
+uint32_t move_pc(1500,54247
+void get_input(1564,55891
+void init_io(1648,57795
+int main(1664,58436
