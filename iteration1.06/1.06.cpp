@@ -183,7 +183,7 @@ bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npcype) {
         return false; // Position is out of bounds           // this function is only for npc so delete this?
     }
 
-    // Check if the position is an exit (assuming exits are marked with '#') //! Do I need to change this for pc?
+    // Check if the position is an exit (assuming exits are marked with '#')
     if (world.w[world.y][world.x]->m[y][x] == '#' && ((x == world.w[world.y][world.x]->topExit && y == 0) ||
         (x == world.w[world.y][world.x]->bottomExit && y == MAP_HEIGHT - 1) ||
         (y == world.w[world.y][world.x]->leftExit && x == 0) ||
@@ -204,6 +204,10 @@ bool is_position_valid_for_npc(int32_t x, int32_t y, CharacterType npcype) {
             return false;
         }
         break;
+    case PC:
+        if (terrain == '%' || terrain == '^' || terrain == '~') {
+            return false;
+        }
     case Hiker:
     case Rival:
         // Hikers and Rivals cannot move through boulders or water
@@ -281,20 +285,20 @@ void move_character(character* character, int direction_x, int direction_y, map*
     character->next_turn += movement_cost;
 
     // Move the character to the new position
-    // if (character->type != PC) {
-    character->x = direction_x;
-    character->y = direction_y;
-    // }
+    if (is_position_valid_for_npc(direction_x, direction_y, character->type)) {
+        character->x = direction_x;
+        character->y = direction_y;
+    }
     // Empty the npc map's old location
     world.w[world.y][world.x]->npcs[old_y][old_x] = NULL;
     // Update the npc map's new location
-    world.w[world.y][world.x]->npcs[direction_y][direction_x] = character;
+    world.w[world.y][world.x]->npcs[character->y][character->x] = character;
     // printf("%d %d\n", pos.x, pos.y);
     if (character->type == PC) {
         // world.pc.x = pos->x;
         // world.pc.y = pos->y;
-        world.pc.x = direction_x;
-        world.pc.y = direction_y;
+        world.pc.x = character->x;
+        world.pc.y = character->y;
     }
 }
 
@@ -1311,24 +1315,48 @@ void newMapCaller(int moveMap)
         collectValidPositions(world.w[world.y][world.x]);
         // placePlayer(world.w[world.y][world.x]); // place '@' on road, called once bc there is only one player in the world
         world.w[world.y][world.x]->npc_count = 0;
-        character* pc = create_pc(world.w[world.y][world.x]);
-        world.pc = *pc;
-            heap_init(&world.w[world.y][world.x]->event_heap, characters_turn_comp, NULL);
-        world.pc.heap_node = heap_insert(&world.w[world.y][world.x]->event_heap, &world.pc);
+        heap_init(&world.w[world.y][world.x]->event_heap, characters_turn_comp, NULL);
         dijkstra(world.w[world.y][world.x]);
-        generate_npcs(numtrainers, world.w[world.y][world.x]); // Place after map is created
-
+        if (world.y == WORLD_HEIGHT / 2 && world.x == WORLD_WIDTH / 2) {
+            character* pc = create_pc(world.w[world.y][world.x]);
+            world.pc = *pc;
+            world.pc.heap_node = heap_insert(&world.w[world.y][world.x]->event_heap, &world.pc);
+        }
+        else {
+            // fix the position of the pc moving through the gates
+            if (world.pc.y == 1) {
+                world.pc.y = MAP_HEIGHT - 2;
+            }
+            else if (world.pc.y == MAP_HEIGHT - 2) {
+                world.pc.y = 1;
+            }
+            else if (world.pc.x == 1) {
+                world.pc.x = MAP_WIDTH - 2;
+            }
+            else if (world.pc.x == MAP_WIDTH - 2) {
+                world.pc.x = 1;
+            }
+            world.w[world.y][world.x]->npcs[world.pc.y][world.pc.x] = &world.pc;
+            character* cur_character;
+            if ((cur_character = (character*)heap_peek_min(&world.w[world.y][world.x]->event_heap))) {
+                world.pc.next_turn = cur_character->next_turn;
+            }
+            else {
+                world.pc.next_turn = 0;
+            }
+        }
         if (moveMap) {
             do {
                 world.w[world.y][world.x]->npcs[world.pc.y][world.pc.x] = NULL;
                 Position pos = find_valid_position_for_npc(PC);
                 world.pc.x = pos.x;
                 world.pc.y = pos.y;
-            } while (world.w[world.y][world.x]->npcs[world.pc.y][world.pc.x]||
-            get_cost(world.w[world.y][world.x]->m[world.pc.y][world.pc.x], world.pc.x, world.pc.y, PC) == SHRT_MAX ||
-            world.rivalDist[world.pc.y][world.pc.x] < 0);
+            } while (world.w[world.y][world.x]->npcs[world.pc.y][world.pc.x] ||
+                get_cost(world.w[world.y][world.x]->m[world.pc.y][world.pc.x], world.pc.x, world.pc.y, PC) == SHRT_MAX ||
+                world.rivalDist[world.pc.y][world.pc.x] < 0);
             world.w[world.y][world.x]->npcs[world.pc.y][world.pc.x] = &world.pc;
         }
+        generate_npcs(numtrainers, world.w[world.y][world.x]); // Place after map is created
     }
     else {
         // fix the position of the pc moving through the gates
@@ -1589,7 +1617,7 @@ uint32_t move_pc(uint32_t input, Position* pos) {
 void get_input(Position* pos) {
     int input;
     uint32_t out;
-    pos = (Position*)malloc(sizeof(Position));
+    // pos = (Position*)malloc(sizeof(Position));
     // if (!pos) {
     // }
     do {
@@ -1667,7 +1695,10 @@ void get_input(Position* pos) {
         refresh();
     } while (out);
     move_character(&world.pc, pos->x, pos->y, world.w[world.y][world.x], pos);
-    free(pos);
+    // if(pos){
+    // free(pos);
+    // pos = NULL;
+    // }
 }
 
 void init_io() {
@@ -1704,7 +1735,7 @@ int main(int argc, char* argv[])
     init_io();
     world_init();
     newMapCaller(0);
-    
+
     // input numtrainers
     for (int i = 1; i < argc; i++) { // Starting from 1 because the first el. of argv is the name of the program. So skip it
         if (strcmp(argv[i], "--numtrainers") == 0 && i + 1 < argc && argv[i + 1][0] != '\0') {
@@ -1717,6 +1748,7 @@ int main(int argc, char* argv[])
     // int32_t cost;
     while (!quit) {
         current_char = (character*)heap_remove_min(&world.w[world.y][world.x]->event_heap);
+        pos = (Position*)malloc(sizeof(Position));
         if (!current_char) {
             // No characters left to process, potentially exit the loop or handle the end of the game
             break;
@@ -1727,17 +1759,17 @@ int main(int argc, char* argv[])
             // move the pc
             move_pc_func(current_char, world.w[world.y][world.x], pos);
             // If the pc is going to another map
-            if(pos->x == 0 || pos->y == 0 || pos->x == MAP_WIDTH - 1 || pos->y == MAP_HEIGHT - 1){
-                if(pos->x == 0){
+            if (pos->x == 0 || pos->y == 0 || pos->x == MAP_WIDTH - 1 || pos->y == MAP_HEIGHT - 1) { // Line 1730
+                if (pos->x == 0) {
                     world.x--;
                 }
-                else if(pos->y == 0){
+                else if (pos->y == 0) {
                     world.y--;
                 }
-                else if(pos->x == MAP_WIDTH - 1){
+                else if (pos->x == MAP_WIDTH - 1) {
                     world.x++;
                 }
-                else if(pos->y == MAP_HEIGHT - 1){
+                else if (pos->y == MAP_HEIGHT - 1) {
                     world.y++;
                 }
                 newMapCaller(0);
@@ -1750,6 +1782,10 @@ int main(int argc, char* argv[])
         }
         // Reinsert the current character back into the event heap
         heap_insert(&world.w[world.y][world.x]->event_heap, current_char);
+        if (pos) {
+            free(pos);
+            pos = NULL;
+        }
     }
     freeAllMaps();
     // cleanup_characters();
