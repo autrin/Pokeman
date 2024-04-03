@@ -340,7 +340,7 @@ Position find_valid_position_for_npc(CharacterType npcype) {
         for (int x = 1; x < MAP_WIDTH - 1; x++) {
             pos.x = rand() % MAP_WIDTH;
             pos.y = rand() % MAP_HEIGHT;
-            if(is_position_valid_for_npc(pos.x, pos.y, npcype)){
+            if (is_position_valid_for_npc(pos.x, pos.y, npcype)) {
                 return pos;
             }
         }
@@ -1387,7 +1387,6 @@ void freeAllMaps()
 /* calls all of the functions neccessary to create a single map */
 void newMapCaller(int moveMap)
 {
-    // Only proceed if the map does not exist
     if (!world.w[world.y][world.x])
     {
         struct Region regions[NUM_REGIONS];
@@ -1470,6 +1469,8 @@ void newMapCaller(int moveMap)
         generate_npcs(numtrainers, world.w[world.y][world.x]); // Place after map is created
     }
     else {
+        collectValidPositions(world.w[world.y][world.x]);
+
         // fix the position of the pc moving through the gates
         if (world.pc.y == 1) {
             world.pc.y = MAP_HEIGHT - 2;
