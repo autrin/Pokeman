@@ -1,17 +1,22 @@
+
 #ifndef POKE327_H
 # define POKE327_H
-
-# include <cstdlib>
-# include <cassert>
+#include <sstream>
+#include <vector>
+#include <cstdlib>
+#include <cassert>
 #include <memory>
 #include <unordered_map>
 #include <string>
+#include <fstream> 
 #include <functional>
 #include <iostream>
-
-# include "heap.h"
-# include "character.h"
-# include "pair.h"
+#include <cstdio>
+#include <cstring>
+#include "heap.h"
+#include "character.h"
+#include "pair.h"
+#include <climits>
 
 #define malloc(size) ({                 \
   char *_tmp;                           \
@@ -154,6 +159,7 @@ private:
   int is_default;
 
 public:
+  Pokemon() : id(0), species_id(0), height(0), weight(0), base_experience(0), order(0), is_default(0) {}
   Pokemon(int id, std::string identifier, int species_id, int height, int weight, int base_experience, int order, int is_default) : id(id), identifier(identifier), species_id(species_id),
     height(height), weight(weight), base_experience(base_experience), order(order), is_default(is_default) {}
 
@@ -176,8 +182,69 @@ public:
   int getOrder() const { return order; }
   int getIsDefault() const { return is_default; }
 
-  void parseFile(const std::string& filename) override {
-    // Parsing logic here
+  void parseFile(const std::string& relativePath) override {
+    std::vector<std::string> basePaths = {
+        "/share/cs327/pokedex/pokedex/data/csv/",
+        getenv("HOME") + std::string("/.poke327/pokedex/pokedex/data/csv/"),
+        "/327/Pokeman/data/pokedex/pokedex/data/csv/"
+    };
+
+    std::ifstream file;
+    for (const auto& basePath : basePaths) {
+      std::string fullPath = basePath + relativePath;
+      file.open(fullPath);
+      if (file.is_open()) {
+        std::cout << basePath << std::endl;
+        break; // Successfully opened the file
+      }
+    }
+    if (!file.is_open()) {
+      std::cerr << "Failed to open file in any known location for: " << relativePath << std::endl;
+      return;
+    }
+
+    std::string line;
+    // Skip the header line.
+    std::getline(file, line);
+
+    while (std::getline(file, line)) {
+      std::istringstream iss(line);
+      std::string token;
+      std::vector<std::string> tokens;
+
+      while (std::getline(iss, token, ',')) {
+        tokens.push_back(token);
+      }
+
+      // Now `tokens` contains each piece of data from the line.
+      if (tokens.size() >= 8) { // Make sure there are enough tokens
+        try {
+          id = !tokens[0].empty() ? std::stoi(tokens[0]) : INT_MAX;;
+          identifier = tokens[1];
+          species_id = !tokens[2].empty() ? std::stoi(tokens[2]) : INT_MAX;
+          height = !tokens[3].empty() ? std::stoi(tokens[3]) : INT_MAX;
+          weight = !tokens[4].empty() ? std::stoi(tokens[4]) : INT_MAX;
+          base_experience = !tokens[5].empty() ? std::stoi(tokens[5]) : INT_MAX;
+          order = !tokens[6].empty() ? std::stoi(tokens[6]) : INT_MAX;
+          is_default = !tokens[7].empty() ? std::stoi(tokens[7]) : INT_MAX;
+
+        }
+        catch (const std::exception& e) {
+          std::cerr << "Error parsing line: " << line << "\nException: " << e.what() << std::endl;
+        }
+      }
+
+      std::cout << "ID: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
+        << "Identifier: " << getIdentifier() << ", "
+        << "Species ID: " << (getSpeciesId() != INT_MAX ? std::to_string(getSpeciesId()) : "") << ", "
+        << "Height: " << (getHeight() != INT_MAX ? std::to_string(getHeight()) : "") << ", "
+        << "Weight: " << (getWeight() != INT_MAX ? std::to_string(getWeight()) : "") << ", "
+        << "Base Experience: " << (getBaseExperience() != INT_MAX ? std::to_string(getBaseExperience()) : "") << ", "
+        << "Order: " << (getOrder() != INT_MAX ? std::to_string(getOrder()) : "") << ", "
+        << "Is Default: " << (getIsDefault() != INT_MAX ? std::to_string(getIsDefault()) : "") << std::endl;
+
+    }
+    file.close();
   }
 };
 
@@ -189,7 +256,7 @@ private:
   bool isBattleOnly;
   int gameIndex;
 public:
-  // Constructor, if needed
+  stats() : id(0), damageClassId(0), isBattleOnly(0), gameIndex(0) {}
   stats(int id,
     int damageClassId,
     std::string identifier,
@@ -210,8 +277,62 @@ public:
   // void setIsBattleOnly(bool newIsBattleOnly) { isBattleOnly = newIsBattleOnly; }
   // void setGameIndex(int newGameIndex) { gameIndex = newGameIndex; }
 
-  void parseFile(const std::string& filename) override {
-    // Parse the stats.csv file here
+  void parseFile(const std::string& relativePath) override {
+    std::vector<std::string> basePaths = {
+        "/share/cs327/pokedex/pokedex/data/csv/",
+        getenv("HOME") + std::string("/.poke327/pokedex/pokedex/data/csv/"),
+        "/327/Pokeman/data/pokedex/pokedex/data/csv/"
+    };
+
+    std::ifstream file;
+    for (const auto& basePath : basePaths) {
+      std::string fullPath = basePath + relativePath;
+      file.open(fullPath);
+      if (file.is_open()) {
+        std::cout << basePath << std::endl;
+        break; // Successfully opened the file
+      }
+    }
+    if (!file.is_open()) {
+      std::cerr << "Failed to open file in any known location for: " << relativePath << std::endl;
+      return;
+    }
+
+    std::string line;
+    // Skip the header line.
+    std::getline(file, line);
+
+    while (std::getline(file, line)) {
+      std::istringstream iss(line);
+      std::string token;
+      std::vector<std::string> tokens;
+
+      while (std::getline(iss, token, ',')) {
+        tokens.push_back(token);
+      }
+
+      // Now `tokens` contains each piece of data from the line.
+      if (tokens.size() >= 8) { // Make sure there are enough tokens
+        try {
+          id = !tokens[0].empty() ? std::stoi(tokens[0]) : INT_MAX;;
+          damageClassId = !tokens[1].empty() ? std::stoi(tokens[1]) : INT_MAX;
+          identifier = tokens[2];
+          isBattleOnly = !tokens[3].empty() ? std::stoi(tokens[3]) : INT_MAX;
+          gameIndex = !tokens[4].empty() ? std::stoi(tokens[4]) : INT_MAX;
+        }
+        catch (const std::exception& e) {
+          std::cerr << "Error parsing line: " << line << "\nException: " << e.what() << std::endl;
+        }
+      }
+
+      std::cout << "ID: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
+        << "Damage Class ID: " << (getDamageClassId() != INT_MAX ? std::to_string(getDamageClassId()) : "") << ", "
+        << "Identifier: " << getIdentifier() << ", "
+        << "Is Battle Only: " << (getIsBattleOnly() ? "True" : "False") << ", "
+        << "Game Index: " << (getGameIndex() != INT_MAX ? std::to_string(getGameIndex()) : "") << std::endl;
+
+    }
+    file.close();
   }
 };
 
@@ -222,6 +343,7 @@ private:
   int base_stat;
   int effort;
 public:
+  pokemon_stats() : pokeman_id(0), stat_id(0), base_stat(0), effort(0) {}
   pokemon_stats(int pokemon_id,
     int stat_id,
     int base_stat,
@@ -242,8 +364,60 @@ public:
   int getEffort() const {
     return effort;
   }
-  void parseFile(const std::string& filename) override {
-    // Parse the pokemon_stats.csv file here
+  void parseFile(const std::string& relativePath) override {
+    std::vector<std::string> basePaths = {
+        "/share/cs327/pokedex/pokedex/data/csv/",
+        getenv("HOME") + std::string("/.poke327/pokedex/pokedex/data/csv/"),
+        "/327/Pokeman/data/pokedex/pokedex/data/csv/"
+    };
+
+    std::ifstream file;
+    for (const auto& basePath : basePaths) {
+      std::string fullPath = basePath + relativePath;
+      file.open(fullPath);
+      if (file.is_open()) {
+        std::cout << basePath << std::endl;
+        break; // Successfully opened the file
+      }
+    }
+    if (!file.is_open()) {
+      std::cerr << "Failed to open file in any known location for: " << relativePath << std::endl;
+      return;
+    }
+
+    std::string line;
+    // Skip the header line.
+    std::getline(file, line);
+
+    while (std::getline(file, line)) {
+      std::istringstream iss(line);
+      std::string token;
+      std::vector<std::string> tokens;
+
+      while (std::getline(iss, token, ',')) {
+        tokens.push_back(token);
+      }
+
+      // Now `tokens` contains each piece of data from the line.
+      if (tokens.size() >= 8) { // Make sure there are enough tokens
+        try {
+          pokemon_id = !tokens[0].empty() ? std::stoi(tokens[0]) : INT_MAX;;
+          stat_id = !tokens[1].empty() ? std::stoi(tokens[1]) : INT_MAX;
+          base_stat = !tokens[2].empty() ? std::stoi(tokens[2]) : INT_MAX;
+          effort = !tokens[3].empty() ? std::stoi(tokens[3]) : INT_MAX;
+        }
+        catch (const std::exception& e) {
+          std::cerr << "Error parsing line: " << line << "\nException: " << e.what() << std::endl;
+        }
+      }
+
+      std::cout << "Pokemon ID: " << (getPokemonId() != INT_MAX ? std::to_string(getPokemonId()) : "") << ", "
+        << "Stat ID: " << (getStatId() != INT_MAX ? std::to_string(getStatId()) : "") << ", "
+        << "Base Stat: " << (getBaseStat() != INT_MAX ? std::to_string(getBaseStat()) : "") << ", "
+        << "Effort: " << (getEffort() != INT_MAX ? std::to_string(getEffort()) : "") << std::endl;
+
+    }
+    file.close();
   }
 };
 
@@ -254,6 +428,7 @@ private:
   std::string name;
 
 public:
+  type_names() : type_id(0), local_language_id(0) {}
   type_names(int type_id,
     int local_language_id,
     std::string name) : type_id(type_id), local_language_id(local_language_id), name(name) {}
@@ -267,11 +442,60 @@ public:
   int getLocalLanguageId() const { return local_language_id; }
   std::string getName() const { return name; }
 
-  void parseFile(const std::string& filename) override {
-    // Parsing logic here
+  void parseFile(const std::string& relativePath) override {
+    std::vector<std::string> basePaths = {
+        "/share/cs327/pokedex/pokedex/data/csv/",
+        getenv("HOME") + std::string("/.poke327/pokedex/pokedex/data/csv/"),
+        "/327/Pokeman/data/pokedex/pokedex/data/csv/"
+    };
+
+    std::ifstream file;
+    for (const auto& basePath : basePaths) {
+      std::string fullPath = basePath + relativePath;
+      file.open(fullPath);
+      if (file.is_open()) {
+        std::cout << basePath << std::endl;
+        break; // Successfully opened the file
+      }
+    }
+    if (!file.is_open()) {
+      std::cerr << "Failed to open file in any known location for: " << relativePath << std::endl;
+      return;
+    }
+
+    std::string line;
+    // Skip the header line.
+    std::getline(file, line);
+
+    while (std::getline(file, line)) {
+      std::istringstream iss(line);
+      std::string token;
+      std::vector<std::string> tokens;
+
+      while (std::getline(iss, token, ',')) {
+        tokens.push_back(token);
+      }
+
+      // Now `tokens` contains each piece of data from the line.
+      if (tokens.size() >= 8) { // Make sure there are enough tokens
+        try {
+          type_id = !tokens[0].empty() ? !tokens[0].empty() ? std::stoi(tokens[0]) : INT_MAX; : INT_MAX;
+          local_language_id = !tokens[1].empty() ? std::stoi(tokens[1]) : INT_MAX;
+          name = tokens[2];
+        }
+        catch (const std::exception& e) {
+          std::cerr << "Error parsing line: " << line << "\nException: " << e.what() << std::endl;
+        }
+      }
+
+      std::cout << "Type ID: " << (getTypeId() != INT_MAX ? std::to_string(getTypeId()) : "") << ", "
+        << "Local Language ID: " << (getLocalLanguageId() != INT_MAX ? std::to_string(getLocalLanguageId()) : "") << ", "
+        << "Name: " << getName() << std::endl;
+
+    }
+    file.close();
   }
 };
-
 
 class Experience : public CsvFile {
 private:
@@ -280,6 +504,7 @@ private:
   int experience;
 
 public:
+  Experience() : growth_rate_id(0), level(0), experience(0) {}
   Experience(int growth_rate_id,
     int level,
     int experience) : growth_rate_id(growth_rate_id), level(level), experience(experience) {}
@@ -294,11 +519,59 @@ public:
   int getLevel() const { return level; }
   int getExperience() const { return experience; }
 
-  void parseFile(const std::string& filename) override {
-    // Parsing logic here
+  void parseFile(const std::string& relativePath) override {
+    std::vector<std::string> basePaths = {
+        "/share/cs327/pokedex/pokedex/data/csv/",
+        getenv("HOME") + std::string("/.poke327/pokedex/pokedex/data/csv/"),
+        "/327/Pokeman/data/pokedex/pokedex/data/csv/"
+    };
+
+    std::ifstream file;
+    for (const auto& basePath : basePaths) {
+      std::string fullPath = basePath + relativePath;
+      file.open(fullPath);
+      if (file.is_open()) {
+        std::cout << basePath << std::endl;
+        break; // Successfully opened the file
+      }
+    }
+    if (!file.is_open()) {
+      std::cerr << "Failed to open file in any known location for: " << relativePath << std::endl;
+      return;
+    }
+
+    std::string line;
+    // Skip the header line.
+    std::getline(file, line);
+
+    while (std::getline(file, line)) {
+      std::istringstream iss(line);
+      std::string token;
+      std::vector<std::string> tokens;
+
+      while (std::getline(iss, token, ',')) {
+        tokens.push_back(token);
+      }
+
+      // Now `tokens` contains each piece of data from the line.
+      if (tokens.size() >= 8) {
+        try {
+          growth_rate_id = !tokens[0].empty() ? !tokens[0].empty() ? std::stoi(tokens[0]) : INT_MAX; : INT_MAX;
+          level = !tokens[1].empty() ? std::stoi(tokens[1]) : INT_MAX;
+          experience = !tokens[2].empty() ? std::stoi(tokens[2]) : INT_MAX;
+        }
+        catch (const std::exception& e) {
+          std::cerr << "Error parsing line: " << line << "\nException: " << e.what() << std::endl;
+        }
+      }
+
+      std::cout << "Growth Rate ID: " << (getGrowthRateId() != INT_MAX ? std::to_string(getGrowthRateId()) : "") << ", "
+        << "Level: " << (getLevel() != INT_MAX ? std::to_string(getLevel()) : "") << ", "
+        << "Experience: " << (getExperience() != INT_MAX ? std::to_string(getExperience()) : "") << std::endl;
+    }
+    file.close();
   }
 };
-
 
 class pokemon_species : public CsvFile {
 private:
@@ -323,7 +596,12 @@ private:
   int order;
   int conquest_order;
 public:
-  // Constructor, if needed
+  pokemon_species() : id(0), identifier(""), generation_id(0), evolves_from_species_id(0),
+    evolution_chain_id(0), color_id(0), shape_id(0), habitat_id(0), gender_rate(0),
+    capture_rate(0), base_happiness(0), is_baby(0), hatch_counter(0),
+    has_gender_differences(0), growth_rate_id(0), forms_switchable(0),
+    is_legendary(0), is_mythical(0), order(0), conquest_order(0) {}
+
   pokemon_species(int id,
     std::string identifier,
     int generation_id,
@@ -392,8 +670,95 @@ public:
   // void setOrder(int value) { order = value; }
   // void setConquestOrder(int value) { conquest_order = value; }
 
-  void parseFile(const std::string& filename) override {
-    // Parse the pokemon_species.csv file here
+
+  void parseFile(const std::string& relativePath) override {
+    std::vector<std::string> basePaths = {
+        "/share/cs327/pokedex/pokedex/data/csv/",
+        getenv("HOME") + std::string("/.poke327/pokedex/pokedex/data/csv/"),
+        "/327/Pokeman/data/pokedex/pokedex/data/csv/"
+    };
+
+    std::ifstream file;
+    for (const auto& basePath : basePaths) {
+      std::string fullPath = basePath + relativePath;
+      file.open(fullPath);
+      if (file.is_open()) {
+        std::cout << basePath << std::endl;
+        break; // Successfully opened the file
+      }
+    }
+    if (!file.is_open()) {
+      std::cerr << "Failed to open file in any known location for: " << relativePath << std::endl;
+      return;
+    }
+
+    std::string line;
+    // Skip the header line.
+    std::getline(file, line);
+
+    while (std::getline(file, line)) {
+      std::istringstream iss(line);
+      std::string token;
+      std::vector<std::string> tokens;
+
+      while (std::getline(iss, token, ',')) {
+        tokens.push_back(token);
+      }
+
+      // Now `tokens` contains each piece of data from the line.
+      if (tokens.size() >= 8) { // Make sure there are enough tokens
+        try {
+          id = !tokens[0].empty() ? std::stoi(tokens[0]) : INT_MAX;
+          identifier = tokens[1];
+          generation_id = !tokens[2].empty() ? std::stoi(tokens[3]) : INT_MAX;
+          evolves_from_species_id = !tokens[3].empty() ? std::stoi(tokens[3]) : INT_MAX;;
+          evolution_chain_id = !tokens[4].empty() ? std::stoi(tokens[4]) : INT_MAX;;
+          color_id = !tokens[5].empty() ? std::stoi(tokens[5]) : INT_MAX;;
+          shape_id = !tokens[6].empty() ? std::stoi(tokens[6]) : INT_MAX;
+          habitat_id = !tokens[7].empty() ? std::stoi(tokens[7]) : INT_MAX;
+          gender_rate = !tokens[8].empty() ? std::stoi(tokens[8]) : INT_MAX;
+          capture_rate = !tokens[9].empty() ? std::stoi(tokens[9]) : INT_MAX;
+          base_happiness = !tokens[10].empty() ? std::stoi(tokens[10]) : INT_MAX;
+          is_baby = !tokens[11].empty() ? std::stoi(tokens[11]) : INT_MAX;
+          hatch_counter = !tokens[12].empty() ? std::stoi(tokens[12]) : INT_MAX;
+          has_gender_differences = !tokens[13].empty() ? std::stoi(tokens[13]) : INT_MAX;
+          growth_rate_id = !tokens[14].empty() ? std::stoi(tokens[14]) : INT_MAX;
+          forms_switchable = !tokens[15].empty() ? std::stoi(tokens[15]) : INT_MAX;
+          is_legendary = !tokens[16].empty() ? std::stoi(tokens[16]) : INT_MAX;
+          is_mythical = !tokens[17].empty() ? std::stoi(tokens[17]) : INT_MAX;
+          order = !tokens[18].empty() ? std::stoi(tokens[18]) : INT_MAX;
+          conquest_order = !tokens[19].empty() ? std::stoi(tokens[19]) : INT_MAX;
+        }
+        catch (const std::exception& e) {
+          std::cerr << "Error parsing line: " << line << "\nException: " << e.what() << std::endl;
+        }
+      }
+
+      std::cout << "id: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
+        << "identifier: " << getIdentifier() << ", "
+        << "generation_id: " << (getGenerationId() != INT_MAX ? std::to_string(getGenerationId()) : "") << ", "
+        << "evolves_from_species_id: " << (getEvolvesFromSpeciesId() != INT_MAX ? std::to_string(getEvolvesFromSpeciesId()) : "") << ", "
+        << "evolution_chain_id: " << (getEvolutionChainId() != INT_MAX ? std::to_string(getEvolutionChainId()) : "") << ", "
+        << "color_id: " << (getColorId() != INT_MAX ? std::to_string(getColorId()) : "") << ", "
+        << "shape_id: " << (getShapeId() != INT_MAX ? std::to_string(getShapeId()) : "") << ", "
+        << "habitat_id: " << (getHabitatId() != INT_MAX ? std::to_string(getHabitatId()) : "") << ", "
+        << "gender_rate: " << (getGenderRate() != INT_MAX ? std::to_string(getGenderRate()) : "") << ", "
+        << "capture_rate: " << (getCaptureRate() != INT_MAX ? std::to_string(getCaptureRate()) : "") << ", "
+        << "base_happiness: " << (getBaseHappiness() != INT_MAX ? std::to_string(getBaseHappiness()) : "") << ", "
+        << "is_baby: " << (getIsBaby() != INT_MAX ? std::to_string(getIsBaby()) : "") << ", "
+        << "hatch_counter: " << (getHatchCounter() != INT_MAX ? std::to_string(getHatchCounter()) : "") << ", "
+        << "has_gender_differences: " << (getHasGenderDifferences() != INT_MAX ? std::to_string(getHasGenderDifferences()) : "") << ", "
+        << "growth_rate_id: " << (getGrowthRateId() != INT_MAX ? std::to_string(getGrowthRateId()) : "") << ", "
+        << "forms_switchable: " << (getFormsSwitchable() != INT_MAX ? std::to_string(getFormsSwitchable()) : "") << ", "
+        << "is_legendary: " << (getIsLegendary() != INT_MAX ? std::to_string(getIsLegendary()) : "") << ", "
+        << "is_mythical: " << (getIsMythical() != INT_MAX ? std::to_string(getIsMythical()) : "") << ", "
+        << "order: " << (getOrder() != INT_MAX ? std::to_string(getOrder()) : "") << ", "
+        << "conquest_order: " << (getConquestOrder() != INT_MAX ? std::to_string(getConquestOrder()) : "")
+        << std::endl;
+
+
+    }
+    file.close();
   }
 };
 
@@ -407,7 +772,8 @@ private:
   int order;
 
 public:
-  // Constructor
+  pokeman_moves() : pokemon_id(0), version_group_id(0), move_id(0),
+    pokemon_move_method_id(0), level(0), order(0) {}
   pokeman_moves(int pokemon_id, int version_group_id, int move_id,
     int pokemon_move_method_id, int level, int order)
     : pokemon_id(pokemon_id), version_group_id(version_group_id),
@@ -422,8 +788,64 @@ public:
   int getLevel() const { return level; }
   int getOrder() const { return order; }
 
-  void parseFile(const std::string& filename) override {
-    // Parse the pokeman_moves.csv file here
+
+  void parseFile(const std::string& relativePath) override {
+    std::vector<std::string> basePaths = {
+        "/share/cs327/pokedex/pokedex/data/csv/",
+        getenv("HOME") + std::string("/.poke327/pokedex/pokedex/data/csv/"),
+        "/327/Pokeman/data/pokedex/pokedex/data/csv/"
+    };
+
+    std::ifstream file;
+    for (const auto& basePath : basePaths) {
+      std::string fullPath = basePath + relativePath;
+      file.open(fullPath);
+      if (file.is_open()) {
+        std::cout << basePath << std::endl;
+        break; // Successfully opened the file
+      }
+    }
+    if (!file.is_open()) {
+      std::cerr << "Failed to open file in any known location for: " << relativePath << std::endl;
+      return;
+    }
+
+    std::string line;
+    // Skip the header line.
+    std::getline(file, line);
+
+    while (std::getline(file, line)) {
+      std::istringstream iss(line);
+      std::string token;
+      std::vector<std::string> tokens;
+
+      while (std::getline(iss, token, ',')) {
+        tokens.push_back(token);
+      }
+
+      if (tokens.size() >= 8) {
+        try {
+          pokemon_id = !tokens[0].empty() ? !tokens[0].empty() ? std::stoi(tokens[0]) : INT_MAX; : INT_MAX;
+          version_group_id = !tokens[1].empty() ? std::stoi(tokens[1]) : INT_MAX;
+          move_id = !tokens[2].empty() ? std::stoi(tokens[2]) : INT_MAX;
+          pokemon_move_method_id = !tokens[3].empty() ? std::stoi(tokens[3]) : INT_MAX;
+          level = !tokens[4].empty() ? std::stoi(tokens[4]) : INT_MAX;
+          order = !tokens[5].empty() ? std::stoi(tokens[5]) : INT_MAX;
+        }
+        catch (const std::exception& e) {
+          std::cerr << "Error parsing line: " << line << "\nException: " << e.what() << std::endl;
+        }
+      }
+
+      std::cout << "Pokeman Id: " << (getPokemanId() != INT_MAX ? std::to_string(getPokemanId()) : "") << ", "
+        << "Version Group Id: " << (getVersionGroupId() != INT_MAX ? std::to_string(getVersionGroupId()) : "") << ", "
+        << "Move Id: " << (getMoveId() != INT_MAX ? std::to_string(getMoveId()) : "")
+        << "pokemon_move_method_id: " << (getPokemonMoveMethodId() != INT_MAX ? std::to_string(getPokemonMoveMethodId()) : "") << ", "
+        << "level: " << (getLevel() != INT_MAX ? std::to_string(getLevel()) : "") << ", "
+        << "order: " << (getOrder() != INT_MAX ? std::to_string(getOrder()) : "") << ", "
+        << std::endl;
+    }
+    file.close();
   }
 };
 
@@ -446,6 +868,10 @@ private:
   int contest_effect_id;
   int super_contest_effect_id;
 public:
+  moves() : id(0), identifier(""), generation_id(0), type_id(0), power(0),
+    pp(0), accuracy(0), priority(0), target_id(0), damage_class_id(0),
+    effect_id(0), effect_chance(0), contest_type_id(0), contest_effect_id(0),
+    super_contest_effect_id(0) {}
   moves(int id,
     std::string identifier,
     int generation_id,
@@ -487,8 +913,79 @@ public:
   int getContest_effect_id() const { return contest_effect_id; }
   int getSuper_contest_effect_id() const { return super_contest_effect_id; }
 
-  void parseFile(const std::string& filename) override {
-    // Parse the moves.csv file here
+
+  void parseFile(const std::string& relativePath) override {
+    std::vector<std::string> basePaths = {
+        "/share/cs327/pokedex/pokedex/data/csv/",
+        getenv("HOME") + std::string("/.poke327/pokedex/pokedex/data/csv/"),
+        "/327/Pokeman/data/pokedex/pokedex/data/csv/"
+    };
+
+    std::ifstream file;
+    for (const auto& basePath : basePaths) {
+      std::string fullPath = basePath + relativePath;
+      file.open(fullPath);
+      if (file.is_open()) {
+        break; // Successfully opened the file
+      }
+    }
+
+    if (!file.is_open()) {
+      std::cerr << "Failed to open file in any known location for: " << relativePath << std::endl;
+      return;
+    }
+
+    std::string line;
+    // Skip the header line.
+    std::getline(file, line);
+
+    while (std::getline(file, line)) {
+      std::istringstream iss(line);
+      std::vector<std::string> tokens(std::istream_iterator<std::string>{iss},
+        std::istream_iterator<std::string>());
+
+      if (tokens.size() >= 15) { // Ensure there are enough tokens for all fields
+        try {
+          id = tokens[0].empty() ? INT_MAX : std::stoi(tokens[0]);
+          identifier = tokens[1];
+          generation_id = tokens[2].empty() ? INT_MAX : std::stoi(tokens[2]);
+          type_id = tokens[3].empty() ? INT_MAX : std::stoi(tokens[3]);
+          power = tokens[4].empty() ? INT_MAX : std::stoi(tokens[4]);
+          pp = tokens[5].empty() ? INT_MAX : std::stoi(tokens[5]);
+          accuracy = tokens[6].empty() ? INT_MAX : std::stoi(tokens[6]);
+          priority = tokens[7].empty() ? INT_MAX : std::stoi(tokens[7]);
+          target_id = tokens[8].empty() ? INT_MAX : std::stoi(tokens[8]);
+          damage_class_id = tokens[9].empty() ? INT_MAX : std::stoi(tokens[9]);
+          effect_id = tokens[10].empty() ? INT_MAX : std::stoi(tokens[10]);
+          effect_chance = tokens[11].empty() ? INT_MAX : std::stoi(tokens[11]);
+          contest_type_id = tokens[12].empty() ? INT_MAX : std::stoi(tokens[12]);
+          contest_effect_id = tokens[13].empty() ? INT_MAX : std::stoi(tokens[13]);
+          super_contest_effect_id = tokens[14].empty() ? INT_MAX : std::stoi(tokens[14]);
+        }
+        catch (const std::exception& e) {
+          std::cerr << "Error parsing line: " << line << "\nException: " << e.what() << std::endl;
+        }
+      }
+    }
+
+    std::cout << "ID: " << (id != INT_MAX ? std::to_string(id) : "") << ", "
+      << "Identifier: " << identifier << ", "
+      << "Generation ID: " << (generation_id != INT_MAX ? std::to_string(generation_id) : "") << ", "
+      << "Type ID: " << (type_id != INT_MAX ? std::to_string(type_id) : "") << ", "
+      << "Power: " << (power != INT_MAX ? std::to_string(power) : "") << ", "
+      << "PP: " << (pp != INT_MAX ? std::to_string(pp) : "") << ", "
+      << "Accuracy: " << (accuracy != INT_MAX ? std::to_string(accuracy) : "") << ", "
+      << "Priority: " << (priority != INT_MAX ? std::to_string(priority) : "") << ", "
+      << "Target ID: " << (target_id != INT_MAX ? std::to_string(target_id) : "") << ", "
+      << "Damage Class ID: " << (damage_class_id != INT_MAX ? std::to_string(damage_class_id) : "") << ", "
+      << "Effect ID: " << (effect_id != INT_MAX ? std::to_string(effect_id) : "") << ", "
+      << "Effect Chance: " << (effect_chance != INT_MAX ? std::to_string(effect_chance) : "") << ", "
+      << "Contest Type ID: " << (contest_type_id != INT_MAX ? std::to_string(contest_type_id) : "") << ", "
+      << "Contest Effect ID: " << (contest_effect_id != INT_MAX ? std::to_string(contest_effect_id) : "") << ", "
+      << "Super Contest Effect ID: " << (super_contest_effect_id != INT_MAX ? std::to_string(super_contest_effect_id) : "")
+      << std::endl;
+
+    file.close();
   }
 };
 class pokemon_types : public CsvFile {
@@ -497,6 +994,7 @@ private:
   int type_id;
   int slot;
 public:
+  pokemon_types() : pokemon_id(0), type_id(0), slot(0) {}
   pokemon_types(int pokemon_id,
     int type_id,
     int slot) : pokemon_id(pokemon_id), type_id(type_id), slot(slot) {}
@@ -509,38 +1007,112 @@ public:
   int getPokemonId() const { return pokemon_id; }
   int getTypeId() const { return type_id; }
   int getSlot() const { return slot; }
-  
-  void parseFile(const std::string& filename) override {
-    // Parse the pokemon_types.csv file here
-  }
-};
-// Factory
-class CsvFactory {
-public:
-  using Creator = std::function<std::unique_ptr<CsvFile>()>;
 
-  static CsvFactory& instance() {
-    static CsvFactory instance;
-    return instance;
-  }
+  void parseFile(const std::string& relativePath) override {
+    std::vector<std::string> basePaths = {
+        "/share/cs327/pokedex/pokedex/data/csv/",
+        getenv("HOME") + std::string("/.poke327/pokedex/pokedex/data/csv/"),
+        "/327/Pokeman/data/pokedex/pokedex/data/csv/"
+    };
 
-  void registerType(const std::string& typeName, Creator creator) {
-    creators[typeName] = creator;
-  }
-
-  std::unique_ptr<CsvFile> create(const std::string& typeName) {
-    if (creators.find(typeName) != creators.end()) {
-      return creators[typeName]();
+    std::ifstream file;
+    for (const auto& basePath : basePaths) {
+      std::string fullPath = basePath + relativePath;
+      file.open(fullPath);
+      if (file.is_open()) {
+        break; // Successfully opened the file
+      }
     }
-    // Handle error or return nullptr
-    std::cerr << "Unknown CSV type: " << typeName << std::endl;
+
+    if (!file.is_open()) {
+      std::cerr << "Failed to open file in any known location for: " << relativePath << std::endl;
+      return;
+    }
+
+    std::string line;
+    // Skip the header line.
+    std::getline(file, line);
+
+    while (std::getline(file, line)) {
+      std::istringstream iss(line);
+      std::vector<std::string> tokens(std::istream_iterator<std::string>{iss},
+        std::istream_iterator<std::string>());
+
+      if (tokens.size() >= 15) { // Ensure there are enough tokens for all fields
+        try {
+          pokemon_id = tokens[0].empty() ? INT_MAX : std::stoi(tokens[0]);
+          type_id = tokens[1].empty() ? INT_MAX : std::stoi(tokens[1]);
+          slot = tokens[2].empty() ? INT_MAX : std::stoi(tokens[2]);
+        }
+        catch (const std::exception& e) {
+          std::cerr << "Error parsing line: " << line << "\nException: " << e.what() << std::endl;
+        }
+      }
+    }
+
+    std::cout << "Pokeman ID: " << (id != INT_MAX ? std::to_string(id) : "") << ", "
+      << "Type ID: " << (type_id != INT_MAX ? std::to_string(type_id) : "") << ", "
+      << "Slot: " << (slot != INT_MAX ? std::to_string(slot) : "")
+      << std::endl;
+    file.close();
+  }
+
+};
+
+// Factory
+class CsvFileFactory {
+public:
+  static std::unique_ptr<CsvFile> createFromFile(const std::string& typeName, const std::string& filename) {
+    // Determine type and parse accordingly
+    if (typeName == "pokemon") {
+      auto pokemon = std::make_unique<Pokemon>();
+      pokemon->parseFile(filename);
+      return pokemon;
+    }
+    else if (typeName == "stats") {
+      auto stats = std::make_unique<stats>();
+      stats->parseFile(filename);
+      return stats;
+    }
+    else if (typeName == "pokemon_stats") {
+      auto pokemon_stats = std::make_unique<pokemon_stats>();
+      pokemon_stats->parseFile(filename);
+      return pokemon_stats;
+    }
+    else if (typeName == "type_names") {
+      auto type_names = std::make_unique<type_names>();
+      type_names->parseFile(filename);
+      return type_names;
+    }
+    else if (typeName == "experience") {
+      auto experience = std::make_unique<Experience>();
+      experience->parseFile(filename);
+      return experience;
+    }
+    else if (typeName == "pokemon_species") {
+      auto pokemon_species = std::make_unique<pokemon_species>();
+      pokemon_species->parseFile(filename);
+      return pokemon_species;
+    }
+    else if (typeName == "pokeman_moves") {
+      auto pokeman_moves = std::make_unique<pokeman_moves>();
+      pokeman_moves->parseFile(filename);
+      return pokeman_moves;
+    }
+    else if (typeName == "moves") {
+      auto moves = std::make_unique<moves>();
+      moves->parseFile(filename);
+      return moves;
+    }
+    else if (typeName == "pokemon_types") {
+      auto pokemon_types = std::make_unique<pokemon_types>();
+      pokemon_types->parseFile(filename);
+      return pokemon_types;
+    }
     return nullptr;
   }
-
-private:
-  std::unordered_map<std::string, Creator> creators;
-  CsvFactory() {} // Constructor made private for singleton
 };
+
 int new_map(int teleport);
 void pathfind(map* m);
 

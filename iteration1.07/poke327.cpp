@@ -1196,6 +1196,7 @@ void usage(char* s)
 // csv::~csv(){
 //   free(name);
 // }
+
 int main(int argc, char* argv[])
 {
   struct timeval tv;
@@ -1230,31 +1231,16 @@ int main(int argc, char* argv[])
         }
       }
       else { /* No dash */ // Get the csv file
-        // usage(argv[0]);
-        // cout << "You have entered " << argc << " arguments." << endl;
-        REGISTER_CSV_TYPE(pokemon);
-        REGISTER_CSV_TYPE(stats);
-        REGISTER_CSV_TYPE(pokemon_stats);
-        REGISTER_CSV_TYPE(type_names);
-        REGISTER_CSV_TYPE(experience);
-        REGISTER_CSV_TYPE(pokemon_species);
-        REGISTER_CSV_TYPE(pokeman_moves);
-        REGISTER_CSV_TYPE(moves);
-        REGISTER_CSV_TYPE(pokemon_types);
+
       }
       if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " <csv_type>" << std::endl;
-        return 1; // Or other error handling
+        return 1;
       }
       std::string csvType = argv[1];
-      std::unique_ptr<CsvFile> csvFile = CsvFactory::instance().create(csvType);
-      if (!csvFile) {
-        std::cerr << "Error: Unknown or unregistered CSV type '" << csvType << "'." << std::endl;
-        return 1; // Or other error handling
-      }
-      std::string filename = "path/to/" + csvType + ".csv";
-      csvFile->parseFile(filename);
 
+      auto pokemon = std::make_unique<Pokemon>();
+      pokemon->parseFile("pokemon.csv");
     }
   }
   return 0;
