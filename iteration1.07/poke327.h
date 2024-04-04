@@ -133,9 +133,6 @@ extern pair_t all_dirs[8];
     dir[1] = all_dirs[_i][1]; \
   }
 
-#define REGISTER_CSV_TYPE(TYPE) \
-  CsvFactory::instance().registerType(#TYPE, []() -> std::unique_ptr<CsvFile> { return std::make_unique<TYPE>(); })
-
 typedef struct path
 {
   heap_node_t *hn;
