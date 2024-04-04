@@ -1,0 +1,19 @@
+Classes
+    Super class:
+        CsvFile
+    Sublclasses:
+        Pokemon
+        stats
+        pokemon_stats
+        type_names
+        Experience
+        pokemon_species
+        pokemon_moves
+        moves
+        pokemon_types
+    CsvFileFactory: gets the file name and creates an instance of the corresponding csv file and calls their parser method
+
+Key Features
+    Data Parsing: Each class has a parseFile method to extract data from CSV files, handling missing or malformed data gracefully.
+    Flexible File Locations: Looks for CSV files in multiple locations to accommodate different environments.
+    Error Handling: Robust error checking ensures stability even with incomplete data.

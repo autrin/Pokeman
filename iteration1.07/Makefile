@@ -6,7 +6,7 @@ RM = rm -f
 TERM = "F2023"
 
 CFLAGS = -Wall -Werror -ggdb -funroll-loops -DTERM=$(TERM)
-CXXFLAGS = -Wall -Werror -ggdb -funroll-loops -DTERM=$(TERM)
+CXXFLAGS = -Wall -Werror -ggdb -funroll-loops -DTERM=$(TERM) -std=c++14
 
 LDFLAGS = -lncurses
 
@@ -17,7 +17,7 @@ all: $(BIN) etags
 
 $(BIN): $(OBJS)
 	@$(ECHO) Linking $@
-	@$(CXX) $^ -o $@ $(LDFLAGS)
+	@$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 -include $(OBJS:.o=.d)
 
