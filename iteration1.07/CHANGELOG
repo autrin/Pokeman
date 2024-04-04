@@ -1,8 +1,45 @@
+commit 91fea1edaf8bc0959f9f519b93590cb12aafc87d
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Apr 4 15:27:34 2024 -0500
+
+    isBattleOnly is an int now
+
+commit b4be9bc0f0c502df4489aa8187346069d7be5ae6
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Apr 4 10:33:14 2024 -0500
+
+    make clean
+
+commit 6d684f4c4993dda6603c2d2f86bd16d0959f351c
+Merge: 2c2fde6 0e8385b
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Apr 4 10:30:04 2024 -0500
+
+    Merge branch 'main' of https://github.com/autrin/Pokeman
+
+commit 0e8385b58172b6918942191a0be2f088b9548c32
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Apr 3 23:32:04 2024 -0500
+
+    not need
+
+commit 915ada6cc42dfe747289859a2d9bbda16456d965
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Apr 3 23:01:28 2024 -0500
+
+    readme ,changelog
+
 commit 5cd48acb46f5d2d60f17c436b51baf16f43e9415
 Author: Autrin <autrinhakimi@gmail.com>
 Date:   Wed Apr 3 22:47:59 2024 -0500
 
     factory done, printing doen, classes done
+
+commit 2c2fde6e20aabcb8a113d66dfb00d429da414b59
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Apr 3 16:32:31 2024 -0500
+
+    added constructors and print and parse file methods
 
 commit bf6d39cad851082c55f58a2eca0c3b7b1a47f82e
 Author: Autrin <ahakimi@iastate.edu>
