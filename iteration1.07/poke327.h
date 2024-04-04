@@ -196,7 +196,7 @@ public:
       file.open(fullPath);
       if (file.is_open())
       {
-        std::cout << basePath << std::endl;
+        //std::cout << basePath << std::endl;
         break; // Successfully opened the file
       }
     }
@@ -264,7 +264,7 @@ private:
   int id;
   int damageClassId;
   std::string identifier;
-  bool isBattleOnly;
+  int isBattleOnly;
   int gameIndex;
 
 public:
@@ -272,21 +272,21 @@ public:
   stats(int id,
         int damageClassId,
         std::string identifier,
-        bool isBattleOnly,
+        int isBattleOnly,
         int gameIndex) : id(id), damageClassId(damageClassId), isBattleOnly(isBattleOnly), gameIndex(gameIndex) {}
 
   // Getters
   int getId() const { return id; }
   int getDamageClassId() const { return damageClassId; }
   std::string getIdentifier() const { return identifier; }
-  bool getIsBattleOnly() const { return isBattleOnly; }
+  int getIsBattleOnly() const { return isBattleOnly; }
   int getGameIndex() const { return gameIndex; }
 
   // Setters
   // void setId(int newId) { id = newId; }
   // void setDamageClassId(int newDamageClassId) { damageClassId = newDamageClassId; }
   // void setIdentifier(const std::string& newIdentifier) { identifier = newIdentifier; }
-  // void setIsBattleOnly(bool newIsBattleOnly) { isBattleOnly = newIsBattleOnly; }
+  // void setIsBattleOnly(int newIsBattleOnly) { isBattleOnly = newIsBattleOnly; }
   // void setGameIndex(int newGameIndex) { gameIndex = newGameIndex; }
 
   void parseFile(const std::string &relativePath) override
@@ -303,7 +303,7 @@ public:
       file.open(fullPath);
       if (file.is_open())
       {
-        std::cout << basePath << std::endl;
+        //std::cout << basePath << std::endl;
         break; // Successfully opened the file
       }
     }
@@ -352,7 +352,7 @@ public:
       std::cout << "ID: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
                 << "Damage Class ID: " << (getDamageClassId() != INT_MAX ? std::to_string(getDamageClassId()) : "") << ", "
                 << "Identifier: " << getIdentifier() << ", "
-                << "Is Battle Only: " << (getIsBattleOnly() ? "True" : "False") << ", "
+                << "Is Battle Only: " << (getIsBattleOnly() != INT_MAX ? std::to_string(getIsBattleOnly()) : "")  << ", "
                 << "Game Index: " << (getGameIndex() != INT_MAX ? std::to_string(getGameIndex()) : "") << std::endl;
     }
     file.close();
@@ -407,7 +407,7 @@ public:
       file.open(fullPath);
       if (file.is_open())
       {
-        std::cout << basePath << std::endl;
+        //std::cout << basePath << std::endl;
         break; // Successfully opened the file
       }
     }
@@ -496,7 +496,7 @@ public:
       file.open(fullPath);
       if (file.is_open())
       {
-        std::cout << basePath << std::endl;
+        //std::cout << basePath << std::endl;
         break; // Successfully opened the file
       }
     }
@@ -584,7 +584,7 @@ public:
       file.open(fullPath);
       if (file.is_open())
       {
-        std::cout << basePath << std::endl;
+        //std::cout << basePath << std::endl;
         break; // Successfully opened the file
       }
     }
@@ -748,7 +748,7 @@ public:
       file.open(fullPath);
       if (file.is_open())
       {
-        std::cout << basePath << std::endl;
+        //std::cout << basePath << std::endl;
         break; // Successfully opened the file
       }
     }
@@ -875,7 +875,7 @@ public:
       file.open(fullPath);
       if (file.is_open())
       {
-        std::cout << basePath << std::endl;
+        //std::cout << basePath << std::endl;
         break; // Successfully opened the file
       }
     }
