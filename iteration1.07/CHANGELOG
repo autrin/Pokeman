@@ -1,0 +1,744 @@
+commit 5cd48acb46f5d2d60f17c436b51baf16f43e9415
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Apr 3 22:47:59 2024 -0500
+
+    factory done, printing doen, classes done
+
+commit bf6d39cad851082c55f58a2eca0c3b7b1a47f82e
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Apr 3 12:32:04 2024 -0500
+
+    added the csv file classes, their constructors and their getters.
+
+commit f9bb3546a78801c5f62b1ee0d30dab68b11e8f8c
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 28 05:15:56 2024 -0500
+
+    changelog
+
+commit 0ec31909c5abdc35bd800e728f19dd805bff61a1
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 28 05:15:41 2024 -0500
+
+    readme
+
+commit 917644bbc97afae352fc6f713cf44a15897aaba8
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 28 05:09:07 2024 -0500
+
+    updated
+
+commit b208f6a7ea55b9c56480a6c67ee2b85fe6844288
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 28 02:55:03 2024 -0500
+
+    fly print
+
+commit 61249a6d7e9e45497a683c3db15b1b5171fd811e
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 28 02:31:27 2024 -0500
+
+    finally everything works including moving between maps
+
+commit d76966e4bb9f0e68fcb5c5268d57bfdea38a2fd5
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 28 02:24:23 2024 -0500
+
+    impassible terrain work
+
+commit 4dd4c1b2b7bd47c64391caefb650de0b03e442f3
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 23:58:08 2024 -0500
+
+    a
+
+commit 3b1afad6cbab93633b66a118f31103139fce17cb
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 23:51:51 2024 -0500
+
+    working on world
+
+commit d2d671a89b7d2572e9ab022a903dbd232e9d24df
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 23:10:24 2024 -0500
+
+    updating map properties
+
+commit c99efe2b423276e6b4e931b4f1e5732268bacf6e
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 22:11:15 2024 -0500
+
+    working on movgin between maps
+
+commit 8de5a054f370d36e0d1089a10f2a16bec24d1d7b
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 20:13:40 2024 -0500
+
+    flying works now
+
+commit f8bf9b87a657318857c88a3ee2cded722fa93979
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 14:21:25 2024 -0500
+
+    character and World inherit position
+
+commit b4449a87d3cc7b7fbf3ce92aa2f7363aef791c36
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 14:15:48 2024 -0500
+
+    converted to class
+
+commit ff6a6fdbd341bf5c330f8a11271dc5efb6bb9b9c
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 11:28:27 2024 -0500
+
+    updated makefile and extensions
+
+commit 3b9d4861a76cd186316e03ba34d0cc804bc75e16
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 10:55:44 2024 -0500
+
+    cleanup
+
+commit 9add966170cfc6700cece2429ab5b2296465f1a4
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 10:51:03 2024 -0500
+
+    started 1.06
+
+commit a7e05df64a0bf58298d374f2edd0c464dd8b55a3
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 10:50:07 2024 -0500
+
+    changelog
+
+commit d3fba4b52e2d64605bb9743055375779d6cb44de
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 10:48:19 2024 -0500
+
+    returned to the original heap versions
+
+commit 1c6886154644c323e532c6aeef5e94a831db0108
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 27 10:46:09 2024 -0500
+
+    the pc moves and no crash
+
+commit dde209d0b51aa5550be76e62b10c02ec4fb53b28
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Mar 26 23:18:06 2024 -0500
+
+    no memory issues, working on pc movement now
+
+commit c30b37841e0375095f3f182ccf4d21fabbe1a424
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Mar 26 16:36:36 2024 -0500
+
+    make clean
+
+commit 4b4ce4d0a7f9748ddccc7c99b251d56ba866adea
+Author: Autrin Hakimi <autrinhakimi@gmail.com>
+Date:   Tue Mar 26 16:35:38 2024 -0500
+
+    Delete iteration1.05/1.05.o
+
+commit d0e24b4e8e102651bae66bd225c21f0f496452bb
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Mar 26 16:31:06 2024 -0500
+
+    .
+
+commit 215cd13894082122ccae1a29713add9a34c32db5
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Tue Mar 26 13:08:03 2024 -0500
+
+    fixed get cost
+
+commit 44cf6ae97c77134f6bc3f748703ab51a5e0f977e
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Mar 26 12:46:37 2024 -0500
+
+    fixed a few errors
+
+commit 3d740e80c6e883b764025ac03dd14e5eb9f57ccc
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Mar 25 16:24:21 2024 -0500
+
+    worked on updating the pc's location and its movement funcs
+
+commit fc1f8dad3bb8316bcf96b00f7711eee541fd8da8
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Mar 25 14:35:05 2024 -0500
+
+    .
+
+commit 32d7714a60841591215c5f8fd4e53378844d25c8
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 21 04:20:08 2024 -0500
+
+    readme and changelog
+
+commit 729197ea9709fda35fccbc467f0ff1e3b639e6b5
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 21 04:16:18 2024 -0500
+
+    IO shown, colors done, keys can work
+
+commit 608bc298f4fd01ec9c9aaa141dbfcdca887dfd2f
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Mar 20 14:06:37 2024 -0500
+
+    added files to 1.05
+
+commit 9e31b7035678ef5abcbc3482a6cc25318c6e73c1
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Mar 19 21:19:48 2024 -0500
+
+    everyone is moving now and 1.05 started
+
+commit 2b327fe7f42294abd05444d9ab13149690f182be
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Mar 18 13:24:49 2024 -0500
+
+    update
+
+commit 85bbab254aee727e2b27cbd17ad98d2391f56b65
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Mar 18 12:55:24 2024 -0500
+
+    Done: after a npc moves the old square shows the original terrain now.
+
+commit 57acf0353ad5b0d2e2b7810a109397bc773d3e2c
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Mar 17 19:44:57 2024 -0500
+
+    updates
+
+commit f9133d479427cab7c2b9b0bfd30a0b2587dbdaa2
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Mar 17 18:19:00 2024 -0500
+
+    taking one step at a time done
+
+commit 4e2df518fe1e3d270831afde8891c60027945ffb
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Mar 17 13:31:15 2024 -0500
+
+    fixed the restriction on allowed moves for npcs
+
+commit 7f8435e95ce13f0090ba5df4fe107f3dd74ee60e
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 14 16:54:06 2024 -0500
+
+    revised and still searching
+
+commit 0ee11e5e237bca785d5866105184f315e756b829
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Mar 14 14:44:19 2024 -0500
+
+    update
+
+commit 2052cc346d90313af466bd16da1da2ab1924054d
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Feb 29 07:04:19 2024 -0600
+
+    readme
+
+commit 565b1ec89e4d3ed9cd6d270abbe36c933e1c739b
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Feb 29 06:59:04 2024 -0600
+
+    stay cost fixed
+
+commit bd7f88d8e5b167e3faf9b139679c2a9a5aa347de
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Feb 29 05:17:47 2024 -0600
+
+    heap node fixed and loop works
+
+commit 563411e3c9ca3e78aa67f687b703fd47b7fe2d13
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Feb 29 02:15:07 2024 -0600
+
+    updating charater's turn, turn comp, character at position, is position valid for npc
+
+commit 70e8890280c44409084fe350aa9a2f92cb43a383
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Feb 29 00:15:11 2024 -0600
+
+    working on the movements and main
+
+commit 278de3fe931d39821ac3eea55cd4b6cda6354f86
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 27 19:41:23 2024 -0600
+
+    numtrainers
+
+commit 43b439c29efeb309f18412c5b477db80040fc015
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 27 19:06:07 2024 -0600
+
+    :       modified:   1.04.c
+            CHANGELOG
+            README
+
+commit 7966f9c3302ecbaace88585c7f13109dba4e853b
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Mon Feb 26 14:16:25 2024 -0600
+
+    started 1.04 code
+
+commit c31289639510098d16fa6c8f726c6f4d92c4ed6c
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 21 20:44:09 2024 -0600
+
+    updated readme
+
+commit d1f143d8c8faaa4fafe6c4cdcff5b1f754aba3c4
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 21 20:27:52 2024 -0600
+
+    dijkstra, heap, heap_node, perlin's noise, faster rand, improved C/M placement. Fantastic.
+
+commit d9ed64a3d104de55ec79754a7e582e9a34508afd
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 21 14:09:32 2024 -0600
+
+    updating makefile
+
+commit a2e598662929a642cbd128d4ece1e31d916ff156
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 20 20:28:35 2024 -0600
+
+    worked on heap
+
+commit 7e7b9848b9032b0f4c81253cb3d625d6096ae23a
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 20 20:02:46 2024 -0600
+
+    worked on dijkstra and heaps
+
+commit d152a43d72dfe2549b2ef5c6605c183276f95277
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 20 15:32:17 2024 -0600
+
+    updated changelog
+
+commit 098850fc6cc6352775b98a9d69737d98b39fb16d
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Mon Feb 19 01:31:50 2024 -0600
+
+    fixed C and M and @ placements
+
+commit e8bc29afa3f216aeb43866816f0e82ae391f790f
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 18 23:06:26 2024 -0600
+
+    worked on createSingleCenterOrMart() and placePlayer(), and path_t. Also started the heap and heap_node
+
+commit ecfded54783bbccb6f8dab7704d31eaf040a1da9
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sat Feb 17 14:53:01 2024 -0600
+
+    placed the @ on map
+
+commit d25aea8e1a73ea8e4260941e96334c13dd57fa0e
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Fri Feb 16 10:44:56 2024 -0600
+
+    added CHANGELOG and Makefile
+
+commit 277a8221fe38dc6e049fd9cf98c713c3057b1643
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Fri Feb 16 10:43:19 2024 -0600
+
+    found an infinite loop and commented it :)) really?? really??????
+
+commit a464f90abc43d617a8a92e57c2bd3fbfa7e67161
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Feb 15 16:49:43 2024 -0600
+
+    deleted 1.03
+    
+            deleted:    iteration1.03/1.03
+
+commit d1b433b8b3c09a17f7a83de10ff0f424de26666c
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Thu Feb 15 16:46:15 2024 -0600
+
+    empty commit
+
+commit 5f3b433773cb81690dd89f7f59aaceaf82bd2b80
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Thu Feb 15 16:31:01 2024 -0600
+
+    setRegionCoordinates() was going out of bounds on regions[]:)))
+
+commit 7cca7537cb2a126b72b7f8a89c5404a92632d91f
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Thu Feb 15 16:03:27 2024 -0600
+
+    assigned the gate properties of the maps
+
+commit 744c1861a7192eb6df21135579bdfe97b9d9dd46
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 13 18:05:58 2024 -0600
+
+    worked
+
+commit d5251e889a5d27dacb862397ccfabee6b7df866a
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 13 16:34:43 2024 -0600
+
+    worked on gates storage
+
+commit 235cc76362c776410e765717dc0185b3bb6a140a
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 13 11:48:33 2024 -0600
+
+    worked on optimality of gates searching by saving them in arrays
+
+commit c2d8e23e38d7def5f8207237c79ec3f49170c652
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 13 08:49:36 2024 -0600
+
+    added the paths x and y to their  corresponding arrays
+
+commit 91b92ee880d395cf80a17ea750e03ad932fa376e
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Tue Feb 13 08:39:43 2024 -0600
+
+    renamed world and map
+
+commit 36aa596e0fa7b5ed5856f885153149db00e7657f
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 13 08:36:54 2024 -0600
+
+    created a placePlayer function
+
+commit 9bddb988b1d82acc042bb4a11b47eaae0734415d
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 13 07:21:27 2024 -0600
+
+    worked more on the pointers and free, added gates to map struct
+
+commit 75ced95d8f6e07e47b5029783a45f1697e03793c
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Feb 12 21:54:42 2024 -0600
+
+    sl working
+
+commit eee8320eee1ad73294e8017dbaf79c8f2354b262
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Feb 12 21:02:15 2024 -0600
+
+    saving
+
+commit 8f80f794fa97ea834eda7fa51f4c339445f6a0a7
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Feb 12 20:25:39 2024 -0600
+
+    fixed the map pointers and free function
+
+commit ce0bb47e504f9639e1338ee7b29791d76d5ff6d1
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Feb 12 19:14:14 2024 -0600
+
+    working
+
+commit b0967b6564bf94b98d0ba336788c717fa6c9387d
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Feb 12 15:50:53 2024 -0600
+
+    refactoring maps and world
+
+commit e6f1fd705114ba5b89ef526689d7ac10023c107e
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Feb 12 15:18:30 2024 -0600
+
+    changed maps
+
+commit 4df456fc85166648c63981e73b9f97b0a770d4f3
+Merge: 53ccc3e 95614ad
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Feb 12 15:17:10 2024 -0600
+
+    Merge remote-tracking branch 'refs/remotes/origin/main'
+
+commit 53ccc3e5ca0a1f97446b7610215a9ada34d678e3
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Feb 12 14:54:18 2024 -0600
+
+    test
+
+commit b60e094c4b6c5799ec2014a2b3d19d113e1416bc
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Feb 12 14:52:44 2024 -0600
+
+    refactoring of map and world started
+
+commit febeea36279283a1c874aadc4cba1f9854b9a7de
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Feb 12 14:52:20 2024 -0600
+
+    deleted comments
+
+commit 95614ad85db91100137c6fb04b58c73a46dca0ff
+Merge: 3b56e02 cee4de8
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Sun Feb 11 18:37:06 2024 -0600
+
+    Merge branch 'main' of github.com:autrin/Pokeman
+
+commit cee4de80abad2e33fd351fc55e9695ea27d543dc
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 11 18:32:58 2024 -0600
+
+    added 1.02 for 1.03 to start
+
+commit 3b56e02453957b620a5ab93288531036c7a74352
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Thu Feb 8 10:25:14 2024 -0600
+
+    deleted the comment that was not used anymore
+
+commit 9ee4d6656ecc3d67082f5509376ed4b6b83ed476
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 7 22:51:31 2024 -0600
+
+    readme and makefile
+
+commit ca31bf2d15d1a28212a7079d4ef2f9136e70ac80
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 7 22:37:25 2024 -0600
+
+    changelog
+
+commit 46ae402533a4dace7e5057bc29871ad022c7851d
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 7 22:36:59 2024 -0600
+
+    feeling like a c programmer
+
+commit f12c43e1968fadeda61f34a6b1708095759b52cd
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 7 21:04:06 2024 -0600
+
+    changelog
+
+commit a8dd123ba3a3816b56cf62ad89d44f60d877946d
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 7 21:03:31 2024 -0600
+
+    the gates match now. this is done by newMapCaller() and createPath()
+
+commit bb570806337dbeb02a4d0abb6c0dcf07bcc22e8d
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 7 15:18:42 2024 -0600
+
+    moved map initialization to main to use it for gate keeping
+
+commit 4a4f7097fa3dad1693c44a7e1a76781b23f0519c
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Wed Feb 7 14:31:21 2024 -0600
+
+    worked on main
+
+commit 21e917aed1f81c0f86a38e864b2c5eb89f782f34
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 6 21:13:22 2024 -0600
+
+            modified:   iteration1.02/CHANGELOG
+
+commit 994f4b4b0c912a07c38aa3a162265f594ea7ce75
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 6 21:12:27 2024 -0600
+
+    completed fly()
+
+commit 97840582e4cc55ef09dde1fb0c6b5f47366989f7
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 6 20:50:40 2024 -0600
+
+    updated changelog
+
+commit fd33fb3089c6528dd2352f09e8e3e9de1942e2ee
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 6 20:50:07 2024 -0600
+
+    successfully assigned map to world.world, added free functions, fixed the main while loop, changed all the function parameters
+
+commit c1ca1cce703a344f6c2e8ace54d0574e3086015e
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 6 19:49:32 2024 -0600
+
+    saving this version of assigning map to world.world for reference
+
+commit 8ae865f3dfc47a4d7d1ad26f8d6ca11a718c2944
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Tue Feb 6 17:03:37 2024 -0600
+
+    changed all of the maps to world.curMap and deleted the world function parameters
+
+commit dcac12ebab635051482d9e5ecd6c3a92a35d3ddd
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Mon Feb 5 19:15:27 2024 -0600
+
+    worked on createPaths and newMapCaller. Error still exists in newMapCaller
+
+commit 1fc35cdde17046c33b43eb6d491fc48c7ed08de3
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 4 18:53:29 2024 -0600
+
+            modified:   iteration1.02/CHANGELOG
+
+commit 145df9752e336f7f7809e04fafabaad5d093c99a
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 4 18:53:09 2024 -0600
+
+    fixed the error in main
+
+commit 72a16831104d7a7c01c5f37c49b3b9e92a53ba1a
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 4 18:38:05 2024 -0600
+
+    added the probablity of buildings mand worked on main
+
+commit d0afa16b3fba63bc912ec9732e59237c32c4cc90
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 4 17:08:50 2024 -0600
+
+    chanegd the map to world.cur_map
+
+commit c63571a4e19c71b7666f7c0d827e631c88ebf88c
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 4 17:03:50 2024 -0600
+
+    deleted map_t and used char instead for simplicity
+
+commit c9d7d09fa39d991ecc2447f2e7c941769caad219
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 4 16:58:14 2024 -0600
+
+    added world struct, world_init,
+
+commit a6571908c1d15ed202d0b2d784ee9c43868d3344
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sun Feb 4 13:43:26 2024 -0600
+
+    updated changelog
+
+commit 84a1d704f7dd2d5538435041d70b1fe3bb874334
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sat Feb 3 11:29:01 2024 -0600
+
+            new file:   iteration1.02/CHANGELOG
+            new file:   iteration1.02/README
+
+commit 4af5fc929a95e9cdd3e84fe82512a16f8aaecc3b
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sat Feb 3 11:28:50 2024 -0600
+
+    added while loop for commands, exit arguments to createMap
+
+commit 0d40d833191cf1e5275ba331253fb3a11b686548
+Author: Autrin <ahakimi@iastate.edu>
+Date:   Sat Feb 3 10:35:59 2024 -0600
+
+    added makefile and the 1.02 starting code from 1.01
+
+commit 209dadfa4ab418424b9841df5632e5437fb628e2
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Fri Feb 2 18:35:45 2024 -0600
+
+    separated the iterations
+
+commit 64fdc18a464f1e28a74a51e4e41288b7fb4d545a
+Author: Autrin Hakimi <autrinhakimi@gmail.com>
+Date:   Fri Feb 2 18:32:47 2024 -0600
+
+    Create 1.01.c
+
+commit 3b08cd4c28d029998f3dd2383a902df743c93b62
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Fri Feb 2 17:11:05 2024 -0600
+
+    changed the name of the file
+
+commit 842844576114fb5951fe049db0c0f96ab3a2fa1f
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Thu Feb 1 00:47:47 2024 -0600
+
+            modified:   CHANGELOG
+
+commit 47db55a4918ea91d1b307832d2aa59bad6e8b132
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Thu Feb 1 00:07:44 2024 -0600
+
+    updated the local copy of README
+
+commit a3bf2a07a3db362412708a683bb2b67373e13d93
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 21:20:33 2024 -0600
+
+    added more tall grass and more sprinkling ^ than %
+
+commit dff779f8d26a26e56e61e3a3746b367ed1c17a10
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 20:17:25 2024 -0600
+
+    added a sprinkle function for ^ and %
+
+commit dcfd3153450360bd16e2670af9df25f70a5fa9ff
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 19:55:52 2024 -0600
+
+    Completely randomized the locations of C and M
+
+commit 9e6181bc3c4e1ee8ef2a85c2c10e5a82da8961b6
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 19:19:56 2024 -0600
+
+    added CHANGELOG and README files
+
+commit 457306e999a028227f2613773d27d31f6f50a3f5
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 19:19:14 2024 -0600
+
+    added pokeman centers and pokemarts
+
+commit 1315e99cfb80ea65b474bd26c6ae8d59332700b0
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 12:36:45 2024 -0600
+
+    added random tree and rock
+
+commit ee23d0493cdcfae8ef85d4b680709c148421a918
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 12:27:20 2024 -0600
+
+    changed the randomization process
+
+commit 0771b44d9b5368b0b3f69c644519df7f680b89cc
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 10:17:25 2024 -0600
+
+    fixed the name
+
+commit 3fa02371a0523cfffec5b79b8bd7415d376eee97
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 10:15:07 2024 -0600
+
+    fixed the files
+
+commit 585569b7542003a3f3bd1c9f70c72ef3fa664814
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Wed Jan 31 10:13:56 2024 -0600
+
+    fixed the paths
+
+commit 5d6adfb3b9015dd8659102b8df16403ef23bb810
+Author: Autrin <autrinhakimi@gmail.com>
+Date:   Tue Jan 30 20:20:51 2024 -0600
+
+    added code
