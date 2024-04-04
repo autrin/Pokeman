@@ -482,12 +482,12 @@ void io_teleport_world(pair_t dest)
   do {
     mvprintw(0, 0, "Enter x [-200, 200]:           ");
     refresh();
-    mvscanw(0, 21, "%d", &x);
+    mvscanw(0, 21, const_cast<char*>("%d"), &x);
   } while (x < -200 || x > 200);
   do {
     mvprintw(0, 0, "Enter y [-200, 200]:          ");
     refresh();
-    mvscanw(0, 21, "%d", &y);
+    mvscanw(0, 21, const_cast<char*>("%d"), &y);
   } while (y < -200 || y > 200);
 
   refresh();
