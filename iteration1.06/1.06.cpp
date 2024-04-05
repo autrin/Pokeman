@@ -174,6 +174,7 @@ character* create_character(Position pos, CharacterType type, char symbol) {
     new_char->heap_node = NULL; // Initialize heap_node to NULL
     new_char->lost = 0;
     new_char->changedMove = 0;
+    new_char->direction = rand() % 2;
     return new_char;
 }
 
@@ -1379,6 +1380,7 @@ void freeAllMaps()
             {
                 heap_delete(&world.w[y][x]->event_heap);
                 delete world.w[y][x];
+                // free(world.w[y][x]);
                 world.w[y][x] = NULL;
             }
         }
@@ -1390,8 +1392,8 @@ void newMapCaller(int moveMap)
     if (!world.w[world.y][world.x])
     {
         struct Region regions[NUM_REGIONS];
-        // world.w[world.y][world.x] = (map*)malloc(sizeof(map)); //!
-        world.w[world.y][world.x] = new map;
+        world.w[world.y][world.x] = (map*)malloc(sizeof(map)); //!
+        // world.w[world.y][world.x] = new map;
 
         initializeRegions(regions);
         assignRegions(regions);
@@ -1425,6 +1427,13 @@ void newMapCaller(int moveMap)
         collectValidPositions(world.w[world.y][world.x]);
         // placePlayer(world.w[world.y][world.x]); // place '@' on road, called once bc there is only one player in the world
         world.w[world.y][world.x]->npc_count = 0;
+         for (int y = 0; y < MAP_HEIGHT; y++)
+  {
+    for (int x = 0; x < MAP_WIDTH; x++)
+    {
+      world.w[world.y][world.x]->npcs[y][x] = NULL;
+    }
+  }
         heap_init(&world.w[world.y][world.x]->event_heap, characters_turn_comp, NULL);
         dijkstra(world.w[world.y][world.x]);
         if (world.y == WORLD_HEIGHT / 2 && world.x == WORLD_WIDTH / 2) {
@@ -1801,7 +1810,6 @@ void get_input(Position* pos) {
         case 'Q':
             pos->y = world.pc.y;
             pos->x = world.pc.x;
-            out = 0;
             quit = 1;
             break;
         default:
