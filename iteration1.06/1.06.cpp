@@ -1394,7 +1394,6 @@ void newMapCaller(int moveMap)
         struct Region regions[NUM_REGIONS];
         world.w[world.y][world.x] = (map*)malloc(sizeof(map)); //!
         // world.w[world.y][world.x] = new map;
-
         initializeRegions(regions);
         assignRegions(regions);
         setRegionCoordinates(regions);
@@ -1427,13 +1426,13 @@ void newMapCaller(int moveMap)
         collectValidPositions(world.w[world.y][world.x]);
         // placePlayer(world.w[world.y][world.x]); // place '@' on road, called once bc there is only one player in the world
         world.w[world.y][world.x]->npc_count = 0;
-         for (int y = 0; y < MAP_HEIGHT; y++)
-  {
-    for (int x = 0; x < MAP_WIDTH; x++)
-    {
-      world.w[world.y][world.x]->npcs[y][x] = NULL;
-    }
-  }
+        for (int y = 0; y < MAP_HEIGHT; y++)
+        {
+            for (int x = 0; x < MAP_WIDTH; x++)
+            {
+                world.w[world.y][world.x]->npcs[y][x] = NULL;
+            }
+        }
         heap_init(&world.w[world.y][world.x]->event_heap, characters_turn_comp, NULL);
         dijkstra(world.w[world.y][world.x]);
         if (world.y == WORLD_HEIGHT / 2 && world.x == WORLD_WIDTH / 2) {
