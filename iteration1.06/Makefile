@@ -9,8 +9,8 @@ CXXFLAGS = -Wall -Werror -ggdb -funroll-loops -DTERM=$(TERM)
 
 LDFLAGS = -lm -lncurses
 
-BIN = 1.06
-OBJS = 1.06.o heap.o
+BIN = character
+OBJS = character.o heap.o map.o
 
 all: $(BIN) etags
 
