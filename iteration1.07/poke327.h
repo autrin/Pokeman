@@ -148,7 +148,7 @@ public:
   virtual ~CsvFile() {}
 };
 
-class Pokemon : public CsvFile
+class Pokemon_csv : public CsvFile
 {
 private:
   int id;
@@ -161,8 +161,8 @@ private:
   int is_default;
 
 public:
-  Pokemon() : id(0), species_id(0), height(0), weight(0), base_experience(0), order(0), is_default(0) {}
-  Pokemon(int id, std::string identifier, int species_id, int height, int weight, int base_experience, int order, int is_default) : id(id), identifier(identifier), species_id(species_id),
+  Pokemon_csv() : id(0), species_id(0), height(0), weight(0), base_experience(0), order(0), is_default(0) {}
+  Pokemon_csv(int id, std::string identifier, int species_id, int height, int weight, int base_experience, int order, int is_default) : id(id), identifier(identifier), species_id(species_id),
                                                                                                                                     height(height), weight(weight), base_experience(base_experience), order(order), is_default(is_default) {}
   // void setId(int val) { id = val; }
   // void setIdentifier(const std::string& val) { identifier = val; }
@@ -1180,7 +1180,7 @@ public:
     // Determine type and parse accordingly
     if (typeName == "pokemon")
     {
-      auto pokemon = std::make_unique<Pokemon>();
+      auto pokemon = std::make_unique<Pokemon_csv>();
       pokemon->parseFile(filename);
       return pokemon;
     }
