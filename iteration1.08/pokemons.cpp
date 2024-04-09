@@ -21,7 +21,7 @@
 #include "pokemons.h"
 
 Pokemons::Pokemons() : level(0), shiny(0) {}
-Pokemons::Pokemons(int level, int shiny) : level(level), shiny(shiny){}
+Pokemons::Pokemons(int level, int shiny) : level(init_level()), shiny(shiny){}
 
 void Pokemons::levelUp() const
 {
