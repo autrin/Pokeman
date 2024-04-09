@@ -21,15 +21,17 @@
 #include "pokemons.h"
 
 Pokemons::Pokemons() : level(0), shiny(0) {}
-Pokemons::Pokemons(int level, int shiny) : level(init_level()), shiny(shiny){}
-
+Pokemons::Pokemons(int level, bool shiny) : level(init_level()), shiny(is_shiny()) {}
+bool is_shiny()
+{
+    return rand() % 8192 == 0;
+}
 void Pokemons::levelUp() const
 {
-    
 }
 int Pokemons::init_level() const // *TEST this
 {
-    if(world.cur_idx[dim_x] - WORLD_SIZE / 2 + world.cur_idx[dim_y] - WORLD_SIZE / 2 <= 200)
+    if (world.cur_idx[dim_x] - WORLD_SIZE / 2 + world.cur_idx[dim_y] - WORLD_SIZE / 2 <= 200)
     {
         return 1 + abs((world.cur_idx[dim_x] - WORLD_SIZE / 2) + abs(world.cur_idx[dim_y] - WORLD_SIZE / 2)) / 2;
     }
@@ -38,4 +40,3 @@ int Pokemons::init_level() const // *TEST this
         return (world.cur_idx[dim_x] - WORLD_SIZE / 2 + world.cur_idx[dim_y] - WORLD_SIZE / 2 - 200) / 2;
     }
 }
-

@@ -24,12 +24,12 @@ class Pokemons
 {
 private:
     int level;
-    int shiny;
+    bool shiny;
     int IV;
 
 public:
     Pokemons();
-    Pokemons(int level, int shiny);
+    Pokemons(int level, bool shiny);
     ~Pokemons();
     void levelUp() const;
     int init_level() const;
