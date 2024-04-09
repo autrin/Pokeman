@@ -13,12 +13,24 @@
 #include <string>
 #include <functional>
 #include <iostream>
-
+#include <cstdlib>
+#include <vector>
 #include "heap.h"
 #include "poke327.h"
 #include "character.h"
 #include "io.h"
 using namespace std;
+
+std::vector<std::vector<std::string>> CsvFile::moves_data;
+std::vector<std::vector<std::string>> CsvFile::pokemon_data;
+std::vector<std::vector<std::string>> CsvFile::pokemon_stats_data;
+std::vector<std::vector<std::string>> CsvFile::type_names_data;
+std::vector<std::vector<std::string>> CsvFile::experience_data;
+std::vector<std::vector<std::string>> CsvFile::pokemon_species_data;
+std::vector<std::vector<std::string>> CsvFile::stats_data;
+std::vector<std::vector<std::string>> CsvFile::pokemon_types_data;
+std::vector<std::vector<std::string>> CsvFile::pokemon_moves_data;
+
 typedef struct queue_node
 {
     int x, y;
@@ -1404,11 +1416,14 @@ int main(int argc, char* argv[])
     printf("Using seed: %u\n", seed);
     srand(seed);
     
+
+
     std::string csvType = argv[1];
     std::string csvFile = csvType + ".csv";
     CsvFileFactory factory;
     std::unique_ptr<CsvFile> f = factory.createFromFile(csvType, csvFile);
-    f->print();
+
+    return 0;
     io_init_terminal();
 
     init_world();

@@ -156,7 +156,7 @@ public:
 
     virtual std::vector<std::vector<std::string>> parseFile(const std::string &filename) = 0;
     virtual ~CsvFile() {}
-    virtual void print() const = 0;
+    // virtual void print() const = 0;
 };
 
 class Pokemon_csv : public CsvFile
@@ -258,19 +258,16 @@ public:
                 data.push_back(tokens);
             }
         }
+        // std::cout << "ID: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
+        //           << "Identifier: " << getIdentifier() << ", "
+        //           << "Species ID: " << (getSpeciesId() != INT_MAX ? std::to_string(getSpeciesId()) : "") << ", "
+        //           << "Height: " << (getHeight() != INT_MAX ? std::to_string(getHeight()) : "") << ", "
+        //           << "Weight: " << (getWeight() != INT_MAX ? std::to_string(getWeight()) : "") << ", "
+        //           << "Base Experience: " << (getBaseExperience() != INT_MAX ? std::to_string(getBaseExperience()) : "") << ", "
+        //           << "Order: " << (getOrder() != INT_MAX ? std::to_string(getOrder()) : "") << ", "
+        //           << "Is Default: " << (getIsDefault() != INT_MAX ? std::to_string(getIsDefault()) : "") << std::endl;
         file.close();
         return data;
-    }
-    void print() const override
-    {
-        std::cout << "ID: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
-                  << "Identifier: " << getIdentifier() << ", "
-                  << "Species ID: " << (getSpeciesId() != INT_MAX ? std::to_string(getSpeciesId()) : "") << ", "
-                  << "Height: " << (getHeight() != INT_MAX ? std::to_string(getHeight()) : "") << ", "
-                  << "Weight: " << (getWeight() != INT_MAX ? std::to_string(getWeight()) : "") << ", "
-                  << "Base Experience: " << (getBaseExperience() != INT_MAX ? std::to_string(getBaseExperience()) : "") << ", "
-                  << "Order: " << (getOrder() != INT_MAX ? std::to_string(getOrder()) : "") << ", "
-                  << "Is Default: " << (getIsDefault() != INT_MAX ? std::to_string(getIsDefault()) : "") << std::endl;
     }
 };
 
@@ -367,17 +364,15 @@ public:
                 data.push_back(tokens);
             }
         }
+// std::cout << "ID: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
+//                   << "Damage Class ID: " << (getDamageClassId() != INT_MAX ? std::to_string(getDamageClassId()) : "") << ", "
+//                   << "Identifier: " << getIdentifier() << ", "
+//                   << "Is Battle Only: " << (getIsBattleOnly() != INT_MAX ? std::to_string(getIsBattleOnly()) : "") << ", "
+//                   << "Game Index: " << (getGameIndex() != INT_MAX ? std::to_string(getGameIndex()) : "") << std::endl;
         file.close();
         return data;
     }
-    void print() const override
-    {
-        std::cout << "ID: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
-                  << "Damage Class ID: " << (getDamageClassId() != INT_MAX ? std::to_string(getDamageClassId()) : "") << ", "
-                  << "Identifier: " << getIdentifier() << ", "
-                  << "Is Battle Only: " << (getIsBattleOnly() != INT_MAX ? std::to_string(getIsBattleOnly()) : "") << ", "
-                  << "Game Index: " << (getGameIndex() != INT_MAX ? std::to_string(getGameIndex()) : "") << std::endl;
-    }
+
 };
 
 class pokemon_stats : public CsvFile
@@ -474,17 +469,15 @@ public:
                 data.push_back(tokens);
             }
         }
+
+        // std::cout << "Pokemon ID: " << (getPokemonId() != INT_MAX ? std::to_string(getPokemonId()) : "") << ", "
+        //           << "Stat ID: " << (getStatId() != INT_MAX ? std::to_string(getStatId()) : "") << ", "
+        //           << "Base Stat: " << (getBaseStat() != INT_MAX ? std::to_string(getBaseStat()) : "") << ", "
+        //           << "Effort: " << (getEffort() != INT_MAX ? std::to_string(getEffort()) : "") << std::endl;
         file.close();
         return data;
     }
-    void print() const override
-    {
-
-        std::cout << "Pokemon ID: " << (getPokemonId() != INT_MAX ? std::to_string(getPokemonId()) : "") << ", "
-                  << "Stat ID: " << (getStatId() != INT_MAX ? std::to_string(getStatId()) : "") << ", "
-                  << "Base Stat: " << (getBaseStat() != INT_MAX ? std::to_string(getBaseStat()) : "") << ", "
-                  << "Effort: " << (getEffort() != INT_MAX ? std::to_string(getEffort()) : "") << std::endl;
-    }
+    
 };
 
 class type_names : public CsvFile
@@ -568,15 +561,13 @@ public:
                 data.push_back(tokens);
             }
         }
+        //  std::cout << "Type ID: " << (getTypeId() != INT_MAX ? std::to_string(getTypeId()) : "") << ", "
+        //           << "Local Language ID: " << (getLocalLanguageId() != INT_MAX ? std::to_string(getLocalLanguageId()) : "") << ", "
+        //           << "Name: " << getName() << std::endl;
         file.close();
         return data;
     }
-    void print() const override
-    {
-        std::cout << "Type ID: " << (getTypeId() != INT_MAX ? std::to_string(getTypeId()) : "") << ", "
-                  << "Local Language ID: " << (getLocalLanguageId() != INT_MAX ? std::to_string(getLocalLanguageId()) : "") << ", "
-                  << "Name: " << getName() << std::endl;
-    }
+
 };
 
 class Experience : public CsvFile
@@ -661,16 +652,13 @@ public:
                 data.push_back(tokens);
             }
         }
+        //  std::cout << "Growth Rate ID: " << (getGrowthRateId() != INT_MAX ? std::to_string(getGrowthRateId()) : "") << ", "
+        //           << "Level: " << (getLevel() != INT_MAX ? std::to_string(getLevel()) : "") << ", "
+        //           << "Experience: " << (getExperience() != INT_MAX ? std::to_string(getExperience()) : "") << std::endl;
         file.close();
         return data;
     }
-    void print() const override
-    {
 
-        std::cout << "Growth Rate ID: " << (getGrowthRateId() != INT_MAX ? std::to_string(getGrowthRateId()) : "") << ", "
-                  << "Level: " << (getLevel() != INT_MAX ? std::to_string(getLevel()) : "") << ", "
-                  << "Experience: " << (getExperience() != INT_MAX ? std::to_string(getExperience()) : "") << std::endl;
-    }
 };
 
 class pokemon_species : public CsvFile
@@ -847,34 +835,31 @@ public:
                 data.push_back(tokens);
             }
         }
+        //  std::cout << "id: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
+        //           << "identifier: " << getIdentifier() << ", "
+        //           << "generation_id: " << (getGenerationId() != INT_MAX ? std::to_string(getGenerationId()) : "") << ", "
+        //           << "evolves_from_species_id: " << (getEvolvesFromSpeciesId() != INT_MAX ? std::to_string(getEvolvesFromSpeciesId()) : "") << ", "
+        //           << "evolution_chain_id: " << (getEvolutionChainId() != INT_MAX ? std::to_string(getEvolutionChainId()) : "") << ", "
+        //           << "color_id: " << (getColorId() != INT_MAX ? std::to_string(getColorId()) : "") << ", "
+        //           << "shape_id: " << (getShapeId() != INT_MAX ? std::to_string(getShapeId()) : "") << ", "
+        //           << "habitat_id: " << (getHabitatId() != INT_MAX ? std::to_string(getHabitatId()) : "") << ", "
+        //           << "gender_rate: " << (getGenderRate() != INT_MAX ? std::to_string(getGenderRate()) : "") << ", "
+        //           << "capture_rate: " << (getCaptureRate() != INT_MAX ? std::to_string(getCaptureRate()) : "") << ", "
+        //           << "base_happiness: " << (getBaseHappiness() != INT_MAX ? std::to_string(getBaseHappiness()) : "") << ", "
+        //           << "is_baby: " << (getIsBaby() != INT_MAX ? std::to_string(getIsBaby()) : "") << ", "
+        //           << "hatch_counter: " << (getHatchCounter() != INT_MAX ? std::to_string(getHatchCounter()) : "") << ", "
+        //           << "has_gender_differences: " << (getHasGenderDifferences() != INT_MAX ? std::to_string(getHasGenderDifferences()) : "") << ", "
+        //           << "growth_rate_id: " << (getGrowthRateId() != INT_MAX ? std::to_string(getGrowthRateId()) : "") << ", "
+        //           << "forms_switchable: " << (getFormsSwitchable() != INT_MAX ? std::to_string(getFormsSwitchable()) : "") << ", "
+        //           << "is_legendary: " << (getIsLegendary() != INT_MAX ? std::to_string(getIsLegendary()) : "") << ", "
+        //           << "is_mythical: " << (getIsMythical() != INT_MAX ? std::to_string(getIsMythical()) : "") << ", "
+        //           << "order: " << (getOrder() != INT_MAX ? std::to_string(getOrder()) : "") << ", "
+        //           << "conquest_order: " << (getConquestOrder() != INT_MAX ? std::to_string(getConquestOrder()) : "")
+        //           << std::endl;
         file.close();
         return data;
     }
-    void print() const override
-    {
 
-        std::cout << "id: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
-                  << "identifier: " << getIdentifier() << ", "
-                  << "generation_id: " << (getGenerationId() != INT_MAX ? std::to_string(getGenerationId()) : "") << ", "
-                  << "evolves_from_species_id: " << (getEvolvesFromSpeciesId() != INT_MAX ? std::to_string(getEvolvesFromSpeciesId()) : "") << ", "
-                  << "evolution_chain_id: " << (getEvolutionChainId() != INT_MAX ? std::to_string(getEvolutionChainId()) : "") << ", "
-                  << "color_id: " << (getColorId() != INT_MAX ? std::to_string(getColorId()) : "") << ", "
-                  << "shape_id: " << (getShapeId() != INT_MAX ? std::to_string(getShapeId()) : "") << ", "
-                  << "habitat_id: " << (getHabitatId() != INT_MAX ? std::to_string(getHabitatId()) : "") << ", "
-                  << "gender_rate: " << (getGenderRate() != INT_MAX ? std::to_string(getGenderRate()) : "") << ", "
-                  << "capture_rate: " << (getCaptureRate() != INT_MAX ? std::to_string(getCaptureRate()) : "") << ", "
-                  << "base_happiness: " << (getBaseHappiness() != INT_MAX ? std::to_string(getBaseHappiness()) : "") << ", "
-                  << "is_baby: " << (getIsBaby() != INT_MAX ? std::to_string(getIsBaby()) : "") << ", "
-                  << "hatch_counter: " << (getHatchCounter() != INT_MAX ? std::to_string(getHatchCounter()) : "") << ", "
-                  << "has_gender_differences: " << (getHasGenderDifferences() != INT_MAX ? std::to_string(getHasGenderDifferences()) : "") << ", "
-                  << "growth_rate_id: " << (getGrowthRateId() != INT_MAX ? std::to_string(getGrowthRateId()) : "") << ", "
-                  << "forms_switchable: " << (getFormsSwitchable() != INT_MAX ? std::to_string(getFormsSwitchable()) : "") << ", "
-                  << "is_legendary: " << (getIsLegendary() != INT_MAX ? std::to_string(getIsLegendary()) : "") << ", "
-                  << "is_mythical: " << (getIsMythical() != INT_MAX ? std::to_string(getIsMythical()) : "") << ", "
-                  << "order: " << (getOrder() != INT_MAX ? std::to_string(getOrder()) : "") << ", "
-                  << "conquest_order: " << (getConquestOrder() != INT_MAX ? std::to_string(getConquestOrder()) : "")
-                  << std::endl;
-    }
 };
 
 class pokemon_moves : public CsvFile
@@ -967,19 +952,17 @@ public:
                 data.push_back(tokens);
             }
         }
+                // std::cout << "pokemon Id: " << (getPokemonId() != INT_MAX ? std::to_string(getPokemonId()) : "") << ", "
+                //   << "Version Group Id: " << (getVersionGroupId() != INT_MAX ? std::to_string(getVersionGroupId()) : "") << ", "
+                //   << "Move Id: " << (getMoveId() != INT_MAX ? std::to_string(getMoveId()) : "") << ", "
+                //   << "pokemon_move_method_id: " << (getPokemonMoveMethodId() != INT_MAX ? std::to_string(getPokemonMoveMethodId()) : "") << ", "
+                //   << "level: " << (getLevel() != INT_MAX ? std::to_string(getLevel()) : "") << ", "
+                //   << "order: " << (getOrder() != INT_MAX ? std::to_string(getOrder()) : "")
+                //   << std::endl;
         file.close();
         return data;
     }
-    void print() const override
-    {
-        std::cout << "pokemon Id: " << (getPokemonId() != INT_MAX ? std::to_string(getPokemonId()) : "") << ", "
-                  << "Version Group Id: " << (getVersionGroupId() != INT_MAX ? std::to_string(getVersionGroupId()) : "") << ", "
-                  << "Move Id: " << (getMoveId() != INT_MAX ? std::to_string(getMoveId()) : "") << ", "
-                  << "pokemon_move_method_id: " << (getPokemonMoveMethodId() != INT_MAX ? std::to_string(getPokemonMoveMethodId()) : "") << ", "
-                  << "level: " << (getLevel() != INT_MAX ? std::to_string(getLevel()) : "") << ", "
-                  << "order: " << (getOrder() != INT_MAX ? std::to_string(getOrder()) : "")
-                  << std::endl;
-    }
+
 };
 
 class moves : public CsvFile
@@ -1115,28 +1098,26 @@ public:
                 data.push_back(tokens);
             }
         }
+                // std::cout << "ID: " << (id != INT_MAX ? std::to_string(id) : "") << ", "
+                //   << "Identifier: " << identifier << ", "
+                //   << "Generation ID: " << (generation_id != INT_MAX ? std::to_string(generation_id) : "") << ", "
+                //   << "Type ID: " << (type_id != INT_MAX ? std::to_string(type_id) : "") << ", "
+                //   << "Power: " << (power != INT_MAX ? std::to_string(power) : "") << ", "
+                //   << "PP: " << (pp != INT_MAX ? std::to_string(pp) : "") << ", "
+                //   << "Accuracy: " << (accuracy != INT_MAX ? std::to_string(accuracy) : "") << ", "
+                //   << "Priority: " << (priority != INT_MAX ? std::to_string(priority) : "") << ", "
+                //   << "Target ID: " << (target_id != INT_MAX ? std::to_string(target_id) : "") << ", "
+                //   << "Damage Class ID: " << (damage_class_id != INT_MAX ? std::to_string(damage_class_id) : "") << ", "
+                //   << "Effect ID: " << (effect_id != INT_MAX ? std::to_string(effect_id) : "") << ", "
+                //   << "Effect Chance: " << (effect_chance != INT_MAX ? std::to_string(effect_chance) : "") << ", "
+                //   << "Contest Type ID: " << (contest_type_id != INT_MAX ? std::to_string(contest_type_id) : "") << ", "
+                //   << "Contest Effect ID: " << (contest_effect_id != INT_MAX ? std::to_string(contest_effect_id) : "") << ", "
+                //   << "Super Contest Effect ID: " << (super_contest_effect_id != INT_MAX ? std::to_string(super_contest_effect_id) : "")
+                //   << std::endl;
         file.close();
         return data;
     }
-    void print() const override
-    {
-        std::cout << "ID: " << (id != INT_MAX ? std::to_string(id) : "") << ", "
-                  << "Identifier: " << identifier << ", "
-                  << "Generation ID: " << (generation_id != INT_MAX ? std::to_string(generation_id) : "") << ", "
-                  << "Type ID: " << (type_id != INT_MAX ? std::to_string(type_id) : "") << ", "
-                  << "Power: " << (power != INT_MAX ? std::to_string(power) : "") << ", "
-                  << "PP: " << (pp != INT_MAX ? std::to_string(pp) : "") << ", "
-                  << "Accuracy: " << (accuracy != INT_MAX ? std::to_string(accuracy) : "") << ", "
-                  << "Priority: " << (priority != INT_MAX ? std::to_string(priority) : "") << ", "
-                  << "Target ID: " << (target_id != INT_MAX ? std::to_string(target_id) : "") << ", "
-                  << "Damage Class ID: " << (damage_class_id != INT_MAX ? std::to_string(damage_class_id) : "") << ", "
-                  << "Effect ID: " << (effect_id != INT_MAX ? std::to_string(effect_id) : "") << ", "
-                  << "Effect Chance: " << (effect_chance != INT_MAX ? std::to_string(effect_chance) : "") << ", "
-                  << "Contest Type ID: " << (contest_type_id != INT_MAX ? std::to_string(contest_type_id) : "") << ", "
-                  << "Contest Effect ID: " << (contest_effect_id != INT_MAX ? std::to_string(contest_effect_id) : "") << ", "
-                  << "Super Contest Effect ID: " << (super_contest_effect_id != INT_MAX ? std::to_string(super_contest_effect_id) : "")
-                  << std::endl;
-    }
+
 };
 class pokemon_types : public CsvFile
 {
@@ -1217,27 +1198,14 @@ public:
                 data.push_back(tokens);
             }
         }
+                // std::cout << "pokemon ID: " << (pokemon_id != INT_MAX ? std::to_string(pokemon_id) : "") << ", "
+                //   << "Type ID: " << (type_id != INT_MAX ? std::to_string(type_id) : "") << ", "
+                //   << "Slot: " << (slot != INT_MAX ? std::to_string(slot) : "")
+                //   << std::endl;
         file.close();
         return data;
     }
-    void print() const override
-    {
-        std::cout << "pokemon ID: " << (pokemon_id != INT_MAX ? std::to_string(pokemon_id) : "") << ", "
-                  << "Type ID: " << (type_id != INT_MAX ? std::to_string(type_id) : "") << ", "
-                  << "Slot: " << (slot != INT_MAX ? std::to_string(slot) : "")
-                  << std::endl;
-    }
 };
-
-std::vector<std::vector<std::string>> CsvFile::moves_data;
-std::vector<std::vector<std::string>> CsvFile::pokemon_data;
-std::vector<std::vector<std::string>> CsvFile::pokemon_stats_data;
-std::vector<std::vector<std::string>> CsvFile::type_names_data;
-std::vector<std::vector<std::string>> CsvFile::experience_data;
-std::vector<std::vector<std::string>> CsvFile::pokemon_species_data;
-std::vector<std::vector<std::string>> CsvFile::stats_data;
-std::vector<std::vector<std::string>> CsvFile::pokemon_types_data;
-std::vector<std::vector<std::string>> CsvFile::pokemon_moves_data;
 
 // Factory
 class CsvFileFactory
