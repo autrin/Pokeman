@@ -26,7 +26,7 @@ private:
     int level;
     bool shiny;
     int IV;
-
+    char *gender;
 public:
     Pokemons();
     Pokemons(int level, bool shiny);

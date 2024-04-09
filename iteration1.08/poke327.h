@@ -144,9 +144,19 @@ typedef struct path
 class CsvFile
 {
 public:
+    static std::vector<std::vector<std::string>> pokemon_data;
+    static std::vector<std::vector<std::string>> pokemon_stats_data;
+    static std::vector<std::vector<std::string>> type_names_data;
+    static std::vector<std::vector<std::string>> experience_data;
+    static std::vector<std::vector<std::string>> pokemon_species_data;
+    static std::vector<std::vector<std::string>> stats_data;
+    static std::vector<std::vector<std::string>> pokemon_types_data;
+    static std::vector<std::vector<std::string>> pokemon_moves_data;
+    static std::vector<std::vector<std::string>> moves_data;
+
     virtual std::vector<std::vector<std::string>> parseFile(const std::string &filename) = 0;
     virtual ~CsvFile() {}
-    virtual void print() = 0;
+    virtual void print() const = 0;
 };
 
 class Pokemon_csv : public CsvFile
@@ -183,7 +193,7 @@ public:
     int getOrder() const { return order; }
     int getIsDefault() const { return is_default; }
 
-    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath)
+    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath) override
     {
         std::vector<std::string> basePaths = {
             "/share/cs327/pokedex/pokedex/data/csv/",
@@ -251,7 +261,7 @@ public:
         file.close();
         return data;
     }
-    void print() 
+    void print() const override
     {
         std::cout << "ID: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
                   << "Identifier: " << getIdentifier() << ", "
@@ -295,7 +305,7 @@ public:
     // void setIsBattleOnly(int newIsBattleOnly) { isBattleOnly = newIsBattleOnly; }
     // void setGameIndex(int newGameIndex) { gameIndex = newGameIndex; }
 
-    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath)
+    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath) override
     {
         std::vector<std::string> basePaths = {
             "/share/cs327/pokedex/pokedex/data/csv/",
@@ -360,7 +370,7 @@ public:
         file.close();
         return data;
     }
-    void print() 
+    void print() const override
     {
         std::cout << "ID: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
                   << "Damage Class ID: " << (getDamageClassId() != INT_MAX ? std::to_string(getDamageClassId()) : "") << ", "
@@ -404,7 +414,7 @@ public:
     {
         return effort;
     }
-    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath)
+    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath) override
     {
         std::vector<std::string> basePaths = {
             "/share/cs327/pokedex/pokedex/data/csv/",
@@ -467,7 +477,7 @@ public:
         file.close();
         return data;
     }
-    void print() 
+    void print() const override
     {
 
         std::cout << "Pokemon ID: " << (getPokemonId() != INT_MAX ? std::to_string(getPokemonId()) : "") << ", "
@@ -499,7 +509,7 @@ public:
     int getLocalLanguageId() const { return local_language_id; }
     std::string getName() const { return name; }
 
-    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath)
+    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath) override
     {
         std::vector<std::string> basePaths = {
             "/share/cs327/pokedex/pokedex/data/csv/",
@@ -561,7 +571,7 @@ public:
         file.close();
         return data;
     }
-    void print() 
+    void print() const override
     {
         std::cout << "Type ID: " << (getTypeId() != INT_MAX ? std::to_string(getTypeId()) : "") << ", "
                   << "Local Language ID: " << (getLocalLanguageId() != INT_MAX ? std::to_string(getLocalLanguageId()) : "") << ", "
@@ -592,7 +602,7 @@ public:
     int getLevel() const { return level; }
     int getExperience() const { return experience; }
 
-    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath)
+    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath) override
     {
         std::vector<std::string> basePaths = {
             "/share/cs327/pokedex/pokedex/data/csv/",
@@ -654,7 +664,7 @@ public:
         file.close();
         return data;
     }
-    void print() 
+    void print() const override
     {
 
         std::cout << "Growth Rate ID: " << (getGrowthRateId() != INT_MAX ? std::to_string(getGrowthRateId()) : "") << ", "
@@ -762,7 +772,7 @@ public:
     // void setOrder(int value) { order = value; }
     // void setConquestOrder(int value) { conquest_order = value; }
 
-    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath)
+    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath) override
     {
         std::vector<std::string> basePaths = {
             "/share/cs327/pokedex/pokedex/data/csv/",
@@ -840,7 +850,7 @@ public:
         file.close();
         return data;
     }
-    void print() 
+    void print() const override
     {
 
         std::cout << "id: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
@@ -894,7 +904,7 @@ public:
     int getLevel() const { return level; }
     int getOrder() const { return order; }
 
-    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath)
+    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath) override
     {
         std::vector<std::string> basePaths = {
             "/share/cs327/pokedex/pokedex/data/csv/",
@@ -960,7 +970,7 @@ public:
         file.close();
         return data;
     }
-    void print() 
+    void print() const override
     {
         std::cout << "pokemon Id: " << (getPokemonId() != INT_MAX ? std::to_string(getPokemonId()) : "") << ", "
                   << "Version Group Id: " << (getVersionGroupId() != INT_MAX ? std::to_string(getVersionGroupId()) : "") << ", "
@@ -1036,7 +1046,7 @@ public:
     int getContest_effect_id() const { return contest_effect_id; }
     int getSuper_contest_effect_id() const { return super_contest_effect_id; }
 
-    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath)
+    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath) override
     {
         std::vector<std::string> basePaths = {
             "/share/cs327/pokedex/pokedex/data/csv/",
@@ -1108,7 +1118,7 @@ public:
         file.close();
         return data;
     }
-    void print() 
+    void print() const override
     {
         std::cout << "ID: " << (id != INT_MAX ? std::to_string(id) : "") << ", "
                   << "Identifier: " << identifier << ", "
@@ -1150,7 +1160,7 @@ public:
     int getTypeId() const { return type_id; }
     int getSlot() const { return slot; }
 
-    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath)
+    std::vector<std::vector<std::string>> parseFile(const std::string &relativePath) override
     {
         std::vector<std::string> basePaths = {
             "/share/cs327/pokedex/pokedex/data/csv/",
@@ -1210,15 +1220,24 @@ public:
         file.close();
         return data;
     }
-    void print() 
+    void print() const override
     {
-
         std::cout << "pokemon ID: " << (pokemon_id != INT_MAX ? std::to_string(pokemon_id) : "") << ", "
                   << "Type ID: " << (type_id != INT_MAX ? std::to_string(type_id) : "") << ", "
                   << "Slot: " << (slot != INT_MAX ? std::to_string(slot) : "")
                   << std::endl;
     }
 };
+
+std::vector<std::vector<std::string>> CsvFile::moves_data;
+std::vector<std::vector<std::string>> CsvFile::pokemon_data;
+std::vector<std::vector<std::string>> CsvFile::pokemon_stats_data;
+std::vector<std::vector<std::string>> CsvFile::type_names_data;
+std::vector<std::vector<std::string>> CsvFile::experience_data;
+std::vector<std::vector<std::string>> CsvFile::pokemon_species_data;
+std::vector<std::vector<std::string>> CsvFile::stats_data;
+std::vector<std::vector<std::string>> CsvFile::pokemon_types_data;
+std::vector<std::vector<std::string>> CsvFile::pokemon_moves_data;
 
 // Factory
 class CsvFileFactory
@@ -1230,55 +1249,55 @@ public:
         if (typeName == "pokemon")
         {
             auto pokemon = std::make_unique<Pokemon_csv>();
-            pokemon->parseFile(filename);
+            CsvFile::pokemon_data = pokemon->parseFile(filename);
             return pokemon;
         }
         else if (typeName == "stats")
         {
             auto s = std::make_unique<stats>();
-            s->parseFile(filename);
+            std::vector<std::vector<std::string>> stats_data = s->parseFile(filename);
             return s;
         }
         else if (typeName == "pokemon_stats")
         {
             auto pokemon_st = std::make_unique<pokemon_stats>();
-            pokemon_st->parseFile(filename);
+            CsvFile::pokemon_stats_data = pokemon_st->parseFile(filename);
             return pokemon_st;
         }
         else if (typeName == "type_names")
         {
             auto type_n = std::make_unique<type_names>();
-            type_n->parseFile(filename);
+            CsvFile::type_names_data = type_n->parseFile(filename);
             return type_n;
         }
         else if (typeName == "experience")
         {
             auto experience = std::make_unique<Experience>();
-            experience->parseFile(filename);
+            CsvFile::experience_data = experience->parseFile(filename);
             return experience;
         }
         else if (typeName == "pokemon_species")
         {
             auto pokemon_sp = std::make_unique<pokemon_species>();
-            pokemon_sp->parseFile(filename);
+            CsvFile::pokemon_species_data = pokemon_sp->parseFile(filename);
             return pokemon_sp;
         }
         else if (typeName == "pokemon_moves")
         {
             auto pokemon_m = std::make_unique<pokemon_moves>();
-            pokemon_m->parseFile(filename);
+            CsvFile::pokemon_moves_data = pokemon_m->parseFile(filename);
             return pokemon_m;
         }
         else if (typeName == "moves")
         {
             auto m = std::make_unique<moves>();
-            m->parseFile(filename);
+            CsvFile::moves_data = m->parseFile(filename);
             return m;
         }
         else if (typeName == "pokemon_types")
         {
             auto pokemon_t = std::make_unique<pokemon_types>();
-            pokemon_t->parseFile(filename);
+            CsvFile::pokemon_types_data = pokemon_t->parseFile(filename);
             return pokemon_t;
         }
         return nullptr;

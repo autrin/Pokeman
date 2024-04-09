@@ -28,6 +28,7 @@ bool is_shiny()
 }
 void Pokemons::levelUp() const
 {
+    p
 }
 int Pokemons::init_level() const // *TEST this
 {
@@ -40,3 +41,12 @@ int Pokemons::init_level() const // *TEST this
         return (world.cur_idx[dim_x] - WORLD_SIZE / 2 + world.cur_idx[dim_y] - WORLD_SIZE / 2 - 200) / 2;
     }
 }
+/*
+TODO
+gender
+IV
+leveling up
+moves
+encountering chance
+
+*/

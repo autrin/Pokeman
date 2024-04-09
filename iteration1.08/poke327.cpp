@@ -1392,7 +1392,7 @@ int main(int argc, char* argv[])
             }
         }
     }
-    return 0;
+    // return 0;
     if (do_seed)
     {
         /* Allows me to start the game more than once *
@@ -1407,8 +1407,8 @@ int main(int argc, char* argv[])
     std::string csvType = argv[1];
     std::string csvFile = csvType + ".csv";
     CsvFileFactory factory;
-    factory.createFromFile(csvType, csvFile);
-
+    std::unique_ptr<CsvFile> f = factory.createFromFile(csvType, csvFile);
+    f->print();
     io_init_terminal();
 
     init_world();
