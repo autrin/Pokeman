@@ -50,9 +50,9 @@ pair_t all_dirs[8] = {
     {1, -1},
     {1, 0},
     {1, 1},
-};
+};  
 
-static int32_t path_cmp(const void* key, const void* with)
+static  int32_t path_cmp(const void* key, const void* with)
 {
     return ((path_t*)key)->cost - ((path_t*)with)->cost;
 }

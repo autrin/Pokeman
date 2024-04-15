@@ -141,11 +141,6 @@ typedef struct path
     int32_t cost;
 } path_t;
 
-enum genders{
-    female,
-    male,
-    genderless
-};
 
 class CsvFile
 {
@@ -387,6 +382,7 @@ private:
     int stat_id;
     int base_stat;
     int effort;
+    static std::unordered_map<int, pokemon_stats> stats_map;
 
 public:
     pokemon_stats() : pokemon_id(0), stat_id(0), base_stat(0), effort(0) {}
@@ -413,6 +409,16 @@ public:
     int getEffort() const
     {
         return effort;
+    }
+        static const pokemon_stats &get_stats_by_id(int id)
+    {
+        return stats_map.at(id);
+    }
+
+    // Method to add an instance to the species map.
+    static void add_stats_instance(const pokemon_stats &s)
+    {
+        stats_map[s.getPokemonId()] = s;
     }
     std::vector<std::vector<std::string>> parseFile(const std::string &relativePath) override
     {
@@ -472,6 +478,11 @@ public:
                     std::cerr << "Error parsing line: " << line << "\nException: " << e.what() << std::endl;
                 }
                 data.push_back(tokens);
+                for (const auto &row : data)
+                {
+                    pokemon_stats s(std::stoi(row[0]), std::stoi(row[1]), std::stoi(row[2]), std::stoi(row[3]));
+                    add_stats_instance(s);
+                }
             }
         }
 
@@ -686,13 +697,16 @@ private:
     int is_mythical;
     int order;
     int conquest_order;
+    static std::unordered_map<int, pokemon_species> species_map;
 
 public:
+    std::vector<std::pair<int, int>> levelUp_move_set;
+    int baseStats[6];
     pokemon_species() : id(0), identifier(""), generation_id(0), evolves_from_species_id(0),
                         evolution_chain_id(0), color_id(0), shape_id(0), habitat_id(0), gender_rate(0),
                         capture_rate(0), base_happiness(0), is_baby(0), hatch_counter(0),
                         has_gender_differences(0), growth_rate_id(0), forms_switchable(0),
-                        is_legendary(0), is_mythical(0), order(0), conquest_order(0) {}
+                        is_legendary(0), is_mythical(0), order(0), conquest_order(0), levelUp_move_set() {}
 
     pokemon_species(int id,
                     std::string identifier,
@@ -716,7 +730,7 @@ public:
                     int conquest_order) : id(id), generation_id(generation_id), evolves_from_species_id(evolves_from_species_id), evolution_chain_id(evolution_chain_id),
                                           color_id(color_id), shape_id(shape_id), habitat_id(habitat_id), gender_rate(gender_rate), capture_rate(capture_rate), base_happiness(base_happiness),
                                           is_baby(is_baby), hatch_counter(hatch_counter), has_gender_differences(has_gender_differences), growth_rate_id(growth_rate_id), forms_switchable(forms_switchable),
-                                          is_legendary(is_legendary), is_mythical(is_mythical), order(order), conquest_order(conquest_order) {}
+                                          is_legendary(is_legendary), is_mythical(is_mythical), order(order), conquest_order(conquest_order), levelUp_move_set() {}
 
     // Getters
     int getId() const { return id; }
@@ -739,7 +753,7 @@ public:
     int getIsMythical() const { return is_mythical; }
     int getOrder() const { return order; }
     int getConquestOrder() const { return conquest_order; }
-
+    std::vector<std::pair<int, int>> getLevelUpMoveSet() const { return levelUp_move_set; }
     // Setters
     // void setId(int value) { id = value; }
     // void setIdentifier(const std::string& value) { identifier = value; }
@@ -762,6 +776,21 @@ public:
     // void setOrder(int value) { order = value; }
     // void setConquestOrder(int value) { conquest_order = value; }
 
+    // Static method to get a species by ID.
+    static const pokemon_species &get_species_by_id(int id)
+    {
+        return species_map.at(id);
+    }
+
+    // Method to add an instance to the species map.
+    static void add_species_instance(const pokemon_species &species)
+    {
+        species_map[species.getId()] = species;
+    }
+    void add_levelUp_move_set(const std::pair<int, int> &p)
+    {
+        levelUp_move_set.push_back(p);
+    }
     std::vector<std::vector<std::string>> parseFile(const std::string &relativePath) override
     {
         std::vector<std::string> basePaths = {
@@ -835,6 +864,31 @@ public:
                     std::cerr << "Error parsing line: " << line << "\nException: " << e.what() << std::endl;
                 }
                 data.push_back(tokens);
+                for (const auto &row : data)
+                {
+                    pokemon_species species(
+                        std::stoi(row[0]),
+                        row[1],
+                        std::stoi(row[2]),
+                        std::stoi(row[3]),
+                        std::stoi(row[4]),
+                        std::stoi(row[5]),
+                        std::stoi(row[6]),
+                        std::stoi(row[7]),
+                        std::stoi(row[8]),
+                        std::stoi(row[9]),
+                        std::stoi(row[10]),
+                        std::stoi(row[11]),
+                        std::stoi(row[12]),
+                        std::stoi(row[13]),
+                        std::stoi(row[14]),
+                        std::stoi(row[15]),
+                        std::stoi(row[16]),
+                        std::stoi(row[17]),
+                        std::stoi(row[18]),
+                        std::stoi(row[19]));
+                    add_species_instance(species);
+                }
             }
         }
         //  std::cout << "id: " << (getId() != INT_MAX ? std::to_string(getId()) : "") << ", "
@@ -862,7 +916,7 @@ public:
         return data;
     }
 };
-
+std::unordered_map<int, pokemon_species> pokemon_species::species_map;
 class pokemon_moves : public CsvFile
 {
 private:

@@ -20,25 +20,53 @@
 #include "poke327.h"
 #include "character.h"
 #include "io.h"
+enum p_stats
+{
+    hp,
+    attack,
+    defense,
+    special_attack,
+    special_defense,
+    speed
+};
+enum genders
+{
+    female,
+    male,
+    genderless
+};
 
 class Pokemons
 {
 private:
     int level;
     bool shiny;
-    int IV;
+    int IV[6];
     int gender;
-    std::vector<std::pair<int, int>> levelUp_set;
-    std::vector<int> moves;
+    int hp;
+    int otherStat;
+    // int whatSpecies;
+    int whatMove[4];
+    int stats[6];
 
 public:
     Pokemons();
-    Pokemons(int level, bool shiny, int gender, int IV);
-    ~Pokemons();
+    Pokemons(int level);
+    // ~Pokemons();
     void levelUp();
     int init_level() const;
     int init_gender();
-    int init_IV();
+    void init_IV();
+    const char *get_species() const;
+    int get_hp() const;
+    int get_attack() const;
+    int get_defense() const;
+    int get_secial_attack() const;
+    int get_special_defense() const;
+    int get_speed() const;
+    const char *get_gender_toString() const;
+    bool is_shiny() const;
+    const char *get_move(int i) const;
 };
 
 #endif
