@@ -15,3 +15,5 @@ Welcome to the Pokeman game, a console-based adventure where players navigate th
   NPC Interactions: Interact with various non-playable characters (NPCs) to gain tips, challenges, and rewards.
   
   Multiple Trainers: Battle against different types of trainers scattered across the map, each with unique strategies and creature teams.
+
+This project is in progress and not complete.
