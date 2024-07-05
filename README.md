@@ -1,6 +1,7 @@
 Welcome to the Pokeman game, a console-based adventure where players navigate through a dynamic world filled with creatures, trainers, and challenges! The game draws inspiration from classic RPGs and provides a rich interactive experience using terminal graphics. Engage in battles, manage resources, and explore various terrains with your team of Pokeman creatures!
 
 **Features**
+
   Dynamic World: Explore a vast world represented in a terminal interface, featuring different terrains like forests, mountains, and waters.
   
   Creature Collection: Encounter and capture a variety of creatures known as Pokemans using strategic maneuvers and Pokéballs.
