@@ -16,4 +16,4 @@ Welcome to the Pokeman game, a console-based adventure where players navigate th
   
   Multiple Trainers: Battle against different types of trainers scattered across the map, each with unique strategies and creature teams.
 
-! **This project is in progress and not complete.** !
+! **Iteration 1.09 is the final iteration.** !
